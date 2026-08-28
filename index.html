@@ -1416,7 +1416,7 @@ syncBtn.addEventListener("click", ()=>{ syncBtn.disabled=true; syncData().finall
 setInterval(syncData, REFRESH_MS);
 
 /* ---------------- Page nav ---------------- */
-const PAGES = [{id:"executive",label:"Executive Summary"},{id:"chatbots",label:"Projects"},{id:"revenue",label:"Chatbots R&M"},{id:"consumable",label:"WA_Consumables"},{id:"rcsconsumable",label:"RCS_Consumables"},{id:"clientsummary",label:"Client Summary"},{id:"vendors",label:"Vendor Performance"},{id:"forecast",label:"Forecast & Pipeline"},{id:"actions",label:"Action Centre"}];
+const PAGES = [{id:"executive",label:"Executive Summary"},{id:"chatbots",label:"Projects"},{id:"revenue",label:"Chatbots R&M"},{id:"consumable",label:"WA_Consumables"},{id:"rcsconsumable",label:"RCS_Consumables"},{id:"clientsummary",label:"Client Summary"},{id:"vendors",label:"Vendor Performance"}];
 let activePage = "executive";
 let clientSummaryOpened = false;
 const pagenav = document.getElementById("pagenav");

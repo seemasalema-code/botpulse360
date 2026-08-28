@@ -586,6 +586,9 @@
 .channel-insights{margin:16px 0}.channel-insights .insight-panel{min-height:145px}.clickable-kpi{cursor:pointer;transition:transform .18s ease,box-shadow .18s ease}.clickable-kpi:hover{transform:translateY(-2px);box-shadow:0 12px 28px -20px rgba(52,57,101,.55)}
 .channel-insights .mini-item{display:grid;grid-template-columns:minmax(150px,.8fr) minmax(0,1.2fr);gap:12px;align-items:start}.channel-insights .mini-item span{text-align:right;overflow-wrap:anywhere;line-height:1.4}
 #page-vendors .metric-grid,#page-forecast .metric-grid{margin-top:16px}.health-good{color:var(--live);font-weight:800}.health-watch{color:var(--delay);font-weight:800}.health-risk{color:#d85d69;font-weight:800}
+#page-vendors .metric-grid{grid-template-columns:repeat(5,minmax(0,1fr))}
+@media(max-width:1180px){#page-vendors .metric-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:720px){#page-vendors .metric-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:900px){.analytics-strip{grid-template-columns:1fr 1fr}}
 @media(max-width:560px){.analytics-strip{grid-template-columns:1fr}.channel-insights{grid-template-columns:1fr}.channel-insights .mini-item{grid-template-columns:1fr}.channel-insights .mini-item span{text-align:left}}
 
@@ -595,9 +598,12 @@ body{padding:0 0 70px var(--sidebar-width)}
 .hero{position:fixed;inset:0 auto 0 0;width:var(--sidebar-width);z-index:40;display:flex;flex-direction:column;overflow:hidden;background:linear-gradient(180deg,#f8faf7 0%,#f2f4f8 100%);border:0;border-right:1px solid var(--border);box-shadow:10px 0 32px rgba(31,35,70,.05)}
 .hero::before{top:auto;right:-150px;bottom:-100px;width:360px;height:360px;opacity:.5}
 header{width:100%;margin:0;padding:28px 20px 16px;display:flex;flex:0 0 auto;flex-direction:column;align-items:stretch;gap:20px}
+.sidebar-brand{display:flex;align-items:center;gap:11px}
+.brand-mark{width:38px;height:38px;display:grid;place-items:center;flex:0 0 38px;border-radius:12px;background:linear-gradient(145deg,#6454ee,#8c7cf7);color:#fff;font-size:17px;font-weight:800;box-shadow:0 9px 22px rgba(93,78,225,.25)}
+.sidebar-brand-copy{min-width:0}
 .brand-eyebrow{font-size:9px;line-height:1.45;letter-spacing:.12em;margin-bottom:8px}
 h1{font-size:24px;line-height:1.15;letter-spacing:-.025em}
-header>div:last-child{display:flex!important;flex-direction:column;align-items:stretch!important;gap:8px!important;order:3;margin-top:auto}
+.sidebar-footer{flex:0 0 auto;padding:12px 14px 20px;display:flex!important;flex-direction:column;align-items:stretch!important;gap:8px!important;border-top:1px solid rgba(217,220,235,.72)}
 .change-badge{align-self:flex-start}
 .sync-box{width:100%;padding:10px 12px;border-radius:11px;background:rgba(255,255,255,.75)}
 .sync-text{font-size:10px;line-height:1.45;overflow:hidden;text-overflow:ellipsis}
@@ -613,30 +619,35 @@ header>div:last-child{display:flex!important;flex-direction:column;align-items:s
 .sync-error-banner{position:fixed;left:calc(var(--sidebar-width) + 20px);right:20px;top:12px;z-index:60;max-width:none;margin:0;padding:0}
 main{max-width:1500px;margin:0 auto;padding:26px 30px 0;border-top:0}
 footer{max-width:1500px;margin-left:auto;margin-right:auto;padding-left:30px!important;padding-right:30px!important}
-@media(max-height:720px) and (min-width:901px){header{padding-top:20px;padding-bottom:8px;gap:10px}.brand-eyebrow{display:none}.pagenav{padding-top:4px}.pagetab{padding:8px 10px}.pagetab .nav-icon{width:24px;height:24px;flex-basis:24px}header>div:last-child{gap:6px}.sync-box{padding:7px 10px}#syncBtn,.source-data-link{min-height:32px;padding:6px 10px}}
+@media(max-height:720px) and (min-width:901px){header{padding-top:20px;padding-bottom:8px;gap:10px}.brand-eyebrow{display:none}.pagenav{padding-top:4px}.pagetab{padding:8px 10px}.pagetab .nav-icon{width:24px;height:24px;flex-basis:24px}.sidebar-footer{gap:6px;padding-bottom:12px}.sync-box{padding:7px 10px}#syncBtn,.source-data-link{min-height:32px;padding:6px 10px}}
 @media(max-width:900px){
   :root{--sidebar-width:0px}
   body{padding-left:0}
   .hero{position:relative;inset:auto;width:100%;height:auto;display:block;overflow:visible;border-right:0;border-bottom:1px solid var(--border);box-shadow:none}
   header{padding:20px 20px 12px;flex-direction:row;align-items:center}
-  header>div:last-child{width:auto;flex-direction:row;align-items:center!important;margin-left:auto}
+  .sidebar-footer{padding:10px 20px 14px;display:flex!important;flex-direction:row;align-items:center!important;border-top:0}
   .sync-box{width:auto}.source-data-link{width:auto}.change-badge{display:none!important}
   .pagenav{padding:4px 20px 12px;flex-direction:row;overflow-x:auto;gap:7px}
   .pagetab{padding:9px 12px;white-space:nowrap}.pagetab .nav-icon{width:24px;height:24px;flex-basis:24px}
   main{padding:20px 20px 0}.sync-error-banner{position:static;max-width:none;margin:12px 20px 0;padding:0}
 }
-@media(max-width:640px){header>div:last-child{width:100%;display:grid!important;grid-template-columns:1fr 1fr}.sync-box{grid-column:1/-1}.source-data-link,#syncBtn{width:100%}.brand-eyebrow{font-size:8px}h1{font-size:22px}}
+@media(max-width:640px){.sidebar-footer{width:100%;display:grid!important;grid-template-columns:1fr 1fr}.sync-box{grid-column:1/-1}.source-data-link,#syncBtn{width:100%}.brand-eyebrow{font-size:8px}h1{font-size:22px}}
 </style>
 </head>
 <body>
 
 <div class="hero">
   <header>
-    <div>
-      <div class="brand-eyebrow">NETCORE CLOUD · DELIVERY INTELLIGENCE</div>
-      <h1>Botplus 360</h1>
+    <div class="sidebar-brand">
+      <div class="brand-mark" aria-hidden="true">B</div>
+      <div class="sidebar-brand-copy">
+        <div class="brand-eyebrow">NETCORE CLOUD · INTELLIGENCE</div>
+        <h1>Botplus 360</h1>
+      </div>
     </div>
-    <div style="display:flex; align-items:center; gap:12px;">
+  </header>
+  <div class="pagenav" id="pagenav"></div>
+  <div class="sidebar-footer">
       <span class="change-badge" id="changeBadge">● updated</span>
       <div class="sync-box">
         <span class="sync-dot pulse" id="syncDot"></span>
@@ -644,10 +655,8 @@ footer{max-width:1500px;margin-left:auto;margin-right:auto;padding-left:30px!imp
       </div>
       <button id="syncBtn">Sync now</button>
       <a class="source-data-link" href="https://docs.google.com/spreadsheets/d/1xyUGn-5rwDN8l91Vw36zjYM-AsqV73ZlwJsIJtAV7b0/edit?gid=1311261314#gid=1311261314" target="_blank" rel="noopener noreferrer" aria-label="Open Botplus 360 source data in Google Sheets">View source data ↗</a>
-    </div>
-  </header>
+  </div>
   <div class="sync-error-banner" id="errorBanner"><div class="box" id="errorBox"></div></div>
-  <div class="pagenav" id="pagenav"></div>
 </div>
 
 <main>
@@ -915,7 +924,7 @@ footer{max-width:1500px;margin-left:auto;margin-right:auto;padding-left:30px!imp
     <div class="app-intro"><div><h2>Vendor Performance</h2><p>Delivery volume, live conversion, delays and profitability by implementation partner</p></div></div>
     <div class="metric-grid" id="vendorKpis"></div>
     <div class="workspace-grid" style="margin-top:18px">
-      <div class="insight-panel action-table-wrap"><table class="action-table"><thead><tr><th>Vendor</th><th>Projects</th><th>Live</th><th>Delayed</th><th>Revenue</th><th>Margin</th><th>Margin %</th><th>Health</th></tr></thead><tbody id="vendorBody"></tbody></table></div>
+      <div class="insight-panel action-table-wrap"><table class="action-table"><thead><tr><th>Vendor</th><th>Projects</th><th>In development</th><th>Live</th><th>Delayed</th><th>Revenue</th><th>Margin</th><th>Margin %</th><th>Health</th></tr></thead><tbody id="vendorBody"></tbody></table></div>
       <aside class="workspace-rail"><div class="rail-card"><h3>Vendor Watchlist</h3><p class="rail-sub">Partners requiring follow-up</p><div class="mini-list" id="vendorWatchlist"></div></div><div class="rail-card"><h3>Concentration</h3><div class="mini-list" id="vendorConcentration"></div></div></aside>
     </div>
   </section>
@@ -1066,7 +1075,7 @@ const TAB_CONSUMABLE = "Consumable"; // legacy fallback for the WA sheet
 const TAB_WA_CONSUMABLE = "WA_Consumables";
 const TAB_RCS_CONSUMABLE = "RCS_Consumables";
 const TAB_CLIENTLIST = "Client List";
-const REFRESH_MS = 60000;
+const REFRESH_MS = 5 * 60 * 1000;
 // Verified read-only snapshot from the protected Netcore workbook. GitHub Pages
 // uses this when the public Google Visualization endpoint is blocked by company
 // sharing policy, so external viewers still see the real source-sheet records.
@@ -1216,7 +1225,9 @@ function parseDate(s){
 }
 function simpleHash(str){ let h=0; for(let i=0;i<str.length;i++){ h=(h*31+str.charCodeAt(i))|0; } return h; }
 
-async function fetchSheetRows(sheetName){
+async function fetchSheetRows(sheetName, preferSnapshot=false){
+  const snapshotRows = window.EMBEDDED_SHEETS_CURRENT && window.EMBEDDED_SHEETS_CURRENT[sheetName];
+  if(preferSnapshot) return { rows:snapshotRows||[], raw:JSON.stringify(snapshotRows||[]), source:"snapshot" };
   try{
     const table = await loadSheetJSONP(sheetName);
     const rows = tableToRows(table);
@@ -1246,19 +1257,19 @@ function parseConsumableSheet(rows){
   return out;
 }
 
-async function syncData(){
+async function syncData(preferSnapshot=false){
   setSyncState("connecting");
   try{
     const [proj, rm, commercialSheet] = await Promise.all([
-      fetchSheetRows(TAB_PROJECTS), fetchSheetRows(TAB_CHATBOTRM), fetchSheetRows(TAB_COMMERCIALS)
+      fetchSheetRows(TAB_PROJECTS, preferSnapshot), fetchSheetRows(TAB_CHATBOTRM, preferSnapshot), fetchSheetRows(TAB_COMMERCIALS, preferSnapshot)
     ]);
     // Consumable / Client List are fetched separately and tolerate failure (e.g. tab renamed) —
     // a problem with either of these should not take down the core Projects/Chatbots R&M pages.
     let cons = {rows:[], raw:""}, rcsCons = {rows:[], raw:""}, clList = {rows:[], raw:""};
-    try{ cons = await fetchSheetRows(TAB_WA_CONSUMABLE); }
-    catch(e){ try{ cons = await fetchSheetRows(TAB_CONSUMABLE); }catch(e2){ console.warn("WA consumables sheet fetch failed:", e2); } }
-    try{ rcsCons = await fetchSheetRows(TAB_RCS_CONSUMABLE); }catch(e){ console.warn("RCS consumables sheet fetch failed:", e); }
-    try{ clList = await fetchSheetRows(TAB_CLIENTLIST); }catch(e){ console.warn("Client List sheet fetch failed:", e); }
+    try{ cons = await fetchSheetRows(TAB_WA_CONSUMABLE, preferSnapshot); }
+    catch(e){ try{ cons = await fetchSheetRows(TAB_CONSUMABLE, preferSnapshot); }catch(e2){ console.warn("WA consumables sheet fetch failed:", e2); } }
+    try{ rcsCons = await fetchSheetRows(TAB_RCS_CONSUMABLE, preferSnapshot); }catch(e){ console.warn("RCS consumables sheet fetch failed:", e); }
+    try{ clList = await fetchSheetRows(TAB_CLIENTLIST, preferSnapshot); }catch(e){ console.warn("Client List sheet fetch failed:", e); }
 
     const combinedHash = simpleHash(proj.raw + "||" + rm.raw + "||" + commercialSheet.raw + "||" + cons.raw + "||" + rcsCons.raw + "||" + clList.raw);
     const changed = lastCsvHash !== null && combinedHash !== lastCsvHash;
@@ -1462,7 +1473,7 @@ function showChangeBadge(changed){
   if(changed){ changeBadge.classList.add("show"); setTimeout(()=>changeBadge.classList.remove("show"), 8000); }
 }
 syncBtn.addEventListener("click", ()=>{ syncBtn.disabled=true; syncData().finally(()=>syncBtn.disabled=false); });
-setInterval(syncData, REFRESH_MS);
+setInterval(()=>syncData(false), REFRESH_MS);
 
 /* ---------------- Page nav ---------------- */
 const PAGES = [{id:"executive",label:"Executive Summary",icon:"▦"},{id:"chatbots",label:"Projects",icon:"◇"},{id:"revenue",label:"Chatbots R&M",icon:"₹"},{id:"consumable",label:"WA Consumables",icon:"W"},{id:"rcsconsumable",label:"RCS Consumables",icon:"R"},{id:"clientsummary",label:"Client Summary",icon:"◎"},{id:"vendors",label:"Vendor Performance",icon:"⌁"}];
@@ -2969,15 +2980,16 @@ function renderVendorPerformance(){
   COMMERCIALS.forEach(row=>{const key=`${row.vendor||"Unassigned"}|${row.client}|${row.chatbot||""}`;if(!latestFinancial[key]||row.dateOfLive>latestFinancial[key].dateOfLive)latestFinancial[key]=row;});
   const rows=vendors.map(vendor=>{
     const projects=PROJECTS.filter(p=>(p.vendor||"Unassigned")===vendor), live=projects.filter(p=>p.dates?.liveDate).length;
+    const development=projects.filter(p=>!p.dates?.liveDate&&/^(development|build)$/i.test(String(p.stage||""))).length;
     const delayed=projects.filter(p=>/^delayed/i.test(String(p.delayFlag||""))||(!p.dates?.liveDate&&p.dates?.targetLive&&p.dates.targetLive<new Date())).length;
     const finance=Object.values(latestFinancial).filter(r=>(r.vendor||"Unassigned")===vendor), revenue=finance.reduce((s,r)=>s+r.revenue,0), cost=finance.reduce((s,r)=>s+r.cost,0), margin=revenue-cost, marginPct=revenue?margin/revenue*100:0;
     const health=delayed===0?"Good":delayed/projects.length>.35?"At risk":"Watch";
-    return {vendor,projects:projects.length,live,delayed,revenue,cost,margin,marginPct,health};
+    return {vendor,projects:projects.length,development,live,delayed,revenue,cost,margin,marginPct,health};
   }).sort((a,b)=>b.projects-a.projects);
   const totalProjects=rows.reduce((s,r)=>s+r.projects,0), totalMargin=rows.reduce((s,r)=>s+r.margin,0), best=[...rows].sort((a,b)=>b.marginPct-a.marginPct)[0];
-  const cards=[{label:"Active vendors",value:rows.length,hint:"delivery partners"},{label:"Projects covered",value:totalProjects,hint:"all stages"},{label:"Delayed projects",value:rows.reduce((s,r)=>s+r.delayed,0),hint:"requiring follow-up"},{label:"Best margin vendor",value:best?.marginPct.toFixed(1)+"%"||"—",hint:best?.vendor||"No financial data"}];
+  const cards=[{label:"Active vendors",value:rows.length,hint:"delivery partners"},{label:"Projects covered",value:totalProjects,hint:"all stages"},{label:"In development",value:rows.reduce((s,r)=>s+r.development,0),hint:"not live yet"},{label:"Delayed projects",value:rows.reduce((s,r)=>s+r.delayed,0),hint:"requiring follow-up"},{label:"Best margin vendor",value:best?.marginPct.toFixed(1)+"%"||"—",hint:best?.vendor||"No financial data"}];
   document.getElementById("vendorKpis").innerHTML=cards.map(k=>`<div class="metric-card"><span>${k.label}</span><b>${k.value}</b><small>${k.hint}</small></div>`).join("");
-  document.getElementById("vendorBody").innerHTML=rows.map(r=>`<tr><td><b>${r.vendor}</b></td><td>${r.projects}</td><td>${r.live}</td><td>${r.delayed}</td><td>${fmtCompact(r.revenue)}</td><td>${fmtCompact(r.margin)}</td><td>${r.marginPct.toFixed(1)}%</td><td class="health-${r.health==="Good"?"good":r.health==="Watch"?"watch":"risk"}">${r.health}</td></tr>`).join("")||'<tr><td colspan="8"><div class="empty-state">No vendor data available.</div></td></tr>';
+  document.getElementById("vendorBody").innerHTML=rows.map(r=>`<tr><td><b>${r.vendor}</b></td><td>${r.projects}</td><td>${r.development}</td><td>${r.live}</td><td>${r.delayed}</td><td>${fmtCompact(r.revenue)}</td><td>${fmtCompact(r.margin)}</td><td>${r.marginPct.toFixed(1)}%</td><td class="health-${r.health==="Good"?"good":r.health==="Watch"?"watch":"risk"}">${r.health}</td></tr>`).join("")||'<tr><td colspan="9"><div class="empty-state">No vendor data available.</div></td></tr>';
   const watch=rows.filter(r=>r.delayed>0).sort((a,b)=>b.delayed-a.delayed);
   document.getElementById("vendorWatchlist").innerHTML=watch.map(r=>`<div class="mini-item"><b>${r.vendor}</b><span>${r.delayed} delayed · ${r.projects} projects</span></div>`).join("")||'<div class="empty-state">No vendor delays detected.</div>';
   document.getElementById("vendorConcentration").innerHTML=rows.slice(0,4).map(r=>`<div class="mini-item"><b>${r.vendor}</b><span>${totalProjects?(r.projects/totalProjects*100).toFixed(1):0}% of portfolio · ${fmtCompact(r.margin)} margin</span></div>`).join("");
@@ -3192,7 +3204,7 @@ initIndustryUI("Cs", csFilter, ()=>renderClientSummary());
 document.getElementById("clearConsFiltersBtn").addEventListener("click",clearConsumableFilters);
 renderAll();
 applyMonthParam();
-syncData();
+syncData(true).then(()=>setTimeout(()=>syncData(false),150));
 </script>
 </body>
 </html>

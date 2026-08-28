@@ -588,6 +588,44 @@
 #page-vendors .metric-grid,#page-forecast .metric-grid{margin-top:16px}.health-good{color:var(--live);font-weight:800}.health-watch{color:var(--delay);font-weight:800}.health-risk{color:#d85d69;font-weight:800}
 @media(max-width:900px){.analytics-strip{grid-template-columns:1fr 1fr}}
 @media(max-width:560px){.analytics-strip{grid-template-columns:1fr}.channel-insights{grid-template-columns:1fr}.channel-insights .mini-item{grid-template-columns:1fr}.channel-insights .mini-item span{text-align:left}}
+
+/* Left navigation shell */
+:root{--sidebar-width:244px}
+body{padding:0 0 70px var(--sidebar-width)}
+.hero{position:fixed;inset:0 auto 0 0;width:var(--sidebar-width);z-index:40;display:flex;flex-direction:column;overflow:hidden;background:linear-gradient(180deg,#f8faf7 0%,#f2f4f8 100%);border:0;border-right:1px solid var(--border);box-shadow:10px 0 32px rgba(31,35,70,.05)}
+.hero::before{top:auto;right:-150px;bottom:-100px;width:360px;height:360px;opacity:.5}
+header{width:100%;margin:0;padding:28px 20px 16px;display:flex;flex:0 0 auto;flex-direction:column;align-items:stretch;gap:20px}
+.brand-eyebrow{font-size:9px;line-height:1.45;letter-spacing:.12em;margin-bottom:8px}
+h1{font-size:24px;line-height:1.15;letter-spacing:-.025em}
+header>div:last-child{display:flex!important;flex-direction:column;align-items:stretch!important;gap:8px!important;order:3;margin-top:auto}
+.change-badge{align-self:flex-start}
+.sync-box{width:100%;padding:10px 12px;border-radius:11px;background:rgba(255,255,255,.75)}
+.sync-text{font-size:10px;line-height:1.45;overflow:hidden;text-overflow:ellipsis}
+#syncBtn,.source-data-link{width:100%;min-height:38px;justify-content:center;border-radius:10px;text-align:center}
+#syncBtn{order:2}
+.source-data-link{order:3;background:rgba(255,255,255,.82)}
+.pagenav{width:100%;max-width:none;margin:0;padding:8px 14px;display:flex;flex:1 1 auto;flex-direction:column;gap:5px;overflow-y:auto}
+.pagetab{top:0;margin:0;padding:11px 12px;display:flex;align-items:center;gap:11px;border:1px solid transparent;border-radius:11px;color:#68708e;font-size:12px;line-height:1.25;white-space:normal}
+.pagetab .nav-icon{width:27px;height:27px;display:grid;place-items:center;flex:0 0 27px;border-radius:8px;background:#e9ebf3;color:#68708e;font-size:12px;font-weight:800}
+.pagetab.active{color:var(--accent-dark);background:#fff;border:1px solid #e1e4ef;box-shadow:0 8px 22px rgba(38,42,80,.08)}
+.pagetab.active .nav-icon{color:#fff;background:var(--accent)}
+.pagetab:not(.active):hover{background:rgba(255,255,255,.62)}
+.sync-error-banner{position:fixed;left:calc(var(--sidebar-width) + 20px);right:20px;top:12px;z-index:60;max-width:none;margin:0;padding:0}
+main{max-width:1500px;margin:0 auto;padding:26px 30px 0;border-top:0}
+footer{max-width:1500px;margin-left:auto;margin-right:auto;padding-left:30px!important;padding-right:30px!important}
+@media(max-height:720px) and (min-width:901px){header{padding-top:20px;padding-bottom:8px;gap:10px}.brand-eyebrow{display:none}.pagenav{padding-top:4px}.pagetab{padding:8px 10px}.pagetab .nav-icon{width:24px;height:24px;flex-basis:24px}header>div:last-child{gap:6px}.sync-box{padding:7px 10px}#syncBtn,.source-data-link{min-height:32px;padding:6px 10px}}
+@media(max-width:900px){
+  :root{--sidebar-width:0px}
+  body{padding-left:0}
+  .hero{position:relative;inset:auto;width:100%;height:auto;display:block;overflow:visible;border-right:0;border-bottom:1px solid var(--border);box-shadow:none}
+  header{padding:20px 20px 12px;flex-direction:row;align-items:center}
+  header>div:last-child{width:auto;flex-direction:row;align-items:center!important;margin-left:auto}
+  .sync-box{width:auto}.source-data-link{width:auto}.change-badge{display:none!important}
+  .pagenav{padding:4px 20px 12px;flex-direction:row;overflow-x:auto;gap:7px}
+  .pagetab{padding:9px 12px;white-space:nowrap}.pagetab .nav-icon{width:24px;height:24px;flex-basis:24px}
+  main{padding:20px 20px 0}.sync-error-banner{position:static;max-width:none;margin:12px 20px 0;padding:0}
+}
+@media(max-width:640px){header>div:last-child{width:100%;display:grid!important;grid-template-columns:1fr 1fr}.sync-box{grid-column:1/-1}.source-data-link,#syncBtn{width:100%}.brand-eyebrow{font-size:8px}h1{font-size:22px}}
 </style>
 </head>
 <body>
@@ -1427,14 +1465,14 @@ syncBtn.addEventListener("click", ()=>{ syncBtn.disabled=true; syncData().finall
 setInterval(syncData, REFRESH_MS);
 
 /* ---------------- Page nav ---------------- */
-const PAGES = [{id:"executive",label:"Executive Summary"},{id:"chatbots",label:"Projects"},{id:"revenue",label:"Chatbots R&M"},{id:"consumable",label:"WA_Consumables"},{id:"rcsconsumable",label:"RCS_Consumables"},{id:"clientsummary",label:"Client Summary"},{id:"vendors",label:"Vendor Performance"}];
+const PAGES = [{id:"executive",label:"Executive Summary",icon:"▦"},{id:"chatbots",label:"Projects",icon:"◇"},{id:"revenue",label:"Chatbots R&M",icon:"₹"},{id:"consumable",label:"WA Consumables",icon:"W"},{id:"rcsconsumable",label:"RCS Consumables",icon:"R"},{id:"clientsummary",label:"Client Summary",icon:"◎"},{id:"vendors",label:"Vendor Performance",icon:"⌁"}];
 let activePage = "executive";
 let clientSummaryOpened = false;
 const pagenav = document.getElementById("pagenav");
 PAGES.forEach(p=>{
   const el=document.createElement("div");
   el.className="pagetab"+(p.id===activePage?" active":"");
-  el.textContent=p.label; el.dataset.page=p.id;
+  el.innerHTML=`<span class="nav-icon" aria-hidden="true">${p.icon}</span><span>${p.label}</span>`; el.dataset.page=p.id;
   el.addEventListener("click", ()=>{ activePage=p.id;
     if(p.id==="clientsummary" && !clientSummaryOpened){
       const now=new Date();

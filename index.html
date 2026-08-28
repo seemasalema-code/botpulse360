@@ -632,6 +632,25 @@ footer{max-width:1500px;margin-left:auto;margin-right:auto;padding-left:30px!imp
   main{padding:20px 20px 0}.sync-error-banner{position:static;max-width:none;margin:12px 20px 0;padding:0}
 }
 @media(max-width:640px){.sidebar-footer{width:100%;display:grid!important;grid-template-columns:1fr 1fr}.sync-box{grid-column:1/-1}.source-data-link,#syncBtn{width:100%}.brand-eyebrow{font-size:8px}h1{font-size:22px}}
+
+/* Pastel Emerald Operations theme — retain the existing Lexend typography */
+:root{
+  --bg:#F5F7F2;--surface:#FFFDF9;--surface-alt:#EDF3EA;--surface-tint:#E4F0E5;--border:#DCE5D9;
+  --text:#17241D;--text-dim:#637168;--text-faint:#92A097;--accent:#3B8867;--accent-dark:#286A4C;--accent-soft:#E1EFE5;
+  --teal:#4A9C83;--live:#2F8A57;--live-soft:#E2F2E7;--build:#5E86B3;--build-soft:#E8EFF6;
+  --pipe:#8376B4;--pipe-soft:#EEEAF6;--hold:#B98545;--hold-soft:#F6EEDF;--delay:#C96666;--delay-soft:#F8E7E7;
+  --cs-teal:#397F68;--cs-teal-soft:#E2F0E8;--cs-teal-border:#CDE3D5;
+}
+body{background:linear-gradient(135deg,#F7F8F3 0%,#F3F6F1 62%,#EEF5F1 100%)}
+.hero{background:linear-gradient(180deg,#EDF3EA 0%,#E6EFE8 100%);border-right-color:#D4E0D4;box-shadow:10px 0 34px rgba(36,75,53,.06)}
+.hero::before{background:radial-gradient(circle at 30% 30%,rgba(82,150,112,.18),transparent 65%),radial-gradient(circle at 70% 70%,rgba(122,169,148,.15),transparent 60%)}
+.brand-mark{background:linear-gradient(145deg,#3C8B68,#287153);box-shadow:0 9px 22px rgba(43,111,79,.22)}
+.pagetab.active{color:var(--accent-dark);border-color:#D4E1D5;box-shadow:0 8px 22px rgba(42,81,58,.08)}
+.pagetab.active .nav-icon{background:var(--accent)}
+#syncBtn{background:var(--accent)}#syncBtn:hover{background:var(--accent-dark)}
+.source-data-link{color:var(--accent-dark);border-color:#D4E1D5}
+.source-data-link:hover{border-color:var(--accent);box-shadow:0 8px 20px rgba(47,111,78,.11)}
+.metric-card,.kpi,.panel,.insight-panel,.rail-card,.timebar,.scope-strip,.pipeline-panel,.records-panel{border-color:#DCE5D9}
 </style>
 </head>
 <body>
@@ -1139,15 +1158,9 @@ let lastCsvHash = null;
 const PALETTE = ["#0FB5A6","#FB923C","#C084FC","#F472B6","#38BDF8","#A3E635"];
 const VENDOR_COLORS = {"Kevit":"#0FB5A6","LimeChat":"#FB923C","Talkk.ai":"#C084FC"};
 function vendorColor(v){ if(!VENDOR_COLORS[v]) VENDOR_COLORS[v]=PALETTE[Object.keys(VENDOR_COLORS).length % PALETTE.length]; return VENDOR_COLORS[v]; }
-const fmtINR = n => "₹" + Number(n||0).toLocaleString("en-IN");
-// Adds a "(₹X.XX Cr)" suffix to the full rupee figure — used on the Client Summary KPI cards.
-function fmtINRCr(n){
-  const v = Number(n||0);
-  if(v===0) return fmtINR(v);
-  const abs = Math.abs(v);
-  const compact = abs>=1e7 ? `₹${(v/1e7).toFixed(2)} Cr` : `₹${(v/1e5).toFixed(2)} L`;
-  return `${fmtINR(v)}<span class="cs-cr">(${compact})</span>`;
-}
+const fmtINR = n => fmtCompact(n);
+// Client Summary uses the same compact Indian notation as the rest of the console.
+function fmtINRCr(n){ return fmtCompact(n); }
 // Compact Cr/Lakh figure with no thousands grouping — used in the narrow Monthly Breakdown table
 // so columns fit without horizontal scrolling.
 function fmtCompact(n){
@@ -1260,16 +1273,14 @@ function parseConsumableSheet(rows){
 async function syncData(preferSnapshot=false){
   setSyncState("connecting");
   try{
-    const [proj, rm, commercialSheet] = await Promise.all([
-      fetchSheetRows(TAB_PROJECTS, preferSnapshot), fetchSheetRows(TAB_CHATBOTRM, preferSnapshot), fetchSheetRows(TAB_COMMERCIALS, preferSnapshot)
+    const waPromise=fetchSheetRows(TAB_WA_CONSUMABLE, preferSnapshot).catch(()=>fetchSheetRows(TAB_CONSUMABLE, preferSnapshot));
+    const rcsPromise=fetchSheetRows(TAB_RCS_CONSUMABLE, preferSnapshot).catch(e=>{console.warn("RCS consumables sheet fetch failed:",e);return {rows:[],raw:"",source:preferSnapshot?"snapshot":"live"};});
+    const [proj, rm, commercialSheet, cons, rcsCons] = await Promise.all([
+      fetchSheetRows(TAB_PROJECTS, preferSnapshot), fetchSheetRows(TAB_CHATBOTRM, preferSnapshot), fetchSheetRows(TAB_COMMERCIALS, preferSnapshot), waPromise, rcsPromise
     ]);
-    // Consumable / Client List are fetched separately and tolerate failure (e.g. tab renamed) —
-    // a problem with either of these should not take down the core Projects/Chatbots R&M pages.
-    let cons = {rows:[], raw:""}, rcsCons = {rows:[], raw:""}, clList = {rows:[], raw:""};
-    try{ cons = await fetchSheetRows(TAB_WA_CONSUMABLE, preferSnapshot); }
-    catch(e){ try{ cons = await fetchSheetRows(TAB_CONSUMABLE, preferSnapshot); }catch(e2){ console.warn("WA consumables sheet fetch failed:", e2); } }
-    try{ rcsCons = await fetchSheetRows(TAB_RCS_CONSUMABLE, preferSnapshot); }catch(e){ console.warn("RCS consumables sheet fetch failed:", e); }
-    try{ clList = await fetchSheetRows(TAB_CLIENTLIST, preferSnapshot); }catch(e){ console.warn("Client List sheet fetch failed:", e); }
+    // The current workbook has no Client List tab. Client names and industries are
+    // derived from the complete Projects, R&M, WA and RCS data pulled above.
+    const clList = {rows:[], raw:"", source:preferSnapshot?"snapshot":"live"};
 
     const combinedHash = simpleHash(proj.raw + "||" + rm.raw + "||" + commercialSheet.raw + "||" + cons.raw + "||" + rcsCons.raw + "||" + clList.raw);
     const changed = lastCsvHash !== null && combinedHash !== lastCsvHash;

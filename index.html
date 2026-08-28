@@ -529,7 +529,7 @@
   .metric-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.metric-card{appearance:none;text-align:left;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;color:inherit;font:inherit;cursor:pointer}.metric-card:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(44,34,96,.08)}.metric-label{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-faint);font-weight:700}.metric-value{font-size:27px;font-weight:700;margin-top:7px}.metric-hint{font-size:10px;color:var(--text-muted);margin-top:3px}
   .executive-section{display:none}.page.active.executive-section{display:block}.action-table-wrap{max-height:520px;overflow:auto}.action-table{width:100%;border-collapse:collapse}.action-table th,.action-table td{padding:11px 10px;border-bottom:1px solid var(--border);text-align:left;font-size:11px}.action-table td small{display:block;color:var(--text-muted);margin-top:4px}.action-table th{position:sticky;top:0;background:#F8F8FD;color:var(--text-faint);font-size:9px;text-transform:uppercase;letter-spacing:.06em}.priority-pill{display:inline-flex;border-radius:20px;padding:5px 8px;font-size:9px;font-weight:700}.priority-pill.critical{background:#FDEAEA;color:#C92323}.priority-pill.at-risk{background:#FFF1D9;color:#9A5B0B}.priority-pill.on-track{background:#E8F7EF;color:#147A45}.blocker-pill,.blocker-chip{display:inline-flex;padding:5px 8px;border-radius:20px;background:#F1EDFF;color:var(--accent-dark);font-size:9px;font-weight:600}.confidence-bar{height:7px;background:#EEF0F7;border-radius:9px;overflow:hidden;margin-top:5px}.confidence-fill{height:100%;background:linear-gradient(90deg,#18A558,#78D79D);border-radius:inherit}.confidence-fill.risk{background:linear-gradient(90deg,#E9A11A,#F2CB72)}.confidence-fill.critical{background:linear-gradient(90deg,#D52B2B,#F18D8D)}
   .operations-pulse{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.pulse-box,.pulse-card{padding:14px;border-radius:13px;background:#F8F8FD;border:1px solid var(--border);min-width:0}.pulse-card>b{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--text-faint);margin-bottom:8px}.pulse-card>strong{display:block;font-size:24px;margin-bottom:4px}.pulse-card>span{font-size:10px;color:var(--text-muted)}.pulse-box h4{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--text-faint);margin:0 0 10px}
-  .project-insights .insight-stats{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .project-insights .insight-stats{grid-template-columns:repeat(5,minmax(0,1fr))}
 
   @media(max-width:1180px){.workspace-grid{grid-template-columns:1fr}.workspace-rail{position:static;grid-template-columns:repeat(2,minmax(0,1fr))}.metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
   @media(max-width:700px){.workspace-rail{grid-template-columns:1fr}.metric-grid,.operations-pulse{grid-template-columns:1fr 1fr}.app-intro{display:grid}.app-intro h2{font-size:19px}}
@@ -576,7 +576,9 @@
 .analytics-strip{margin:16px 0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
 .rm-scope-banner{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:-5px 0 16px;padding:11px 14px;border:1px solid #dfe5f2;border-radius:12px;background:#f8faff;color:var(--text-dim);font-size:11px}.rm-scope-banner>strong{color:var(--text);font-size:12px;margin-right:3px}.rm-scope-banner .scope-pill{display:inline-flex;align-items:center;padding:5px 8px;border-radius:999px;background:#fff;border:1px solid var(--border);font-weight:700}.rm-scope-banner .scope-pill.loss{color:#c93c47;background:#fff7f7;border-color:#f4d2d5}.rm-scope-banner .scope-pill.concentration{color:#7257d8;background:#f7f4ff;border-color:#e3dafb}.rm-scope-banner .scope-message{flex-basis:100%;padding-top:9px;border-top:1px solid #e5e9f3;color:var(--text);font-weight:600;line-height:1.45}#revKpiRow{display:none!important}
 .source-data-link{display:inline-flex;align-items:center;white-space:nowrap;padding:9px 13px;border:1px solid var(--border);border-radius:10px;background:var(--surface);color:var(--accent);font-family:'Lexend',sans-serif;font-size:11px;font-weight:700;text-decoration:none;transition:border-color .18s ease,transform .18s ease,box-shadow .18s ease}.source-data-link:hover{border-color:var(--accent);transform:translateY(-1px);box-shadow:0 8px 20px rgba(87,72,170,.12)}
-.projects-command-grid{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:16px;align-items:start;margin-top:16px}.projects-main-column{display:grid;gap:16px;min-width:0}.projects-command-grid .project-insights{margin-top:0}.projects-command-grid .overview{display:grid;grid-template-columns:1fr;gap:14px;margin:0}.projects-command-grid .overview .panel{min-width:0}.projects-command-grid .donut-wrap{display:grid;justify-items:center}.projects-command-grid .legend{width:100%}.post-record-insights{margin-top:18px}.delivery-status-chips .tab{border-color:#e8dce6}.delivery-status-chips .tab[data-status-mode="delayed"]{--tab-color:#d9484f}.delivery-status-chips .tab[data-status-mode="development"]{--tab-color:#2f68da}.delivery-status-chips .tab.active{box-shadow:0 0 0 2px color-mix(in srgb,var(--tab-color) 25%,transparent)}
+.projects-command-grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:16px;align-items:start;margin-top:16px}.projects-main-column{display:grid;gap:16px;min-width:0}.projects-command-grid .project-insights{margin-top:0}.projects-command-grid .overview{display:grid;grid-template-columns:1fr;gap:14px;margin:0}.projects-command-grid .overview .panel{min-width:0}.projects-command-grid .donut-wrap{display:grid;justify-items:center}.projects-command-grid .legend{width:100%}.projects-command-grid .overview .panel:last-child{padding:18px}.projects-command-grid .overview .panel:last-child h2{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.projects-command-grid .overview .panel:last-child h2 small{max-width:145px;text-align:right;line-height:1.3}.projects-command-grid .overview #stageTabbar,.projects-command-grid .overview #typeTabbar,.projects-command-grid .overview #aiEnabledChips,.projects-command-grid .overview #deliveryStatusChips{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.projects-command-grid .overview .tab{display:flex;justify-content:space-between;align-items:center;width:100%;min-width:0;margin:0;padding:9px 11px;text-align:left}.projects-command-grid .overview .filter-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.projects-command-grid .overview .filter-label{grid-column:1/-1;margin:0 0 2px}.projects-command-grid .overview .chip{display:flex;justify-content:space-between;align-items:center;width:100%;margin:0;min-width:0}.projects-command-grid .overview .clear-filters{grid-column:1/-1;justify-self:stretch;margin-top:4px}.post-record-insights{margin-top:18px}.delivery-status-chips .tab{border-color:#e8dce6}.delivery-status-chips .tab[data-status-mode="delayed"]{--tab-color:#d9484f}.delivery-status-chips .tab[data-status-mode="development"]{--tab-color:#2f68da}.delivery-status-chips .tab.active{box-shadow:0 0 0 2px color-mix(in srgb,var(--tab-color) 25%,transparent)}
+#vendorKpis .metric-card,#forecastKpis .metric-card{display:grid;grid-template-rows:auto auto auto;align-content:start;gap:5px;min-width:0;cursor:default;overflow:hidden}#vendorKpis .metric-card:hover,#forecastKpis .metric-card:hover{transform:none;box-shadow:none}#vendorKpis .metric-card>span,#forecastKpis .metric-card>span{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.065em;color:var(--text-faint);font-weight:700;line-height:1.3}#vendorKpis .metric-card>b,#forecastKpis .metric-card>b{display:block;font-size:24px;line-height:1.15;overflow-wrap:anywhere}#vendorKpis .metric-card>small,#forecastKpis .metric-card>small{display:block;color:var(--text-muted);font-size:10px;line-height:1.35;overflow-wrap:anywhere}.forecast-mode-row{display:flex;align-items:center;justify-content:space-between;gap:14px}.forecast-mode-row h3{margin:0}
+@media(max-width:900px){.project-insights .insight-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:1120px){.projects-command-grid{grid-template-columns:1fr}.projects-command-grid .overview{grid-template-columns:1fr 1fr}}
 @media(max-width:700px){.projects-command-grid .overview{grid-template-columns:1fr}}
 .analytics-strip .signal{padding:13px 14px;border:1px solid var(--border);border-radius:12px;background:linear-gradient(145deg,#fff,#f8f9fd)}
@@ -620,7 +622,7 @@
       <div class="workspace-main">
         <div class="insight-panel"><h3>Portfolio Pulse</h3><div class="operations-pulse" id="executivePulse"></div></div>
         <div class="insight-panel"><h3>Priority Actions</h3><div class="attention-list" id="executiveActions"></div></div>
-        <div class="insight-panel"><h3>30 / 60 / 90 Day Outlook</h3><div class="pipeline-track" id="executiveOutlook"></div></div>
+        <div class="insight-panel"><h3>Weekly / Monthly Delivery Outlook</h3><div class="pipeline-track" id="executiveOutlook"></div></div>
       </div>
       <aside class="workspace-rail">
         <div class="rail-card"><h3>Owner Workload</h3><p class="rail-sub">Active and at-risk work by owner</p><div class="mini-list" id="executiveOwners"></div></div>
@@ -882,10 +884,10 @@
 
   <!-- ===================== PAGE: FORECAST & PIPELINE ===================== -->
   <section class="page executive-section" id="page-forecast">
-    <div class="app-intro"><div><h2>Forecast &amp; Pipeline</h2><p>Expected go-lives, stage conversion and revenue visibility for the next 90 days</p></div></div>
+    <div class="app-intro"><div><h2>Forecast &amp; Pipeline</h2><p>Expected go-lives and revenue visibility in weekly or monthly planning windows</p></div></div>
     <div class="metric-grid" id="forecastKpis"></div>
     <div class="workspace-grid" style="margin-top:18px">
-      <div class="workspace-main"><div class="insight-panel"><h3>30 / 60 / 90 Day Delivery Forecast</h3><div class="pipeline-track" id="forecastWindows"></div></div><div class="insight-panel action-table-wrap"><table class="action-table"><thead><tr><th>Expected date</th><th>Client / chatbot</th><th>Stage</th><th>Vendor</th><th>Expected monthly revenue</th><th>Confidence</th></tr></thead><tbody id="forecastBody"></tbody></table></div></div>
+      <div class="workspace-main"><div class="insight-panel"><div class="forecast-mode-row"><h3 id="forecastWindowTitle">Weekly Delivery Forecast</h3><div class="pipeline-view-toggle" id="forecastViewToggle"><button type="button" data-forecast-view="Weekly" class="active">Weekly</button><button type="button" data-forecast-view="Monthly">Monthly</button></div></div><div class="pipeline-track" id="forecastWindows"></div></div><div class="insight-panel action-table-wrap"><table class="action-table"><thead><tr><th>Expected date</th><th>Client / chatbot</th><th>Stage</th><th>Vendor</th><th>Expected monthly revenue</th><th>Confidence</th></tr></thead><tbody id="forecastBody"></tbody></table></div></div>
       <aside class="workspace-rail"><div class="rail-card"><h3>Pipeline by Stage</h3><div class="mini-list" id="forecastStages"></div></div><div class="rail-card"><h3>Forecast Risks</h3><div class="mini-list" id="forecastRisks"></div></div></aside>
     </div>
   </section>
@@ -1770,7 +1772,8 @@ function renderExecutive(){
   const due7=snap.upcoming.filter(p=>(p.dates.targetLive-new Date())<=7*DAY_MS).length;
   document.getElementById("executivePulse").innerHTML='<div class="pulse-card"><b>Projects requiring follow-up this week</b><strong>'+snap.followUp.length+'</strong><span>Prioritised from delay and stage aging</span></div><div class="pulse-card"><b>Upcoming milestones</b><strong>'+due7+'</strong><span>Target go-lives in the next 7 days</span></div><div class="pulse-card"><b>Commercial coverage</b><strong>'+fmtINR(revenue)+'</strong><span>Recorded Netcore revenue across projects</span></div>';
   document.getElementById("executiveActions").innerHTML=snap.followUp.length?snap.followUp.slice(0,8).map(p=>'<div class="attention-row"><span class="attention-dot"></span><div><div class="attention-name">'+safeHtml(p.chatbot||p.client)+'</div><div class="attention-meta">'+safeHtml(opsAction(p))+'</div></div><div class="attention-age">'+opsDaysInStage(p)+' days</div></div>').join(""):'<div class="insight-empty">No projects require follow-up.</div>';
-  const outlook=[30,60,90].map(days=>{const n=snap.upcoming.filter(p=>p.dates.targetLive<=new Date(Date.now()+days*DAY_MS)).length;return '<div><span>Next '+days+' days</span><b>'+n+'</b></div>';}).join("");
+  const outlookToday=new Date();outlookToday.setHours(0,0,0,0);const weekEnd=new Date(outlookToday);weekEnd.setDate(weekEnd.getDate()+6);const nextWeekEnd=new Date(outlookToday);nextWeekEnd.setDate(nextWeekEnd.getDate()+13);const monthEnd=new Date(outlookToday.getFullYear(),outlookToday.getMonth()+1,0);const nextMonthEnd=new Date(outlookToday.getFullYear(),outlookToday.getMonth()+2,0);
+  const outlook=[["This week",outlookToday,weekEnd],["Next week",new Date(weekEnd.getTime()+DAY_MS),nextWeekEnd],["This month",outlookToday,monthEnd],["Next month",new Date(monthEnd.getTime()+DAY_MS),nextMonthEnd]].map(([label,startDate,endDate])=>{const n=snap.upcoming.filter(p=>p.dates.targetLive>=startDate&&p.dates.targetLive<=endDate).length;return '<div><span>'+label+'</span><b>'+n+'</b></div>';}).join("");
   document.getElementById("executiveOutlook").innerHTML='<div class="mini-list">'+outlook+'</div>';
   document.getElementById("executiveOwners").innerHTML=rankedList(snap.owners);
   document.getElementById("executiveBlockers").innerHTML=rankedList(snap.blockers,"No blockers recorded");
@@ -1804,21 +1807,22 @@ function renderProjectInsights(inPeriod){
   const inactiveStatuses=new Set(["live","on hold","paused","lost"]);
   const normalizedStatus=p=>String(p.stage||p.status||"").trim().toLowerCase();
   const isOperational=p=>!inactiveStatuses.has(normalizedStatus(p))&&!p.excludeOperations;
-  const active=PROJECTS.filter(isOperational);
+  const scopedProjects=projectsInScope();
+  const active=scopedProjects.filter(isOperational);
   const delayed=active.filter(p=>(p.delayFlag||"").toLowerCase().startsWith("delayed"));
   const stuck=active.filter(p=>daysInStage(p)>=14&&!delayed.includes(p));
   const followUp=[...new Set([...delayed,...stuck])].sort((a,b)=>daysInStage(b)-daysInStage(a));
   const deliveryAttention=followUp.filter(p=>["development","uat"].includes(normalizedStatus(p)));
   const next30=new Date(now); next30.setDate(next30.getDate()+30);
-  const upcoming=PROJECTS.filter(p=>isOperational(p)&&normalizedStatus(p)!=="live"&&p.dates&&p.dates.targetLive&&p.dates.targetLive>=now&&p.dates.targetLive<=next30).sort((a,b)=>a.dates.targetLive-b.dates.targetLive);
-  const wentLive=PROJECTS.filter(p=>inPeriod(p.dates&&p.dates.liveDate)).length;
-  const liveInPeriod=PROJECTS.filter(p=>inPeriod(p.dates&&p.dates.liveDate));
+  const upcoming=scopedProjects.filter(p=>isOperational(p)&&normalizedStatus(p)!=="live"&&p.dates&&p.dates.targetLive&&inPeriod(p.dates.targetLive)).sort((a,b)=>a.dates.targetLive-b.dates.targetLive);
+  const wentLive=scopedProjects.filter(p=>inPeriod(p.dates&&p.dates.liveDate)).length;
+  const liveInPeriod=scopedProjects.filter(p=>inPeriod(p.dates&&p.dates.liveDate));
   const stats=[
-    ["active","Active Projects",active.length,"currently progressing"],
+    ["active","Active Projects",active.length,"in the selected period"],
     ["followup","Follow-up Required",followUp.length,"commercial, closure or delivery follow-up"],
     ["attention","Delivery Attention",deliveryAttention.length,"delayed in Development or UAT"],
     ["live","Went Live",wentLive,"in the selected period"],
-    ["upcoming","Next 30 Days",upcoming.length,"planned go-lives"]
+    ["upcoming","Planned Go-Lives",upcoming.length,"targeted in the selected period"]
   ];
   const statsEl=document.getElementById("insightStats");
   statsEl.innerHTML=stats.map(s=>'<button type="button" class="insight-stat" data-insight="'+s[0]+'" aria-pressed="false"><div class="is-label">'+s[1]+'</div><div class="is-value">'+s[2]+'</div><div class="is-hint">'+s[3]+'</div></button>').join("");
@@ -1829,24 +1833,24 @@ function renderProjectInsights(inPeriod){
   document.getElementById("milestoneList").innerHTML=upcoming.length?upcoming.slice(0,6).map(p=>{
     const d=p.dates.targetLive;
     return '<div class="milestone-row"><div class="milestone-date">'+d.toLocaleDateString("en-GB",{day:"2-digit",month:"short"})+'</div><div><div class="milestone-name">'+safe(p.chatbot||p.client)+'</div><div class="milestone-meta">Expected go-live · '+safe(p.stage)+'</div></div></div>';
-  }).join(""):'<div class="insight-empty">No planned go-lives in the next 30 days.</div>';
+  }).join(""):'<div class="insight-empty">No planned go-lives in the selected period.</div>';
   const currentPipelineSets={
-    brief:PROJECTS.filter(p=>p.stage==="Discovery"||p.stage==="Demo Bot"),
-    commercials:PROJECTS.filter(p=>p.stage==="Quotes Given"),
-    development:PROJECTS.filter(p=>p.stage==="Development"),
-    uat:PROJECTS.filter(p=>p.stage==="UAT"),
-    live:PROJECTS.filter(p=>p.stage==="Live")
+    brief:scopedProjects.filter(p=>p.stage==="Discovery"||p.stage==="Demo Bot"),
+    commercials:scopedProjects.filter(p=>p.stage==="Quotes Given"),
+    development:scopedProjects.filter(p=>p.stage==="Development"),
+    uat:scopedProjects.filter(p=>p.stage==="UAT"),
+    live:scopedProjects.filter(p=>p.stage==="Live")
   };
   const milestoneDate=(p,key)=>{
     const d=p.dates||{};
     return key==="brief"?d.brief:key==="commercials"?d.comm:key==="development"?d.dev:key==="uat"?d.test:d.liveDate;
   };
   const movementPipelineSets={
-    brief:PROJECTS.filter(p=>inPeriod(milestoneDate(p,"brief"))),
-    commercials:PROJECTS.filter(p=>inPeriod(milestoneDate(p,"commercials"))),
-    development:PROJECTS.filter(p=>inPeriod(milestoneDate(p,"development"))),
-    uat:PROJECTS.filter(p=>inPeriod(milestoneDate(p,"uat"))),
-    live:PROJECTS.filter(p=>inPeriod(milestoneDate(p,"live")))
+    brief:scopedProjects.filter(p=>inPeriod(milestoneDate(p,"brief"))),
+    commercials:scopedProjects.filter(p=>inPeriod(milestoneDate(p,"commercials"))),
+    development:scopedProjects.filter(p=>inPeriod(milestoneDate(p,"development"))),
+    uat:scopedProjects.filter(p=>inPeriod(milestoneDate(p,"uat"))),
+    live:scopedProjects.filter(p=>inPeriod(milestoneDate(p,"live")))
   };
   const currentLabels={brief:"Brief / Discovery",commercials:"Commercials",development:"Development",uat:"UAT",live:"Live"};
   const movementLabels={brief:"New Briefs",commercials:"Commercials Shared",development:"Development Started",uat:"UAT Started",live:"Went Live"};
@@ -1861,7 +1865,7 @@ function renderProjectInsights(inPeriod){
     pipelineToggle.querySelectorAll("button").forEach(item=>item.classList.toggle("active",item.dataset.pipelineView===pipelineView));
     pipelineSets=pipelineView==="movement"?movementPipelineSets:currentPipelineSets;
     pipelineLabels=pipelineView==="movement"?movementLabels:currentLabels;
-    pipelineSubtitle.textContent=pipelineView==="movement"?"Milestones reached within the selected period":"Latest stage position across the portfolio";
+    pipelineSubtitle.textContent=pipelineView==="movement"?"Milestones reached within the selected period":"Current stage of projects active in the selected period";
     pipelinePeriodNote.style.display=pipelineView==="movement"?"block":"none";
     pipelinePeriodNote.textContent=pipelineView==="movement"
       ? fmtD(selectedBounds.start)+" – "+fmtD(selectedBounds.end)+" · A project may appear in more than one milestone when it progressed through multiple stages in this period."
@@ -1883,13 +1887,13 @@ function renderProjectInsights(inPeriod){
     followup:["Projects Requiring Follow-up",followUp],
     attention:["Delivery Attention: Development / UAT",deliveryAttention],
     live:["Projects That Went Live",liveInPeriod.slice().sort((a,b)=>(b.dates.liveDate||0)-(a.dates.liveDate||0))],
-    upcoming:["Go-Lives Planned in the Next 30 Days",upcoming]
+    upcoming:["Go-Lives Planned in the Selected Period",upcoming]
   };
   const currentPipelineTitles={brief:"Brief / Discovery Projects",commercials:"Projects at Commercials",development:"Projects in Development",uat:"Projects in UAT",live:"Live Projects"};
   const movementPipelineTitles={brief:"New Briefs in the Selected Period",commercials:"Commercials Shared in the Selected Period",development:"Development Starts in the Selected Period",uat:"UAT Starts in the Selected Period",live:"Go-Lives in the Selected Period"};
   const clearPipelineSelection=()=>pipelineEl.querySelectorAll(".pipeline-step").forEach(item=>{item.classList.remove("is-selected");item.setAttribute("aria-pressed","false")});
   const {start:focusStart,end:focusEnd}=periodBounds(timeChat);
-  const selectedPeriodProjects=PROJECTS.filter(p=>projectMatchesTime(p,timeChat,focusStart,focusEnd));
+  const selectedPeriodProjects=scopedProjects;
   const defaultFocus=selectedPeriodProjects.slice().sort((a,b)=>daysInStage(b)-daysInStage(a));
   const selectRecords=(kind,key,title,projects)=>{
     const same=projectInsightSelection&&projectInsightSelection.kind===kind&&projectInsightSelection.key===key&&projectInsightSelection.view===pipelineView;
@@ -1968,6 +1972,7 @@ function renderChatbots(){
     {l:"Went Live", key:"liveDate", n:PROJECTS.filter(p=>inPeriod(p.dates.liveDate)).length},
   ];
   const psEl = document.getElementById("periodStats"); psEl.innerHTML="";
+  psEl.title="Milestone activity in the selected period. A project can appear in more than one milestone if it progressed through multiple stages.";
   pstats.forEach(s=>{ const d=document.createElement("div"); d.className="pstat"+(filters.milestone===s.key?" active":""); d.title="Show related projects"; d.innerHTML=`<div class="pn">${s.n}</div><div class="pl">${s.l}</div>`; d.addEventListener("click",()=>{filters.focusProjects=null;projectInsightSelection=null;filters.milestone=filters.milestone===s.key?null:s.key; filters.delayedOnly=false; filters.deliveryStatus=null; filters.stage="All"; filters.type="All"; filters.vendor=null; filters.aiEnabled="All"; renderChatbots(); setTimeout(focusRecords,0);}); psEl.appendChild(d); });
 
   renderProjectInsights(inPeriod);
@@ -2044,8 +2049,7 @@ function renderChatbots(){
   // This makes an August delay view answer "what was delayed in August?" rather than
   // showing only projects that happen to be delayed today.
   const {end:statusAsOf}=periodBounds(timeChat);
-  const statusScope=PROJECTS.filter(p=>projectExistsAsOf(p,statusAsOf)&&
-    (filters.industries.size===0||filters.industries.has(industryOf(p)))&&
+  const statusScope=scoped.filter(p=>projectExistsAsOf(p,statusAsOf)&&
     (filters.stage==="All"||p.stage===filters.stage)&&
     (filters.type==="All"||p.type===filters.type)&&
     (!filters.vendor||p.vendor===filters.vendor)&&
@@ -2905,20 +2909,30 @@ function renderVendorPerformance(){
   document.getElementById("vendorConcentration").innerHTML=rows.slice(0,4).map(r=>`<div class="mini-item"><b>${r.vendor}</b><span>${totalProjects?(r.projects/totalProjects*100).toFixed(1):0}% of portfolio · ${fmtCompact(r.margin)} margin</span></div>`).join("");
 }
 
+let forecastView="Weekly";
 function renderForecast(){
-  const today=new Date();today.setHours(0,0,0,0);const end90=new Date(today);end90.setDate(end90.getDate()+90);
+  const today=new Date();today.setHours(0,0,0,0);
+  const weekly=forecastView==="Weekly",horizonEnd=weekly?new Date(today.getTime()+27*DAY_MS):new Date(today.getFullYear(),today.getMonth()+3,0);
   const latestByProject={};COMMERCIALS.forEach(row=>{const key=row.chatbot||row.client;if(!latestByProject[key]||row.dateOfLive>latestByProject[key].dateOfLive)latestByProject[key]=row;});
-  const forecast=PROJECTS.filter(p=>!p.dates?.liveDate&&p.dates?.targetLive&&p.dates.targetLive>=today&&p.dates.targetLive<=end90).map(p=>{
-    const financial=latestByProject[p.chatbot]||latestByProject[p.client], days=Math.ceil((p.dates.targetLive-today)/86400000), confidence=p.stage==="UAT"?85:p.stage==="Build"?70:p.stage==="Quotes Given"?50:35;
+  const forecast=PROJECTS.filter(p=>!p.dates?.liveDate&&p.dates?.targetLive&&p.dates.targetLive>=today&&p.dates.targetLive<=horizonEnd).map(p=>{
+    const financial=latestByProject[p.chatbot]||latestByProject[p.client],days=Math.ceil((p.dates.targetLive-today)/DAY_MS),stage=String(p.stage||"").toLowerCase(),confidence=stage==="uat"?85:stage==="development"||stage==="build"?70:stage==="quotes given"?50:35;
     return {p,days,revenue:financial?.revenue||0,confidence};
   }).sort((a,b)=>a.days-b.days);
-  const windowOf=days=>days<=30?"30 days":days<=60?"60 days":"90 days",windows=[30,60,90].map(limit=>({limit,rows:forecast.filter(r=>r.days<=limit&&(limit===30||r.days>limit-30))}));
-  const weightedRevenue=forecast.reduce((s,r)=>s+r.revenue*r.confidence/100,0), stages={};forecast.forEach(r=>stages[r.p.stage]=(stages[r.p.stage]||0)+1);
-  document.getElementById("forecastKpis").innerHTML=[{label:"Expected go-lives",value:forecast.length,hint:"next 90 days"},{label:"Weighted monthly revenue",value:fmtCompact(weightedRevenue),hint:"confidence adjusted"},{label:"30-day pipeline",value:forecast.filter(r=>r.days<=30).length,hint:"nearest delivery window"},{label:"At-risk dates",value:forecast.filter(r=>r.confidence<50).length,hint:"confidence below 50%"}].map(k=>`<div class="metric-card"><span>${k.label}</span><b>${k.value}</b><small>${k.hint}</small></div>`).join("");
-  document.getElementById("forecastWindows").innerHTML=windows.map(w=>`<div class="pipeline-step"><b>${w.limit} days</b><span>${w.rows.length} expected go-live${w.rows.length===1?"":"s"}</span><small>${fmtCompact(w.rows.reduce((s,r)=>s+r.revenue,0))} monthly revenue</small></div>`).join("");
-  document.getElementById("forecastBody").innerHTML=forecast.map(r=>`<tr><td>${fmtD(r.p.dates.targetLive)}</td><td><b>${r.p.client}</b><small>${r.p.chatbot}</small></td><td>${r.p.stage}</td><td>${r.p.vendor||"Unassigned"}</td><td>${fmtCompact(r.revenue)}</td><td>${r.confidence}%</td></tr>`).join("")||'<tr><td colspan="6"><div class="empty-state">No target go-lives fall in the next 90 days.</div></td></tr>';
+  const windows=[];
+  if(weekly){
+    for(let i=0;i<4;i++){const start=new Date(today.getTime()+i*7*DAY_MS),end=new Date(start.getTime()+6*DAY_MS);windows.push({label:i===0?"This week":"Week "+(i+1),range:fmtD(start)+" – "+fmtD(end),rows:forecast.filter(r=>r.p.dates.targetLive>=start&&r.p.dates.targetLive<=end)});}
+  }else{
+    for(let i=0;i<3;i++){const start=new Date(today.getFullYear(),today.getMonth()+i,1),end=new Date(today.getFullYear(),today.getMonth()+i+1,0);windows.push({label:start.toLocaleDateString("en-GB",{month:"short",year:"numeric"}),range:"Monthly plan",rows:forecast.filter(r=>r.p.dates.targetLive>=start&&r.p.dates.targetLive<=end)});}
+  }
+  const weightedRevenue=forecast.reduce((s,r)=>s+r.revenue*r.confidence/100,0),stages={};forecast.forEach(r=>stages[r.p.stage]=(stages[r.p.stage]||0)+1);
+  const nearest=windows[0]?.rows||[],periodHint=weekly?"next 4 weeks":"next 3 months";
+  document.getElementById("forecastKpis").innerHTML=[{label:"Expected go-lives",value:forecast.length,hint:periodHint},{label:"Weighted monthly revenue",value:fmtCompact(weightedRevenue),hint:"confidence adjusted"},{label:weekly?"This-week pipeline":"This-month pipeline",value:nearest.length,hint:"nearest delivery window"},{label:"At-risk dates",value:forecast.filter(r=>r.confidence<50).length,hint:"confidence below 50%"}].map(k=>`<div class="metric-card"><span>${k.label}</span><b>${k.value}</b><small>${k.hint}</small></div>`).join("");
+  document.getElementById("forecastWindowTitle").textContent=(weekly?"Weekly":"Monthly")+" Delivery Forecast";
+  document.querySelectorAll("#forecastViewToggle button").forEach(btn=>{btn.classList.toggle("active",btn.dataset.forecastView===forecastView);btn.onclick=()=>{forecastView=btn.dataset.forecastView;renderForecast();};});
+  document.getElementById("forecastWindows").innerHTML=windows.map(w=>`<div class="pipeline-step"><b>${w.label}</b><span>${w.rows.length} expected go-live${w.rows.length===1?"":"s"}</span><small>${w.range} · ${fmtCompact(w.rows.reduce((s,r)=>s+r.revenue,0))}</small></div>`).join("");
+  document.getElementById("forecastBody").innerHTML=forecast.map(r=>`<tr><td>${fmtD(r.p.dates.targetLive)}</td><td><b>${r.p.client}</b><small>${r.p.chatbot}</small></td><td>${r.p.stage}</td><td>${r.p.vendor||"Unassigned"}</td><td>${fmtCompact(r.revenue)}</td><td>${r.confidence}%</td></tr>`).join("")||`<tr><td colspan="6"><div class="empty-state">No target go-lives fall in the ${periodHint}.</div></td></tr>`;
   document.getElementById("forecastStages").innerHTML=Object.entries(stages).sort((a,b)=>b[1]-a[1]).map(([stage,count])=>`<div class="mini-item"><b>${stage}</b><span>${count} forecast project${count===1?"":"s"}</span></div>`).join("")||'<div class="empty-state">No forecast-stage data.</div>';
-  document.getElementById("forecastRisks").innerHTML=forecast.filter(r=>r.confidence<60).map(r=>`<div class="mini-item"><b>${r.p.chatbot}</b><span>${r.confidence}% confidence · ${windowOf(r.days)}</span></div>`).join("")||'<div class="empty-state">No material forecast risks.</div>';
+  document.getElementById("forecastRisks").innerHTML=forecast.filter(r=>r.confidence<60).map(r=>`<div class="mini-item"><b>${r.p.chatbot}</b><span>${r.confidence}% confidence · ${weekly?"week "+(Math.floor(r.days/7)+1):r.p.dates.targetLive.toLocaleDateString("en-GB",{month:"short"})}</span></div>`).join("")||'<div class="empty-state">No material forecast risks.</div>';
 }
 
 function renderAll(){

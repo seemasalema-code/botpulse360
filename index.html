@@ -2077,6 +2077,17 @@ function renderChatbots(){
   refreshYearMonthUI("Chat", timeChat);
   refreshIndustryUI("Chat", filters, ()=>renderChatbots());
   const {start,end} = periodBounds(timeChat);
+  // Delay metrics must use the selected reporting date, capped at today.
+  // Keeping this in renderChatbots makes the same cutoff available to the
+  // weekly summary and the project-record table below it.
+  const todayCutoff=new Date(); todayCutoff.setHours(0,0,0,0);
+  const selectedCutoff=new Date(timeChat.asOf); selectedCutoff.setHours(0,0,0,0);
+  const periodCutoff=new Date(end); periodCutoff.setHours(0,0,0,0);
+  const delayCutoff=new Date(Math.min(
+    todayCutoff.getTime(),
+    periodCutoff.getTime(),
+    (timeChat.view==="Year"||timeChat.view==="Monthly") ? selectedCutoff.getTime() : periodCutoff.getTime()
+  ));
   document.getElementById("periodLabel").textContent = (timeChat.view==="Year" || timeChat.view==="Monthly")
     ? (timeChat.year==="All" ? "All years" : `FY ${timeChat.year}-${String(+timeChat.year+1).slice(-2)}`) + " · " + monthBtnLabel(timeChat)
     : fmtD(start) + (timeChat.view==="Daily" ? "" : " – " + fmtD(end));

@@ -972,8 +972,8 @@ body{background:linear-gradient(135deg,#F7F8F3 0%,#F3F6F1 62%,#EEF5F1 100%)}
     <div class="app-intro"><div><h2>Combined Revenue Forecast</h2><p>Live chatbot run-rate plus the trailing 3-month WhatsApp and RCS consumption average</p></div></div>
     <div class="metric-grid" id="forecastKpis"></div>
     <div class="workspace-grid" style="margin-top:18px">
-      <div class="workspace-main"><div class="insight-panel"><div class="forecast-mode-row"><h3 id="forecastWindowTitle">Monthly Financial Forecast</h3><div class="pipeline-view-toggle" id="forecastViewToggle"><button type="button" data-forecast-view="3" class="active">3 months</button><button type="button" data-forecast-view="6">6 months</button></div></div><div class="pipeline-track" id="forecastWindows"></div></div><div class="insight-panel action-table-wrap"><table class="action-table"><thead><tr><th>Month</th><th>Client / chatbot</th><th>Vendor</th><th>Type</th><th>Revenue</th><th>Cost</th><th>Margin</th></tr></thead><tbody id="forecastBody"></tbody></table></div></div>
-      <aside class="workspace-rail"><div class="rail-card"><h3>Forecast by Vendor</h3><div class="mini-list" id="forecastStages"></div></div><div class="rail-card"><h3>Margin Watchlist</h3><div class="mini-list" id="forecastRisks"></div></div></aside>
+      <div class="workspace-main"><div class="insight-panel"><div class="forecast-mode-row"><h3 id="forecastWindowTitle">Monthly Revenue Forecast</h3><div class="pipeline-view-toggle" id="forecastViewToggle"><button type="button" data-forecast-view="3" class="active">3 months</button><button type="button" data-forecast-view="6">6 months</button></div></div><div class="pipeline-track" id="forecastWindows"></div></div><div class="insight-panel action-table-wrap"><table class="action-table"><thead><tr><th>Month</th><th>Chatbot</th><th>WA consumables</th><th>RCS consumables</th><th>Projected</th><th>Achieved</th><th>Remaining</th></tr></thead><tbody id="forecastBody"></tbody></table></div></div>
+      <aside class="workspace-rail"><div class="rail-card"><h3>Projected by Revenue Stream</h3><div class="mini-list" id="forecastStages"></div></div><div class="rail-card"><h3>Projected vs Achieved</h3><div class="mini-list" id="forecastRisks"></div></div></aside>
     </div>
   </section>
 
@@ -3015,30 +3015,46 @@ let forecastView="3";
 function renderForecast(){
   const today=new Date(), horizon=Number(forecastView), horizonEnd=new Date(today.getFullYear(),today.getMonth()+horizon+1,0);
   const fKey=s=>String(s||"").toLowerCase().replace(/[^a-z0-9]+/g,"");
+  const projectKey=(client,chatbot)=>fKey(client)+"|"+fKey(chatbot);
   const futureMonths=Array.from({length:horizon},(_,i)=>new Date(today.getFullYear(),today.getMonth()+i+1,1));
   const latestActual=new Map(),explicitFuture=new Map();
-  COMMERCIALS.forEach(r=>{const key=fKey(r.chatbot),old=latestActual.get(key);if(key&&(!old||r.dateOfLive>old.dateOfLive))latestActual.set(key,r);});
-  FORECAST_COMMERCIALS.filter(r=>r.dateOfLive<=horizonEnd).forEach(r=>explicitFuture.set(fKey(r.chatbot)+"|"+monthKey(r.dateOfLive),r));
-  const forecast=[];
+  COMMERCIALS.forEach(r=>{const key=projectKey(r.client,r.chatbot),old=latestActual.get(key);if(key!=="|"&&(!old||r.dateOfLive>old.dateOfLive))latestActual.set(key,r);});
+  FORECAST_COMMERCIALS.filter(r=>r.dateOfLive<=horizonEnd).forEach(r=>explicitFuture.set(projectKey(r.client,r.chatbot)+"|"+monthKey(r.dateOfLive),r));
+
+  const chatbotByMonth=new Map();
   PROJECTS.filter(p=>String(p.stage||"").toLowerCase()==="live").forEach(p=>{
-    const key=fKey(p.chatbot),run=latestActual.get(key);if(!run)return;
-    futureMonths.forEach(month=>{const explicit=explicitFuture.get(key+"|"+monthKey(month));forecast.push(explicit||{...run,dateOfLive:month,margin:run.revenue-run.cost,periodType:"Forecast",forecastBasis:"Latest live Chatbot R&M month"});});
+    const key=projectKey(p.client,p.chatbot),run=latestActual.get(key);if(!run)return;
+    futureMonths.forEach(month=>{
+      const explicit=explicitFuture.get(key+"|"+monthKey(month)),row=explicit||run,mk=monthKey(month);
+      const total=chatbotByMonth.get(mk)||{revenue:0,cost:0};total.revenue+=row.revenue;total.cost+=row.cost;chatbotByMonth.set(mk,total);
+    });
   });
-  const addUsageRunRate=(rows,channel)=>{
-    const byClient=new Map();rows.filter(r=>r.month&&r.month>=REPORTING_START).forEach(r=>{const list=byClient.get(r.client)||[];list.push(r);byClient.set(r.client,list);});
-    byClient.forEach((rows,client)=>{const last3=rows.sort((a,b)=>b.month-a.month).slice(0,3);if(!last3.length)return;const revenue=last3.reduce((s,r)=>s+r.revenue,0)/last3.length,cost=last3.reduce((s,r)=>s+r.cost,0)/last3.length;futureMonths.forEach(month=>forecast.push({client,chatbot:`${channel} consumption run-rate`,vendor:"Consumables",dateOfLive:month,revenue,cost,margin:revenue-cost,periodType:"Forecast",forecastBasis:"Trailing 3-month average"}));});
+  const streamRunRate=rows=>{
+    const monthly=new Map();
+    rows.filter(r=>r.month&&r.month>=REPORTING_START&&r.month<=today).forEach(r=>{const mk=monthKey(r.month),x=monthly.get(mk)||{revenue:0,cost:0};x.revenue+=r.revenue;x.cost+=r.cost;monthly.set(mk,x);});
+    const recent=[...monthly.entries()].sort((a,b)=>b[0].localeCompare(a[0])).slice(0,3).map(x=>x[1]);
+    return recent.length?{revenue:recent.reduce((s,r)=>s+r.revenue,0)/recent.length,cost:recent.reduce((s,r)=>s+r.cost,0)/recent.length}:{revenue:0,cost:0};
   };
-  addUsageRunRate(CONSUMABLE,"WhatsApp");addUsageRunRate(RCS_CONSUMABLE,"RCS");
-  forecast.sort((a,b)=>a.dateOfLive-b.dateOfLive||a.client.localeCompare(b.client));
-  const windows=[];for(let i=1;i<=horizon;i++){const start=new Date(today.getFullYear(),today.getMonth()+i,1),key=monthKey(start),rows=forecast.filter(r=>monthKey(r.dateOfLive)===key);windows.push({label:start.toLocaleDateString("en-GB",{month:"short",year:"numeric"}),rows,revenue:rows.reduce((s,r)=>s+r.revenue,0),cost:rows.reduce((s,r)=>s+r.cost,0)});}
-  const revenue=forecast.reduce((s,r)=>s+r.revenue,0),cost=forecast.reduce((s,r)=>s+r.cost,0),margin=revenue-cost,vendors={};forecast.forEach(r=>{const v=vendors[r.vendor]||(vendors[r.vendor]={revenue:0,cost:0});v.revenue+=r.revenue;v.cost+=r.cost;});
-  document.getElementById("forecastKpis").innerHTML=[{label:"Forecast revenue",value:fmtCompact(revenue),hint:`chatbots + consumables · ${horizon} months`},{label:"Forecast cost",value:fmtCompact(cost),hint:"combined delivery cost"},{label:"Forecast margin",value:fmtCompact(margin),hint:revenue?(margin/revenue*100).toFixed(1)+"% margin":"—"},{label:"Live chatbots",value:new Set(forecast.filter(r=>r.vendor!=="Consumables").map(r=>r.chatbot)).size,hint:"using latest R&M run-rate"}].map(k=>`<div class="metric-card"><span>${k.label}</span><b>${k.value}</b><small>${k.hint}</small></div>`).join("");
-  document.getElementById("forecastWindowTitle").textContent="Monthly Combined Forecast";
+  const waRun=streamRunRate(CONSUMABLE),rcsRun=streamRunRate(RCS_CONSUMABLE);
+  const windows=futureMonths.map(month=>{const chatbot=chatbotByMonth.get(monthKey(month))||{revenue:0,cost:0};const revenue=chatbot.revenue+waRun.revenue+rcsRun.revenue,cost=chatbot.cost+waRun.cost+rcsRun.cost;return {month,label:month.toLocaleDateString("en-GB",{month:"short",year:"numeric"}),chatbot:chatbot.revenue,wa:waRun.revenue,rcs:rcsRun.revenue,revenue,cost,margin:revenue-cost};});
+  const sum=(rows,field)=>rows.reduce((s,r)=>s+(Number(r[field])||0),0);
+  const actualChatbot=COMMERCIALS.filter(r=>r.dateOfLive>=REPORTING_START&&r.dateOfLive<=today).reduce((s,r)=>s+r.revenue,0);
+  const actualWa=CONSUMABLE.filter(r=>r.month>=REPORTING_START&&r.month<=today).reduce((s,r)=>s+r.revenue,0);
+  const actualRcs=RCS_CONSUMABLE.filter(r=>r.month>=REPORTING_START&&r.month<=today).reduce((s,r)=>s+r.revenue,0);
+  const achieved=actualChatbot+actualWa+actualRcs,remaining=sum(windows,"revenue"),projected=achieved+remaining,achievementPct=projected?achieved/projected*100:0;
+  document.getElementById("forecastKpis").innerHTML=[
+    {label:"Projected revenue",value:fmtCompact(projected),hint:`achieved + next ${horizon} months`},
+    {label:"Achieved",value:fmtCompact(achieved),hint:`${achievementPct.toFixed(1)}% of projected`},
+    {label:"Remaining to achieve",value:fmtCompact(remaining),hint:`next ${horizon} months`},
+    {label:"Achievement",value:achievementPct.toFixed(1)+"%",hint:`${fmtCompact(achieved)} achieved vs ${fmtCompact(projected)} projected`}
+  ].map(k=>`<div class="metric-card"><span>${k.label}</span><b>${k.value}</b><small>${k.hint}</small></div>`).join("");
+  document.getElementById("forecastWindowTitle").textContent="Monthly Forecast by Revenue Stream";
   document.querySelectorAll("#forecastViewToggle button").forEach(btn=>{btn.classList.toggle("active",btn.dataset.forecastView===forecastView);btn.onclick=()=>{forecastView=btn.dataset.forecastView;renderForecast();};});
-  document.getElementById("forecastWindows").innerHTML=windows.map(w=>`<div class="pipeline-step"><b>${w.label}</b><span>${fmtCompact(w.revenue)} revenue</span><small>${fmtCompact(w.cost)} cost · ${fmtCompact(w.revenue-w.cost)} margin</small></div>`).join("");
-  document.getElementById("forecastBody").innerHTML=forecast.map(r=>`<tr><td>${r.dateOfLive.toLocaleDateString("en-GB",{month:"short",year:"numeric"})}</td><td><b>${r.client}</b><small>${r.chatbot}</small></td><td>${r.vendor||"Unassigned"}</td><td><span class="stage">Forecast</span><small>${r.forecastBasis||"Chatbot R&M"}</small></td><td>${fmtCompact(r.revenue)}</td><td>${fmtCompact(r.cost)}</td><td class="${r.margin<0?'c360-margin-negative':'c360-margin-positive'}"><b>${fmtCompact(r.margin)}</b></td></tr>`).join("")||`<tr><td colspan="7"><div class="empty-state">No forecast baseline is available. Add a live Chatbot R&amp;M month or WA/RCS consumption history.</div></td></tr>`;
-  document.getElementById("forecastStages").innerHTML=Object.entries(vendors).sort((a,b)=>b[1].revenue-a[1].revenue).map(([vendor,v])=>`<div class="mini-item"><b>${vendor}</b><span>${fmtCompact(v.revenue)} revenue · ${fmtCompact(v.revenue-v.cost)} margin</span></div>`).join("")||'<div class="empty-state">No vendor forecast data.</div>';
-  document.getElementById("forecastRisks").innerHTML=forecast.filter(r=>r.margin<0).map(r=>`<div class="mini-item"><b>${r.chatbot}</b><span>${r.dateOfLive.toLocaleDateString("en-GB",{month:"short"})} · ${fmtCompact(r.margin)} margin</span></div>`).join("")||'<div class="empty-state">No negative forecast margins.</div>';
+  document.getElementById("forecastWindows").innerHTML=windows.map(w=>`<div class="pipeline-step"><b>${w.label}</b><span>${fmtCompact(w.revenue)} projected</span><small>${fmtCompact(w.chatbot)} chatbot · ${fmtCompact(w.wa)} WA · ${fmtCompact(w.rcs)} RCS</small></div>`).join("");
+  document.getElementById("forecastBody").innerHTML=windows.map(w=>`<tr><td><b>${w.label}</b></td><td>${fmtCompact(w.chatbot)}</td><td>${fmtCompact(w.wa)}</td><td>${fmtCompact(w.rcs)}</td><td><b>${fmtCompact(w.revenue)}</b></td><td>${fmtCompact(0)}</td><td><b>${fmtCompact(w.revenue)}</b></td></tr>`).join("")||`<tr><td colspan="7"><div class="empty-state">No forecast baseline is available. Add live Chatbot R&amp;M or WA/RCS consumption history.</div></td></tr>`;
+  const streams=[{name:"Chatbot",actual:actualChatbot,future:sum(windows,"chatbot")},{name:"WA consumables",actual:actualWa,future:sum(windows,"wa")},{name:"RCS consumables",actual:actualRcs,future:sum(windows,"rcs")}];
+  document.getElementById("forecastStages").innerHTML=streams.map(s=>`<div class="mini-item"><b>${s.name}</b><span>${fmtCompact(s.actual+s.future)} projected · ${fmtCompact(s.actual)} achieved</span></div>`).join("");
+  document.getElementById("forecastRisks").innerHTML=`<div class="mini-item"><b>${achievementPct.toFixed(1)}% achieved</b><span>${fmtCompact(achieved)} of ${fmtCompact(projected)}</span></div><div class="mini-item"><b>${fmtCompact(remaining)} remaining</b><span>Projected over the next ${horizon} months</span></div>`;
 }
 
 let c360Scope="all", c360Selected=null;

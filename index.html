@@ -1376,7 +1376,7 @@ async function syncData(preferSnapshot=false){
     }
 
     const normalizeHeader=value=>String(value||"").trim().toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
-    const rmHeaderIdx = rmRows.findIndex(r => r.some(v=>normalizeHeader(v)==="chatbot") && r.some(v=>normalizeHeader(v)==="month"));
+    const rmHeaderIdx = rmRows.findIndex(r => r.some(v=>normalizeHeader(v)==="chatbot") && (r.some(v=>normalizeHeader(v)==="month") || (r.some(v=>normalizeHeader(v)==="client")&&r.some(v=>normalizeHeader(v)==="vendor"))));
     const newCommercials = [], newForecastCommercials = [];
     // Chatbot R&M is the sole chatbot revenue and cost ledger. Every field is
     // resolved by its header label so inserted or reordered columns remain safe.
@@ -1385,22 +1385,25 @@ async function syncData(preferSnapshot=false){
       // total, base-quantity and component columns so future insertions do not
       // silently shift the financial calculations.
       const rmHeaderRow = rmRows[rmHeaderIdx];
-      const findRmCol=names=>{const wanted=names.map(normalizeHeader);return rmHeaderRow.findIndex(h=>wanted.includes(normalizeHeader(h)));};
-      const kClient=findRmCol(["Client"]), kChatbot=findRmCol(["Chatbot","Project","Project Name"]),
-            kVendor=findRmCol(["Vendor"]), kMonth=findRmCol(["Month","Billing Month","Revenue Month"]),
-            kCost=findRmCol(["Total Cost","Total Cost Vendor","Total Vendor Cost","Vendor Cost","Cost"]),
-            kRev=findRmCol(["Total Revenue","Total Revenue Netcore","Total Netcore Revenue","Monthly Revenue","Revenue"]),
-            kMargin=findRmCol(["Margin"]);
-      const kAiQty=findRmCol(["Netcore AI Base (Monthly Editable)","Vendor AI Base (Monthly Editable)","AI Session Qty"]),
-            kBotQty=findRmCol(["Netcore Bot Base (Monthly Editable)","Vendor Bot Base (Monthly Editable)","Bot Sessions","Bot Session Qty"]),
-            kAgentQty=findRmCol(["Netcore Agent Base (Monthly Editable)","Vendor Agent Base (Monthly Editable)","Agents Qty","Agent Qty"]),
-            kConvQty=findRmCol(["Netcore Conversation Base (Monthly Editable)","Vendor Conversation Base (Monthly Editable)","Conversation Qty"]),
-            kVendorDev=findRmCol(["Vendor Dev Cost"]), kVendorRental=findRmCol(["Vendor Monthly Rental"]),
-            kVendorAi=findRmCol(["Vendor AI Session Cost"]), kVendorBot=findRmCol(["Vendor Bot Session Cost"]),
-            kVendorAgent=findRmCol(["Vendor Agent Cost"]), kVendorConv=findRmCol(["Vendor Conversation Cost"]),
-            kNetcoreDev=findRmCol(["Netcore Dev Revenue"]), kNetcoreRental=findRmCol(["Netcore Monthly Rental"]),
-            kNetcoreAi=findRmCol(["Netcore AI Session Revenue"]), kNetcoreBot=findRmCol(["Netcore Bot Session Revenue"]),
-            kNetcoreAgent=findRmCol(["Netcore Agent Revenue"]), kNetcoreConv=findRmCol(["Netcore Conversation Revenue"]);
+      const findRmCol=(names,fallback)=>{const wanted=names.map(normalizeHeader),found=rmHeaderRow.findIndex(h=>wanted.includes(normalizeHeader(h)));return found>-1?found:fallback;};
+      // GViz suppresses string labels in columns whose data type is numeric or
+      // date. Named headers remain authoritative; the verified ledger positions
+      // below are used only when the public feed omits those labels.
+      const kClient=findRmCol(["Client"],0), kChatbot=findRmCol(["Chatbot","Project","Project Name"],1),
+            kVendor=findRmCol(["Vendor"],2), kMonth=findRmCol(["Month","Billing Month","Revenue Month"],3),
+            kCost=findRmCol(["Total Cost","Total Cost Vendor","Total Vendor Cost","Vendor Cost","Cost"],19),
+            kRev=findRmCol(["Total Revenue","Total Revenue Netcore","Total Netcore Revenue","Monthly Revenue","Revenue"],34),
+            kMargin=findRmCol(["Margin"],35);
+      const kAiQty=findRmCol(["Netcore AI Base (Monthly Editable)","Vendor AI Base (Monthly Editable)","AI Session Qty"],23),
+            kBotQty=findRmCol(["Netcore Bot Base (Monthly Editable)","Vendor Bot Base (Monthly Editable)","Bot Sessions","Bot Session Qty"],26),
+            kAgentQty=findRmCol(["Netcore Agent Base (Monthly Editable)","Vendor Agent Base (Monthly Editable)","Agents Qty","Agent Qty"],29),
+            kConvQty=findRmCol(["Netcore Conversation Base (Monthly Editable)","Vendor Conversation Base (Monthly Editable)","Conversation Qty"],32),
+            kVendorDev=findRmCol(["Vendor Dev Cost"],5), kVendorRental=findRmCol(["Vendor Monthly Rental"],6),
+            kVendorAi=findRmCol(["Vendor AI Session Cost"],9), kVendorBot=findRmCol(["Vendor Bot Session Cost"],12),
+            kVendorAgent=findRmCol(["Vendor Agent Cost"],15), kVendorConv=findRmCol(["Vendor Conversation Cost"],18),
+            kNetcoreDev=findRmCol(["Netcore Dev Revenue"],20), kNetcoreRental=findRmCol(["Netcore Monthly Rental"],21),
+            kNetcoreAi=findRmCol(["Netcore AI Session Revenue"],24), kNetcoreBot=findRmCol(["Netcore Bot Session Revenue"],27),
+            kNetcoreAgent=findRmCol(["Netcore Agent Revenue"],30), kNetcoreConv=findRmCol(["Netcore Conversation Revenue"],33);
       if([kClient,kChatbot,kMonth,kCost,kRev].some(i=>i<0)) throw new Error("Chatbot R&M is missing a required named financial column");
       const num = s => { const n = parseFloat((s||"0").toString().replace(/[₹,]/g,"")); return isNaN(n)?0:n; };
       const actualCutoff=new Date();actualCutoff.setHours(23,59,59,999);

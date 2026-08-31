@@ -529,7 +529,7 @@
   .mini-list{display:grid;gap:0}.mini-row,.mini-list>div{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);font-size:11px}.mini-row:last-child,.mini-list>div:last-child{border:0}.mini-row b,.mini-list>div b{font-size:12px}.mini-value{font-weight:700;color:var(--accent-dark)}
   .metric-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.metric-card{appearance:none;text-align:left;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;color:inherit;font:inherit;cursor:pointer}.metric-card:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(44,34,96,.08)}.metric-label{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-faint);font-weight:700}.metric-value{font-size:27px;font-weight:700;margin-top:7px}.metric-hint{font-size:10px;color:var(--text-muted);margin-top:3px}
   .executive-section{display:none}.page.active.executive-section{display:block}.action-table-wrap{max-height:520px;overflow:auto}.action-table{width:100%;border-collapse:collapse}.action-table th,.action-table td{padding:11px 10px;border-bottom:1px solid var(--border);text-align:left;font-size:11px}.action-table td small{display:block;color:var(--text-muted);margin-top:4px}.action-table th{position:sticky;top:0;background:#F8F8FD;color:var(--text-faint);font-size:9px;text-transform:uppercase;letter-spacing:.06em}.priority-pill{display:inline-flex;border-radius:20px;padding:5px 8px;font-size:9px;font-weight:700}.priority-pill.critical{background:#FDEAEA;color:#C92323}.priority-pill.at-risk{background:#FFF1D9;color:#9A5B0B}.priority-pill.on-track{background:#E8F7EF;color:#147A45}.blocker-pill,.blocker-chip{display:inline-flex;padding:5px 8px;border-radius:20px;background:#F1EDFF;color:var(--accent-dark);font-size:9px;font-weight:600}.confidence-bar{height:7px;background:#EEF0F7;border-radius:9px;overflow:hidden;margin-top:5px}.confidence-fill{height:100%;background:linear-gradient(90deg,#18A558,#78D79D);border-radius:inherit}.confidence-fill.risk{background:linear-gradient(90deg,#E9A11A,#F2CB72)}.confidence-fill.critical{background:linear-gradient(90deg,#D52B2B,#F18D8D)}
-  .operations-pulse{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.pulse-box,.pulse-card{padding:14px;border-radius:13px;background:#F8F8FD;border:1px solid var(--border);min-width:0}.pulse-card>b{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--text-faint);margin-bottom:8px}.pulse-card>strong{display:block;font-size:24px;margin-bottom:4px}.pulse-card>span{font-size:10px;color:var(--text-muted)}.pulse-box h4{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--text-faint);margin:0 0 10px}
+  .operations-pulse{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.pulse-box,.pulse-card{padding:14px;border-radius:13px;background:#F8F8FD;border:1px solid var(--border);min-width:0}.pulse-card{appearance:none;width:100%;font:inherit;color:inherit;text-align:left;cursor:pointer;transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease}.pulse-card:hover{transform:translateY(-2px);border-color:#B9CDBF;box-shadow:0 8px 20px rgba(42,74,58,.08)}.pulse-card:focus-visible{outline:3px solid rgba(62,143,107,.22);outline-offset:2px}.pulse-card>b{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--text-faint);margin-bottom:8px}.pulse-card>strong{display:block;font-size:24px;margin-bottom:4px}.pulse-card>span{font-size:10px;color:var(--text-muted)}.pulse-box h4{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--text-faint);margin:0 0 10px}
   .project-insights .insight-stats{grid-template-columns:repeat(5,minmax(0,1fr))}
 
   @media(max-width:1180px){.workspace-grid{grid-template-columns:1fr}.workspace-rail{position:static;grid-template-columns:repeat(2,minmax(0,1fr))}.metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
@@ -1894,6 +1894,33 @@ function openProjectInsight(kind){
   const tab=document.querySelector('.pagetab[data-page="chatbots"]');if(tab)tab.click();
   setTimeout(()=>{const card=document.querySelector('.insight-stat[data-insight="'+kind+'"]');if(card)card.click();},40);
 }
+function pulseCommercialProjects(){
+  const key=value=>String(value||"").toLowerCase().replace(/\b(re|fw|fwd)\s*:/g,"").replace(/[^a-z0-9]+/g,"");
+  const revenueRows=COMMERCIALS.filter(row=>(+row.revenue||0)>0);
+  return PROJECTS.filter(project=>{
+    const projectKey=key(project.chatbot),clientKey=key(project.client);
+    return revenueRows.some(row=>{
+      const chatbotKey=key(row.chatbot),commercialClientKey=key(row.client);
+      const chatbotMatch=projectKey&&chatbotKey&&(chatbotKey===projectKey||chatbotKey.includes(projectKey)||projectKey.includes(chatbotKey));
+      return chatbotMatch||(!chatbotKey&&clientKey&&commercialClientKey===clientKey);
+    });
+  });
+}
+function openPulseRecords(projects,title){
+  const tab=document.querySelector('.pagetab[data-page="chatbots"]');
+  if(tab) tab.click();
+  setTimeout(()=>{
+    resetProjectChipFilters();
+    filters.industries.clear();
+    const panel=document.getElementById("industryPanelChat");
+    if(panel){panel.querySelectorAll(".ind-cb").forEach(cb=>cb.checked=false);const all=panel.querySelector(".ind-all-cb");if(all)all.checked=true;}
+    updateIndustryBtn("Chat",filters);
+    filters.focusProjects=new Set(projects.map(projectFilterKey));
+    projectInsightSelection={title};
+    renderChatbots();
+    setTimeout(focusRecords,0);
+  },40);
+}
 function renderExecutive(){
   const snap=operationalSnapshot(),live=PROJECTS.filter(p=>String(p.stage||"").toLowerCase()==="live").length;
   const revenue=COMMERCIALS.reduce((n,r)=>n+(+r.revenue||0),0),cost=COMMERCIALS.reduce((n,r)=>n+(+r.cost||0),0),margin=revenue-cost;
@@ -1906,7 +1933,11 @@ function renderExecutive(){
   document.getElementById("executiveKpis").innerHTML=kpis.map(k=>'<button class="insight-stat" type="button" data-exec="'+k[0]+'"><div class="is-label">'+k[1]+'</div><div class="is-value">'+k[2]+'</div><div class="is-hint">'+k[3]+'</div></button>').join("");
   document.querySelectorAll('#executiveKpis [data-exec]').forEach(el=>el.addEventListener("click",()=>openProjectInsight(el.dataset.exec==="financial"?"active":el.dataset.exec)));
   const due7=snap.upcoming.filter(p=>(p.dates.targetLive-new Date())<=7*DAY_MS).length;
-  document.getElementById("executivePulse").innerHTML='<div class="pulse-card"><b>Projects requiring follow-up this week</b><strong>'+snap.followUp.length+'</strong><span>Prioritised from delay and stage aging</span></div><div class="pulse-card"><b>Upcoming milestones</b><strong>'+due7+'</strong><span>Target go-lives in the next 7 days</span></div><div class="pulse-card"><b>Commercial coverage</b><strong>'+fmtINR(revenue)+'</strong><span>Recorded Netcore revenue across projects</span></div>';
+  document.getElementById("executivePulse").innerHTML='<button class="pulse-card" type="button" data-pulse="followup"><b>Projects requiring follow-up this week</b><strong>'+snap.followUp.length+'</strong><span>Prioritised from delay and stage aging · click to view</span></button><button class="pulse-card" type="button" data-pulse="milestones"><b>Upcoming milestones</b><strong>'+due7+'</strong><span>Target go-lives in the next 7 days · click to view</span></button><button class="pulse-card" type="button" data-pulse="commercial"><b>Commercial coverage</b><strong>'+fmtINR(revenue)+'</strong><span>Recorded Netcore revenue across projects · click to view</span></button>';
+  const now=new Date();now.setHours(0,0,0,0);const sevenDays=new Date(now.getTime()+7*DAY_MS);
+  const dueProjects=snap.upcoming.filter(p=>p.dates.targetLive>=now&&p.dates.targetLive<=sevenDays);
+  const pulseProjects={followup:[snap.followUp,"Projects requiring follow-up this week"],milestones:[dueProjects,"Upcoming milestones · next 7 days"],commercial:[pulseCommercialProjects(),"Projects with recorded Netcore revenue"]};
+  document.querySelectorAll('#executivePulse [data-pulse]').forEach(card=>card.addEventListener("click",()=>{const selection=pulseProjects[card.dataset.pulse];openPulseRecords(selection[0],selection[1]);}));
   document.getElementById("executiveActions").innerHTML=snap.followUp.length?snap.followUp.slice(0,8).map(p=>'<div class="attention-row"><span class="attention-dot"></span><div><div class="attention-name">'+safeHtml(p.chatbot||p.client)+'</div><div class="attention-meta">'+safeHtml(opsAction(p))+'</div></div><div class="attention-age">'+opsDaysInStage(p)+' days</div></div>').join(""):'<div class="insight-empty">No projects require follow-up.</div>';
   const outlookToday=new Date();outlookToday.setHours(0,0,0,0);const weekEnd=new Date(outlookToday);weekEnd.setDate(weekEnd.getDate()+6);const nextWeekEnd=new Date(outlookToday);nextWeekEnd.setDate(nextWeekEnd.getDate()+13);const monthEnd=new Date(outlookToday.getFullYear(),outlookToday.getMonth()+1,0);const nextMonthEnd=new Date(outlookToday.getFullYear(),outlookToday.getMonth()+2,0);
   const outlook=[["This week",outlookToday,weekEnd],["Next week",new Date(weekEnd.getTime()+DAY_MS),nextWeekEnd],["This month",outlookToday,monthEnd],["Next month",new Date(monthEnd.getTime()+DAY_MS),nextMonthEnd]].map(([label,startDate,endDate])=>{const n=snap.upcoming.filter(p=>p.dates.targetLive>=startDate&&p.dates.targetLive<=endDate).length;return '<div><span>'+label+'</span><b>'+n+'</b></div>';}).join("");

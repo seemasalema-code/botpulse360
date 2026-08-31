@@ -1328,7 +1328,7 @@ async function syncData(preferSnapshot=false){
       const wanted=names.map(n=>n.toLowerCase());
       return pHeaderRow.findIndex(h=>wanted.includes((h||"").trim().toLowerCase()));
     };
-    const cDelayFound=findProjectCol(["Delay Flag"]), cDelay=cDelayFound>-1?cDelayFound:20;
+    const cDelayFound=findProjectCol(["Delay Flag","Delivery Status","Delay Status","Project Health"]), cDelay=cDelayFound>-1?cDelayFound:20;
     const cDelayCommentFound=findProjectCol(["Delay Comments","Delay Comment","Reason for Delay","Delay Reason","Notes","Remarks"]), cDelayComment=cDelayCommentFound>-1?cDelayCommentFound:21;
     const cPausedFound=findProjectCol(["Date Paused","Paused Date"]), cPaused=cPausedFound>-1?cPausedFound:23;
     const cExclude=findProjectCol(["Exclude from Operations","Exclude Operations"]);

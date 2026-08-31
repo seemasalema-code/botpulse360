@@ -969,11 +969,11 @@ body{background:linear-gradient(135deg,#F7F8F3 0%,#F3F6F1 62%,#EEF5F1 100%)}
 
   <!-- ===================== PAGE: FORECAST & PIPELINE ===================== -->
   <section class="page executive-section" id="page-forecast">
-    <div class="app-intro"><div><h2>Forecast &amp; Pipeline</h2><p>Expected go-lives and revenue visibility in weekly or monthly planning windows</p></div></div>
+    <div class="app-intro"><div><h2>Chatbot Revenue Forecast</h2><p>Future month revenue, vendor cost and margin from live-project rows in Chatbot R&amp;M</p></div></div>
     <div class="metric-grid" id="forecastKpis"></div>
     <div class="workspace-grid" style="margin-top:18px">
-      <div class="workspace-main"><div class="insight-panel"><div class="forecast-mode-row"><h3 id="forecastWindowTitle">Weekly Delivery Forecast</h3><div class="pipeline-view-toggle" id="forecastViewToggle"><button type="button" data-forecast-view="Weekly" class="active">Weekly</button><button type="button" data-forecast-view="Monthly">Monthly</button></div></div><div class="pipeline-track" id="forecastWindows"></div></div><div class="insight-panel action-table-wrap"><table class="action-table"><thead><tr><th>Expected date</th><th>Client / chatbot</th><th>Stage</th><th>Vendor</th><th>Expected monthly revenue</th><th>Confidence</th></tr></thead><tbody id="forecastBody"></tbody></table></div></div>
-      <aside class="workspace-rail"><div class="rail-card"><h3>Pipeline by Stage</h3><div class="mini-list" id="forecastStages"></div></div><div class="rail-card"><h3>Forecast Risks</h3><div class="mini-list" id="forecastRisks"></div></div></aside>
+      <div class="workspace-main"><div class="insight-panel"><div class="forecast-mode-row"><h3 id="forecastWindowTitle">Monthly Financial Forecast</h3><div class="pipeline-view-toggle" id="forecastViewToggle"><button type="button" data-forecast-view="3" class="active">3 months</button><button type="button" data-forecast-view="6">6 months</button></div></div><div class="pipeline-track" id="forecastWindows"></div></div><div class="insight-panel action-table-wrap"><table class="action-table"><thead><tr><th>Month</th><th>Client / chatbot</th><th>Vendor</th><th>Type</th><th>Revenue</th><th>Cost</th><th>Margin</th></tr></thead><tbody id="forecastBody"></tbody></table></div></div>
+      <aside class="workspace-rail"><div class="rail-card"><h3>Forecast by Vendor</h3><div class="mini-list" id="forecastStages"></div></div><div class="rail-card"><h3>Margin Watchlist</h3><div class="mini-list" id="forecastRisks"></div></div></aside>
     </div>
   </section>
 
@@ -1107,7 +1107,6 @@ body{background:linear-gradient(135deg,#F7F8F3 0%,#F3F6F1 62%,#EEF5F1 100%)}
    ========================================================================= */
 const SHEET_ID = "1udQZmSHEpLWuQJO2k0t4UvA3zU8fUFkvx_1lIfINId8";
 const TAB_PROJECTS = "Chatbot Projects";
-const TAB_COMMERCIALS = "Commercials";
 const TAB_CHATBOTRM = "Chatbot R&M";
 const TAB_CONSUMABLE = "Consumable"; // legacy fallback for the WA sheet
 const TAB_WA_CONSUMABLE = "WA_Consumables";
@@ -1165,6 +1164,7 @@ let PROJECTS = [
 ].map(([client,platform,vendor,status])=>({client,platform,vendor,status,stage:toStage(status),type:toType(platform),dates:{}}));
 let DELAYED_COUNT = 0;
 let COMMERCIALS = []; // {client, chatbot, vendor, dateOfLive(Date|null), revenue, cost, margin} — one row per chatbot per month, sourced from the "Chatbot R&M" sheet (dateOfLive here means "month of this row")
+let FORECAST_COMMERCIALS = []; // future Chatbot R&M months, kept separate from actual reporting
 let CONSUMABLE = []; // WA consumables: {client, month(Date|null), revenue, cost, margin}
 let RCS_CONSUMABLE = [];
 let CLIENT_NAMES = []; // union of Client List sheet + every client name seen in Projects/Commercials/Consumable
@@ -1294,14 +1294,14 @@ async function syncData(preferSnapshot=false){
   try{
     const waPromise=fetchSheetRows(TAB_WA_CONSUMABLE, preferSnapshot).catch(()=>fetchSheetRows(TAB_CONSUMABLE, preferSnapshot));
     const rcsPromise=fetchSheetRows(TAB_RCS_CONSUMABLE, preferSnapshot).catch(e=>{console.warn("RCS consumables sheet fetch failed:",e);return {rows:[],raw:"",source:preferSnapshot?"snapshot":"live"};});
-    const [proj, rm, commercialSheet, cons, rcsCons] = await Promise.all([
-      fetchSheetRows(TAB_PROJECTS, preferSnapshot), fetchSheetRows(TAB_CHATBOTRM, preferSnapshot), fetchSheetRows(TAB_COMMERCIALS, preferSnapshot), waPromise, rcsPromise
+    const [proj, rm, cons, rcsCons] = await Promise.all([
+      fetchSheetRows(TAB_PROJECTS, preferSnapshot), fetchSheetRows(TAB_CHATBOTRM, preferSnapshot), waPromise, rcsPromise
     ]);
     // The current workbook has no Client List tab. Client names and industries are
     // derived from the complete Projects, R&M, WA and RCS data pulled above.
     const clList = {rows:[], raw:"", source:preferSnapshot?"snapshot":"live"};
 
-    const combinedHash = simpleHash(proj.raw + "||" + rm.raw + "||" + commercialSheet.raw + "||" + cons.raw + "||" + rcsCons.raw + "||" + clList.raw);
+    const combinedHash = simpleHash(proj.raw + "||" + rm.raw + "||" + cons.raw + "||" + rcsCons.raw + "||" + clList.raw);
     const changed = lastCsvHash !== null && combinedHash !== lastCsvHash;
     lastCsvHash = combinedHash;
 
@@ -1352,33 +1352,35 @@ async function syncData(preferSnapshot=false){
       if(cDelay>-1 && (r[cDelay]||"").trim().toLowerCase().startsWith("delayed")) delayed++;
     }
 
-    const rmHeaderIdx = rmRows.findIndex(r => (r[1]||"").trim() === "Chatbot");
-    const newCommercials = [];
-    // Commercials is the controlled financial source. Chatbot R&M remains a
-    // calculation/operational sheet but must not independently create console revenue.
-    const useRmAsFinancialSource = true;
-    if(useRmAsFinancialSource && rmHeaderIdx !== -1){
+    const normalizeHeader=value=>String(value||"").trim().toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+    const rmHeaderIdx = rmRows.findIndex(r => r.some(v=>normalizeHeader(v)==="chatbot") && r.some(v=>normalizeHeader(v)==="month"));
+    const newCommercials = [], newForecastCommercials = [];
+    // Chatbot R&M is the sole chatbot revenue and cost ledger. Every field is
+    // resolved by its header label so inserted or reordered columns remain safe.
+    if(rmHeaderIdx !== -1){
       // Current "Chatbot R&M" layout — 37 cols, A-AK. Resolve the named
       // total, base-quantity and component columns so future insertions do not
       // silently shift the financial calculations.
       const rmHeaderRow = rmRows[rmHeaderIdx];
-      const findRmCol=(names,fallback)=>{const wanted=names.map(n=>n.toLowerCase());const found=rmHeaderRow.findIndex(h=>wanted.includes((h||"").trim().toLowerCase()));return found>-1?found:fallback;};
-      const kClient=findRmCol(["Client"],0), kChatbot=findRmCol(["Chatbot","Project","Project Name"],1),
-            kVendor=findRmCol(["Vendor"],2), kMonth=findRmCol(["Month","Billing Month","Revenue Month"],3),
-            kCost=findRmCol(["Total Cost","Total Cost Vendor","Total Vendor Cost","Vendor Cost","Cost"],19),
-            kRev=findRmCol(["Total Revenue","Total Revenue Netcore","Total Netcore Revenue","Monthly Revenue","Revenue"],30),
-            kMargin=findRmCol(["Margin"],31);
-      const kAiQty=findRmCol(["Netcore AI Base (Monthly Editable)","Vendor AI Base (Monthly Editable)","AI Session Qty"],23),
-            kBotQty=findRmCol(["Netcore Bot Base (Monthly Editable)","Vendor Bot Base (Monthly Editable)","Bot Sessions","Bot Session Qty"],26),
-            kAgentQty=findRmCol(["Netcore Agent Base (Monthly Editable)","Vendor Agent Base (Monthly Editable)","Agents Qty","Agent Qty"],29),
-            kConvQty=findRmCol(["Netcore Conversation Base (Monthly Editable)","Vendor Conversation Base (Monthly Editable)","Conversation Qty"],32),
-            kVendorDev=findRmCol(["Vendor Dev Cost"],5), kVendorRental=findRmCol(["Vendor Monthly Rental"],6),
-            kVendorAi=findRmCol(["Vendor AI Session Cost"],9), kVendorBot=findRmCol(["Vendor Bot Session Cost"],12),
-            kVendorAgent=findRmCol(["Vendor Agent Cost"],15), kVendorConv=findRmCol(["Vendor Conversation Cost"],18),
-            kNetcoreDev=findRmCol(["Netcore Dev Revenue"],20), kNetcoreRental=findRmCol(["Netcore Monthly Rental"],21),
-            kNetcoreAi=findRmCol(["Netcore AI Session Revenue"],24), kNetcoreBot=findRmCol(["Netcore Bot Session Revenue"],27),
-            kNetcoreAgent=findRmCol(["Netcore Agent Revenue"],30), kNetcoreConv=findRmCol(["Netcore Conversation Revenue"],33);
+      const findRmCol=names=>{const wanted=names.map(normalizeHeader);return rmHeaderRow.findIndex(h=>wanted.includes(normalizeHeader(h)));};
+      const kClient=findRmCol(["Client"]), kChatbot=findRmCol(["Chatbot","Project","Project Name"]),
+            kVendor=findRmCol(["Vendor"]), kMonth=findRmCol(["Month","Billing Month","Revenue Month"]),
+            kCost=findRmCol(["Total Cost","Total Cost Vendor","Total Vendor Cost","Vendor Cost","Cost"]),
+            kRev=findRmCol(["Total Revenue","Total Revenue Netcore","Total Netcore Revenue","Monthly Revenue","Revenue"]),
+            kMargin=findRmCol(["Margin"]);
+      const kAiQty=findRmCol(["Netcore AI Base (Monthly Editable)","Vendor AI Base (Monthly Editable)","AI Session Qty"]),
+            kBotQty=findRmCol(["Netcore Bot Base (Monthly Editable)","Vendor Bot Base (Monthly Editable)","Bot Sessions","Bot Session Qty"]),
+            kAgentQty=findRmCol(["Netcore Agent Base (Monthly Editable)","Vendor Agent Base (Monthly Editable)","Agents Qty","Agent Qty"]),
+            kConvQty=findRmCol(["Netcore Conversation Base (Monthly Editable)","Vendor Conversation Base (Monthly Editable)","Conversation Qty"]),
+            kVendorDev=findRmCol(["Vendor Dev Cost"]), kVendorRental=findRmCol(["Vendor Monthly Rental"]),
+            kVendorAi=findRmCol(["Vendor AI Session Cost"]), kVendorBot=findRmCol(["Vendor Bot Session Cost"]),
+            kVendorAgent=findRmCol(["Vendor Agent Cost"]), kVendorConv=findRmCol(["Vendor Conversation Cost"]),
+            kNetcoreDev=findRmCol(["Netcore Dev Revenue"]), kNetcoreRental=findRmCol(["Netcore Monthly Rental"]),
+            kNetcoreAi=findRmCol(["Netcore AI Session Revenue"]), kNetcoreBot=findRmCol(["Netcore Bot Session Revenue"]),
+            kNetcoreAgent=findRmCol(["Netcore Agent Revenue"]), kNetcoreConv=findRmCol(["Netcore Conversation Revenue"]);
+      if([kClient,kChatbot,kMonth,kCost,kRev].some(i=>i<0)) throw new Error("Chatbot R&M is missing a required named financial column");
       const num = s => { const n = parseFloat((s||"0").toString().replace(/[₹,]/g,"")); return isNaN(n)?0:n; };
+      const actualCutoff=new Date();actualCutoff.setHours(23,59,59,999);
       for(let i=rmHeaderIdx+1;i<rmRows.length;i++){
         const r = rmRows[i]; const chatbot = (r[kChatbot]||"").trim();
         if(!chatbot) continue;
@@ -1391,38 +1393,10 @@ async function syncData(preferSnapshot=false){
         const qty={ai:num(r[kAiQty]),bot:num(r[kBotQty]),agent:num(r[kAgentQty]),conversation:num(r[kConvQty])};
         const revenueParts={dev:num(r[kNetcoreDev]),rental:num(r[kNetcoreRental]),ai:num(r[kNetcoreAi]),bot:num(r[kNetcoreBot]),agent:num(r[kNetcoreAgent]),conversation:num(r[kNetcoreConv])};
         const costParts={dev:num(r[kVendorDev]),rental:num(r[kVendorRental]),ai:num(r[kVendorAi]),bot:num(r[kVendorBot]),agent:num(r[kVendorAgent]),conversation:num(r[kVendorConv])};
-        newCommercials.push({ client, chatbot, vendor:toVendor((r[kVendor]||"").trim())||"Unassigned",
-          dateOfLive, revenue, cost, margin, qty, revenueParts, costParts, source:"Chatbot R&M" });
-      }
-    }
-
-    // Include finalized deal economics from the Commercials sheet when a matching monthly R&M
-    // record does not yet exist, without double-counting established monthly rows.
-    const dealRows = commercialSheet.rows;
-    const dealHeaderIdx = dealRows.findIndex(r => (r[1]||"").trim() === "Chatbot");
-    const includeCommercialsSheetAsMonthlyFallback = false;
-    if(includeCommercialsSheetAsMonthlyFallback && dealHeaderIdx !== -1){
-      const dealHeader = dealRows[dealHeaderIdx], dealCol = colIndexer(dealHeader);
-      const dClient=dealCol("Client"), dChatbot=dealCol("Chatbot"), dVendor=dealCol("Vendor"),
-            dDate=dealCol("Commercials Finalized Date"), dCost=dealCol("Total Vendor Cost"),
-            dRevenue=dealCol("Finalized Client Revenue"), dMargin=dealCol("Margin");
-      const occurrences=name=>dealHeader.map((h,i)=>(h||"").trim()===name?i:-1).filter(i=>i>=0);
-      const devCols=occurrences("Development Cost (₹)"), rentalCols=occurrences("Monthly Rental (₹)"), aiCols=occurrences("AI Session Cost"), agentCols=occurrences("Per Agent Cost"), convCols=occurrences("Conversation Cost");
-      const num = s => { const n=parseFloat((s||"0").toString().replace(/[^0-9.-]/g,"")); return isNaN(n)?0:n; };
-      const monthKey = d => d ? `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}` : "";
-      const existing = new Set(newCommercials.map(x=>`${(x.chatbot||"").toLowerCase()}|${monthKey(x.dateOfLive)}`));
-      for(let i=dealHeaderIdx+1;i<dealRows.length;i++){
-        const r=dealRows[i], chatbot=(r[dChatbot]||"").trim(); if(!chatbot) continue;
-        const date=parseDate(r[dDate]), revenue=num(r[dRevenue]), cost=num(r[dCost]);
-        if(!date || (!revenue && !cost)) continue;
-        const key=`${chatbot.toLowerCase()}|${monthKey(date)}`; if(existing.has(key)) continue;
-        const revenueParts={dev:num(r[devCols[1]]),rental:num(r[rentalCols[1]]),ai:0,agent:0,conversation:0};
-        const costParts={dev:num(r[devCols[0]]),rental:num(r[rentalCols[0]]),ai:0,agent:0,conversation:0};
-        newCommercials.push({client:(r[dClient]||"").trim()||chatbot, chatbot,
-          vendor:(r[dVendor]||"").trim()||"Unassigned", dateOfLive:date, revenue, cost,
-          margin:dMargin===undefined?revenue-cost:num(r[dMargin]), revenueParts, costParts,
-          qty:{ai:0,agent:0,conversation:0}, variableRatesPresent:[aiCols[1],agentCols[1],convCols[1]].some(i=>i!==undefined&&num(r[i])>0), source:"Commercials"});
-        existing.add(key);
+        const record={ client, chatbot, vendor:toVendor((r[kVendor]||"").trim())||"Unassigned",
+          dateOfLive, revenue, cost, margin:margin||revenue-cost, qty, revenueParts, costParts, source:"Chatbot R&M",
+          periodType:dateOfLive>actualCutoff?"Forecast":"Actual" };
+        (record.periodType==="Forecast"?newForecastCommercials:newCommercials).push(record);
       }
     }
 
@@ -1467,7 +1441,7 @@ async function syncData(preferSnapshot=false){
     [...newProjects, ...newCommercials, ...newConsumable, ...newRcsConsumable].forEach(row=>{ if(row.industry) indSet.add(row.industry); });
     const newIndustries = [...indSet].sort((a,b)=>a.localeCompare(b));
 
-    PROJECTS = newProjects; DELAYED_COUNT = delayed; COMMERCIALS = newCommercials;
+    PROJECTS = newProjects; DELAYED_COUNT = delayed; COMMERCIALS = newCommercials; FORECAST_COMMERCIALS = newForecastCommercials;
     CONSUMABLE = newConsumable; RCS_CONSUMABLE = newRcsConsumable; CLIENT_NAMES = newClientNames; usingLiveData = true;
     usingSnapshotData = [proj, rm, commercialSheet, cons, rcsCons].some(item=>item && item.source==="snapshot");
     CLIENT_INDUSTRY = newClientIndustry; INDUSTRIES = newIndustries;
@@ -1506,7 +1480,7 @@ syncBtn.addEventListener("click", ()=>{ syncBtn.disabled=true; syncData().finall
 setInterval(()=>syncData(false), REFRESH_MS);
 
 /* ---------------- Page nav ---------------- */
-const PAGES = [{id:"executive",label:"Executive Summary",icon:"▦"},{id:"chatbots",label:"Projects",icon:"◇"},{id:"revenue",label:"Chatbots R&M",icon:"₹"},{id:"consumable",label:"WA Consumables",icon:"W"},{id:"rcsconsumable",label:"RCS Consumables",icon:"R"},{id:"clientsummary",label:"Client Summary",icon:"◎"},{id:"client360",label:"Client 360",icon:"360"},{id:"vendors",label:"Vendor Performance",icon:"⌁"}];
+const PAGES = [{id:"executive",label:"Executive Summary",icon:"▦"},{id:"chatbots",label:"Projects",icon:"◇"},{id:"revenue",label:"Chatbots R&M",icon:"₹"},{id:"forecast",label:"Forecast",icon:"↗"},{id:"consumable",label:"WA Consumables",icon:"W"},{id:"rcsconsumable",label:"RCS Consumables",icon:"R"},{id:"clientsummary",label:"Client Summary",icon:"◎"},{id:"client360",label:"Client 360",icon:"360"},{id:"vendors",label:"Vendor Performance",icon:"⌁"}];
 let activePage = "executive";
 let clientSummaryOpened = false;
 const pagenav = document.getElementById("pagenav");
@@ -3036,30 +3010,19 @@ function renderVendorPerformance(){
   document.getElementById("vendorConcentration").innerHTML=rows.slice(0,4).map(r=>`<div class="mini-item"><b>${r.vendor}</b><span>${totalProjects?(r.projects/totalProjects*100).toFixed(1):0}% of portfolio · ${fmtCompact(r.margin)} margin</span></div>`).join("");
 }
 
-let forecastView="Weekly";
+let forecastView="3";
 function renderForecast(){
-  const today=new Date();today.setHours(0,0,0,0);
-  const weekly=forecastView==="Weekly",horizonEnd=weekly?new Date(today.getTime()+27*DAY_MS):new Date(today.getFullYear(),today.getMonth()+3,0);
-  const latestByProject={};COMMERCIALS.forEach(row=>{const key=row.chatbot||row.client;if(!latestByProject[key]||row.dateOfLive>latestByProject[key].dateOfLive)latestByProject[key]=row;});
-  const forecast=PROJECTS.filter(p=>!p.dates?.liveDate&&p.dates?.targetLive&&p.dates.targetLive>=today&&p.dates.targetLive<=horizonEnd).map(p=>{
-    const financial=latestByProject[p.chatbot]||latestByProject[p.client],days=Math.ceil((p.dates.targetLive-today)/DAY_MS),stage=String(p.stage||"").toLowerCase(),confidence=stage==="uat"?85:stage==="development"||stage==="build"?70:stage==="quotes given"?50:35;
-    return {p,days,revenue:financial?.revenue||0,confidence};
-  }).sort((a,b)=>a.days-b.days);
-  const windows=[];
-  if(weekly){
-    for(let i=0;i<4;i++){const start=new Date(today.getTime()+i*7*DAY_MS),end=new Date(start.getTime()+6*DAY_MS);windows.push({label:i===0?"This week":"Week "+(i+1),range:fmtD(start)+" – "+fmtD(end),rows:forecast.filter(r=>r.p.dates.targetLive>=start&&r.p.dates.targetLive<=end)});}
-  }else{
-    for(let i=0;i<3;i++){const start=new Date(today.getFullYear(),today.getMonth()+i,1),end=new Date(today.getFullYear(),today.getMonth()+i+1,0);windows.push({label:start.toLocaleDateString("en-GB",{month:"short",year:"numeric"}),range:"Monthly plan",rows:forecast.filter(r=>r.p.dates.targetLive>=start&&r.p.dates.targetLive<=end)});}
-  }
-  const weightedRevenue=forecast.reduce((s,r)=>s+r.revenue*r.confidence/100,0),stages={};forecast.forEach(r=>stages[r.p.stage]=(stages[r.p.stage]||0)+1);
-  const nearest=windows[0]?.rows||[],periodHint=weekly?"next 4 weeks":"next 3 months";
-  document.getElementById("forecastKpis").innerHTML=[{label:"Expected go-lives",value:forecast.length,hint:periodHint},{label:"Weighted monthly revenue",value:fmtCompact(weightedRevenue),hint:"confidence adjusted"},{label:weekly?"This-week pipeline":"This-month pipeline",value:nearest.length,hint:"nearest delivery window"},{label:"At-risk dates",value:forecast.filter(r=>r.confidence<50).length,hint:"confidence below 50%"}].map(k=>`<div class="metric-card"><span>${k.label}</span><b>${k.value}</b><small>${k.hint}</small></div>`).join("");
-  document.getElementById("forecastWindowTitle").textContent=(weekly?"Weekly":"Monthly")+" Delivery Forecast";
+  const today=new Date(), horizon=Number(forecastView), horizonEnd=new Date(today.getFullYear(),today.getMonth()+horizon+1,0);
+  const forecast=FORECAST_COMMERCIALS.filter(r=>r.dateOfLive<=horizonEnd).sort((a,b)=>a.dateOfLive-b.dateOfLive||a.client.localeCompare(b.client));
+  const windows=[];for(let i=1;i<=horizon;i++){const start=new Date(today.getFullYear(),today.getMonth()+i,1),key=monthKey(start),rows=forecast.filter(r=>monthKey(r.dateOfLive)===key);windows.push({label:start.toLocaleDateString("en-GB",{month:"short",year:"numeric"}),rows,revenue:rows.reduce((s,r)=>s+r.revenue,0),cost:rows.reduce((s,r)=>s+r.cost,0)});}
+  const revenue=forecast.reduce((s,r)=>s+r.revenue,0),cost=forecast.reduce((s,r)=>s+r.cost,0),margin=revenue-cost,vendors={};forecast.forEach(r=>{const v=vendors[r.vendor]||(vendors[r.vendor]={revenue:0,cost:0});v.revenue+=r.revenue;v.cost+=r.cost;});
+  document.getElementById("forecastKpis").innerHTML=[{label:"Forecast revenue",value:fmtCompact(revenue),hint:`next ${horizon} months`},{label:"Forecast cost",value:fmtCompact(cost),hint:"vendor cost"},{label:"Forecast margin",value:fmtCompact(margin),hint:revenue?(margin/revenue*100).toFixed(1)+"% margin":"—"},{label:"Live projects",value:new Set(forecast.map(r=>r.chatbot)).size,hint:"with future R&M rows"}].map(k=>`<div class="metric-card"><span>${k.label}</span><b>${k.value}</b><small>${k.hint}</small></div>`).join("");
+  document.getElementById("forecastWindowTitle").textContent="Monthly Financial Forecast";
   document.querySelectorAll("#forecastViewToggle button").forEach(btn=>{btn.classList.toggle("active",btn.dataset.forecastView===forecastView);btn.onclick=()=>{forecastView=btn.dataset.forecastView;renderForecast();};});
-  document.getElementById("forecastWindows").innerHTML=windows.map(w=>`<div class="pipeline-step"><b>${w.label}</b><span>${w.rows.length} expected go-live${w.rows.length===1?"":"s"}</span><small>${w.range} · ${fmtCompact(w.rows.reduce((s,r)=>s+r.revenue,0))}</small></div>`).join("");
-  document.getElementById("forecastBody").innerHTML=forecast.map(r=>`<tr><td>${fmtD(r.p.dates.targetLive)}</td><td><b>${r.p.client}</b><small>${r.p.chatbot}</small></td><td>${r.p.stage}</td><td>${r.p.vendor||"Unassigned"}</td><td>${fmtCompact(r.revenue)}</td><td>${r.confidence}%</td></tr>`).join("")||`<tr><td colspan="6"><div class="empty-state">No target go-lives fall in the ${periodHint}.</div></td></tr>`;
-  document.getElementById("forecastStages").innerHTML=Object.entries(stages).sort((a,b)=>b[1]-a[1]).map(([stage,count])=>`<div class="mini-item"><b>${stage}</b><span>${count} forecast project${count===1?"":"s"}</span></div>`).join("")||'<div class="empty-state">No forecast-stage data.</div>';
-  document.getElementById("forecastRisks").innerHTML=forecast.filter(r=>r.confidence<60).map(r=>`<div class="mini-item"><b>${r.p.chatbot}</b><span>${r.confidence}% confidence · ${weekly?"week "+(Math.floor(r.days/7)+1):r.p.dates.targetLive.toLocaleDateString("en-GB",{month:"short"})}</span></div>`).join("")||'<div class="empty-state">No material forecast risks.</div>';
+  document.getElementById("forecastWindows").innerHTML=windows.map(w=>`<div class="pipeline-step"><b>${w.label}</b><span>${fmtCompact(w.revenue)} revenue</span><small>${fmtCompact(w.cost)} cost · ${fmtCompact(w.revenue-w.cost)} margin</small></div>`).join("");
+  document.getElementById("forecastBody").innerHTML=forecast.map(r=>`<tr><td>${r.dateOfLive.toLocaleDateString("en-GB",{month:"short",year:"numeric"})}</td><td><b>${r.client}</b><small>${r.chatbot}</small></td><td>${r.vendor||"Unassigned"}</td><td><span class="stage">Forecast</span></td><td>${fmtCompact(r.revenue)}</td><td>${fmtCompact(r.cost)}</td><td class="${r.margin<0?'c360-margin-negative':'c360-margin-positive'}">${fmtCompact(r.margin)}</td></tr>`).join("")||`<tr><td colspan="7"><div class="empty-state">No future Chatbot R&amp;M rows are available for the next ${horizon} months.</div></td></tr>`;
+  document.getElementById("forecastStages").innerHTML=Object.entries(vendors).sort((a,b)=>b[1].revenue-a[1].revenue).map(([vendor,v])=>`<div class="mini-item"><b>${vendor}</b><span>${fmtCompact(v.revenue)} revenue · ${fmtCompact(v.revenue-v.cost)} margin</span></div>`).join("")||'<div class="empty-state">No vendor forecast data.</div>';
+  document.getElementById("forecastRisks").innerHTML=forecast.filter(r=>r.margin<0).map(r=>`<div class="mini-item"><b>${r.chatbot}</b><span>${r.dateOfLive.toLocaleDateString("en-GB",{month:"short"})} · ${fmtCompact(r.margin)} margin</span></div>`).join("")||'<div class="empty-state">No negative forecast margins.</div>';
 }
 
 let c360Scope="all", c360Selected=null;

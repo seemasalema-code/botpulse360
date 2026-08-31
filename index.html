@@ -1106,8 +1106,8 @@ body{background:linear-gradient(135deg,#F7F8F3 0%,#F3F6F1 62%,#EEF5F1 100%)}
    browser to read it directly (Share → General access → Anyone with the link).
    ========================================================================= */
 const SHEET_ID = "1udQZmSHEpLWuQJO2k0t4UvA3zU8fUFkvx_1lIfINId8";
-const TAB_PROJECTS = "Chatbot Projects";
-const TAB_CHATBOTRM = "Chatbot R&M";
+const TAB_PROJECTS = "Dashboard Feed - Projects";
+const TAB_CHATBOTRM = "Dashboard Feed - R&M";
 const TAB_CONSUMABLE = "Consumable"; // legacy fallback for the WA sheet
 const TAB_WA_CONSUMABLE = "WA_Consumables";
 const TAB_RCS_CONSUMABLE = "RCS_Consumables";
@@ -1195,7 +1195,8 @@ function fmtCompact(n){
 }
 
 function gvizJsonpUrl(sheetName, cbName){
-  return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json;responseHandler:${cbName}&headers=0&sheet=${encodeURIComponent(sheetName)}&_=${Date.now()}`;
+  const feedRange=sheetName==="Dashboard Feed - Projects"?"&range=A1:AS2000":sheetName==="Dashboard Feed - R&M"?"&range=A1:AM3500":"";
+  return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json;responseHandler:${cbName}&headers=0&sheet=${encodeURIComponent(sheetName)}${feedRange}&_=${Date.now()}`;
 }
 let jsonpCounter = 0;
 function loadSheetJSONP(sheetName){
@@ -1259,14 +1260,15 @@ function parseDate(s){
 function simpleHash(str){ let h=0; for(let i=0;i<str.length;i++){ h=(h*31+str.charCodeAt(i))|0; } return h; }
 
 async function fetchSheetRows(sheetName, preferSnapshot=false){
-  const snapshotRows = window.EMBEDDED_SHEETS_CURRENT && window.EMBEDDED_SHEETS_CURRENT[sheetName];
+  const snapshotName=sheetName==="Dashboard Feed - Projects"?"Chatbot Projects":sheetName==="Dashboard Feed - R&M"?"Chatbot R&M":sheetName;
+  const snapshotRows = window.EMBEDDED_SHEETS_CURRENT && window.EMBEDDED_SHEETS_CURRENT[snapshotName];
   if(preferSnapshot) return { rows:snapshotRows||[], raw:JSON.stringify(snapshotRows||[]), source:"snapshot" };
   try{
     const table = await loadSheetJSONP(sheetName);
     const rows = tableToRows(table);
     return { rows, raw: JSON.stringify(rows), source:"live" };
   }catch(err){
-    const rows = window.EMBEDDED_SHEETS_CURRENT && window.EMBEDDED_SHEETS_CURRENT[sheetName];
+    const rows = window.EMBEDDED_SHEETS_CURRENT && window.EMBEDDED_SHEETS_CURRENT[snapshotName];
     if(!rows) throw err;
     return { rows, raw: JSON.stringify(rows), source:"snapshot" };
   }
@@ -1294,7 +1296,8 @@ function parseConsumableSheet(rows){
 // active filter. Reconcile those live rows into the complete embedded snapshot
 // so a user's temporary Sheet filter never shrinks the dashboard portfolio.
 function reconcileFilteredSheet(sheetName, liveResult, headerTest, keyForRow){
-  const snapshot=(window.EMBEDDED_SHEETS_CURRENT&&window.EMBEDDED_SHEETS_CURRENT[sheetName])||[];
+  const snapshotName=sheetName==="Dashboard Feed - Projects"?"Chatbot Projects":sheetName==="Dashboard Feed - R&M"?"Chatbot R&M":sheetName;
+  const snapshot=(window.EMBEDDED_SHEETS_CURRENT&&window.EMBEDDED_SHEETS_CURRENT[snapshotName])||[];
   const live=liveResult&&liveResult.rows||[];
   if(!snapshot.length||!live.length) return liveResult;
   const snapHeader=snapshot.findIndex(headerTest),liveHeader=live.findIndex(headerTest);

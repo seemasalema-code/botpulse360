@@ -969,7 +969,7 @@ body{background:linear-gradient(135deg,#F7F8F3 0%,#F3F6F1 62%,#EEF5F1 100%)}
 
   <!-- ===================== PAGE: FORECAST & PIPELINE ===================== -->
   <section class="page executive-section" id="page-forecast">
-    <div class="app-intro"><div><h2>Chatbot Revenue Forecast</h2><p>Future month revenue, vendor cost and margin from live-project rows in Chatbot R&amp;M</p></div></div>
+    <div class="app-intro"><div><h2>Combined Revenue Forecast</h2><p>Live chatbot run-rate plus the trailing 3-month WhatsApp and RCS consumption average</p></div></div>
     <div class="metric-grid" id="forecastKpis"></div>
     <div class="workspace-grid" style="margin-top:18px">
       <div class="workspace-main"><div class="insight-panel"><div class="forecast-mode-row"><h3 id="forecastWindowTitle">Monthly Financial Forecast</h3><div class="pipeline-view-toggle" id="forecastViewToggle"><button type="button" data-forecast-view="3" class="active">3 months</button><button type="button" data-forecast-view="6">6 months</button></div></div><div class="pipeline-track" id="forecastWindows"></div></div><div class="insight-panel action-table-wrap"><table class="action-table"><thead><tr><th>Month</th><th>Client / chatbot</th><th>Vendor</th><th>Type</th><th>Revenue</th><th>Cost</th><th>Margin</th></tr></thead><tbody id="forecastBody"></tbody></table></div></div>
@@ -1113,6 +1113,7 @@ const TAB_WA_CONSUMABLE = "WA_Consumables";
 const TAB_RCS_CONSUMABLE = "RCS_Consumables";
 const TAB_CLIENTLIST = "Client List";
 const REFRESH_MS = 5 * 60 * 1000;
+const REPORTING_START = new Date(2026,3,1); // DD/MM/YYYY: 01/04/2026
 // Verified read-only snapshot from the protected Netcore workbook. GitHub Pages
 // uses this when the public Google Visualization endpoint is blocked by company
 // sharing policy, so external viewers still see the real source-sheet records.
@@ -1389,7 +1390,7 @@ async function syncData(preferSnapshot=false){
         const revenue = num(r[kRev]), cost = num(r[kCost]), margin = num(r[kMargin]);
         // Chatbot R&M also has formula-generated future month placeholders.
         // Keep a month only after it contains actual revenue, cost or margin data.
-        if(!dateOfLive || (!revenue && !cost && !margin)) continue;
+        if(!dateOfLive || dateOfLive<REPORTING_START || (!revenue && !cost && !margin)) continue;
         const qty={ai:num(r[kAiQty]),bot:num(r[kBotQty]),agent:num(r[kAgentQty]),conversation:num(r[kConvQty])};
         const revenueParts={dev:num(r[kNetcoreDev]),rental:num(r[kNetcoreRental]),ai:num(r[kNetcoreAi]),bot:num(r[kNetcoreBot]),agent:num(r[kNetcoreAgent]),conversation:num(r[kNetcoreConv])};
         const costParts={dev:num(r[kVendorDev]),rental:num(r[kVendorRental]),ai:num(r[kVendorAi]),bot:num(r[kVendorBot]),agent:num(r[kVendorAgent]),conversation:num(r[kVendorConv])};
@@ -1404,8 +1405,8 @@ async function syncData(preferSnapshot=false){
     // col B = Month (first-of-month date), col C = Revenue, col D = Cost. Data can start after
     // one or more header/title rows, so scan for the first row that actually looks like data
     // (a client name plus a parseable date in the Month column) instead of assuming a fixed row.
-    const newConsumable = parseConsumableSheet(cons.rows);
-    const newRcsConsumable = parseConsumableSheet(rcsCons.rows);
+    const newConsumable = parseConsumableSheet(cons.rows).filter(r=>r.month&&r.month>=REPORTING_START);
+    const newRcsConsumable = parseConsumableSheet(rcsCons.rows).filter(r=>r.month&&r.month>=REPORTING_START);
 
     // Client List sheet — one company name per row (header row, if any, is filtered out below).
     // Unioned with every client name actually seen in the other three tabs so the autocomplete
@@ -1443,7 +1444,7 @@ async function syncData(preferSnapshot=false){
 
     PROJECTS = newProjects; DELAYED_COUNT = delayed; COMMERCIALS = newCommercials; FORECAST_COMMERCIALS = newForecastCommercials;
     CONSUMABLE = newConsumable; RCS_CONSUMABLE = newRcsConsumable; CLIENT_NAMES = newClientNames; usingLiveData = true;
-    usingSnapshotData = [proj, rm, commercialSheet, cons, rcsCons].some(item=>item && item.source==="snapshot");
+    usingSnapshotData = [proj, rm, cons, rcsCons].some(item=>item && item.source==="snapshot");
     CLIENT_INDUSTRY = newClientIndustry; INDUSTRIES = newIndustries;
     setSyncState("ok"); showChangeBadge(changed);
     changeBadge.textContent = "Sheet updated";
@@ -2575,7 +2576,7 @@ function renderMonthlyTrend(periodRows){
 const csToday = new Date();
 const csFilter = { year:String(fiscalYear(csToday)), months:new Set([csToday.getMonth()+1]), clients:new Set(), industries: new Set() };
 let csInitialPeriodApplied = false;
-const CLIENT_SUMMARY_START = new Date(2026,3,1); // reporting begins 1 Apr 2026
+const CLIENT_SUMMARY_START = REPORTING_START; // reporting begins 01/04/2026
 let csBreakdownView = "total";
 // Set when a row in the Monthly Breakdown table is clicked, to drill the new client-level
 // Records list (below) down into just that one month. Cleared via the ✕ on its breadcrumb or
@@ -3013,14 +3014,29 @@ function renderVendorPerformance(){
 let forecastView="3";
 function renderForecast(){
   const today=new Date(), horizon=Number(forecastView), horizonEnd=new Date(today.getFullYear(),today.getMonth()+horizon+1,0);
-  const forecast=FORECAST_COMMERCIALS.filter(r=>r.dateOfLive<=horizonEnd).sort((a,b)=>a.dateOfLive-b.dateOfLive||a.client.localeCompare(b.client));
+  const fKey=s=>String(s||"").toLowerCase().replace(/[^a-z0-9]+/g,"");
+  const futureMonths=Array.from({length:horizon},(_,i)=>new Date(today.getFullYear(),today.getMonth()+i+1,1));
+  const latestActual=new Map(),explicitFuture=new Map();
+  COMMERCIALS.forEach(r=>{const key=fKey(r.chatbot),old=latestActual.get(key);if(key&&(!old||r.dateOfLive>old.dateOfLive))latestActual.set(key,r);});
+  FORECAST_COMMERCIALS.filter(r=>r.dateOfLive<=horizonEnd).forEach(r=>explicitFuture.set(fKey(r.chatbot)+"|"+monthKey(r.dateOfLive),r));
+  const forecast=[];
+  PROJECTS.filter(p=>String(p.stage||"").toLowerCase()==="live").forEach(p=>{
+    const key=fKey(p.chatbot),run=latestActual.get(key);if(!run)return;
+    futureMonths.forEach(month=>{const explicit=explicitFuture.get(key+"|"+monthKey(month));forecast.push(explicit||{...run,dateOfLive:month,margin:run.revenue-run.cost,periodType:"Forecast",forecastBasis:"Latest live Chatbot R&M month"});});
+  });
+  const addUsageRunRate=(rows,channel)=>{
+    const byClient=new Map();rows.filter(r=>r.month&&r.month>=REPORTING_START).forEach(r=>{const list=byClient.get(r.client)||[];list.push(r);byClient.set(r.client,list);});
+    byClient.forEach((rows,client)=>{const last3=rows.sort((a,b)=>b.month-a.month).slice(0,3);if(!last3.length)return;const revenue=last3.reduce((s,r)=>s+r.revenue,0)/last3.length,cost=last3.reduce((s,r)=>s+r.cost,0)/last3.length;futureMonths.forEach(month=>forecast.push({client,chatbot:`${channel} consumption run-rate`,vendor:"Consumables",dateOfLive:month,revenue,cost,margin:revenue-cost,periodType:"Forecast",forecastBasis:"Trailing 3-month average"}));});
+  };
+  addUsageRunRate(CONSUMABLE,"WhatsApp");addUsageRunRate(RCS_CONSUMABLE,"RCS");
+  forecast.sort((a,b)=>a.dateOfLive-b.dateOfLive||a.client.localeCompare(b.client));
   const windows=[];for(let i=1;i<=horizon;i++){const start=new Date(today.getFullYear(),today.getMonth()+i,1),key=monthKey(start),rows=forecast.filter(r=>monthKey(r.dateOfLive)===key);windows.push({label:start.toLocaleDateString("en-GB",{month:"short",year:"numeric"}),rows,revenue:rows.reduce((s,r)=>s+r.revenue,0),cost:rows.reduce((s,r)=>s+r.cost,0)});}
   const revenue=forecast.reduce((s,r)=>s+r.revenue,0),cost=forecast.reduce((s,r)=>s+r.cost,0),margin=revenue-cost,vendors={};forecast.forEach(r=>{const v=vendors[r.vendor]||(vendors[r.vendor]={revenue:0,cost:0});v.revenue+=r.revenue;v.cost+=r.cost;});
-  document.getElementById("forecastKpis").innerHTML=[{label:"Forecast revenue",value:fmtCompact(revenue),hint:`next ${horizon} months`},{label:"Forecast cost",value:fmtCompact(cost),hint:"vendor cost"},{label:"Forecast margin",value:fmtCompact(margin),hint:revenue?(margin/revenue*100).toFixed(1)+"% margin":"—"},{label:"Live projects",value:new Set(forecast.map(r=>r.chatbot)).size,hint:"with future R&M rows"}].map(k=>`<div class="metric-card"><span>${k.label}</span><b>${k.value}</b><small>${k.hint}</small></div>`).join("");
-  document.getElementById("forecastWindowTitle").textContent="Monthly Financial Forecast";
+  document.getElementById("forecastKpis").innerHTML=[{label:"Forecast revenue",value:fmtCompact(revenue),hint:`chatbots + consumables · ${horizon} months`},{label:"Forecast cost",value:fmtCompact(cost),hint:"combined delivery cost"},{label:"Forecast margin",value:fmtCompact(margin),hint:revenue?(margin/revenue*100).toFixed(1)+"% margin":"—"},{label:"Live chatbots",value:new Set(forecast.filter(r=>r.vendor!=="Consumables").map(r=>r.chatbot)).size,hint:"using latest R&M run-rate"}].map(k=>`<div class="metric-card"><span>${k.label}</span><b>${k.value}</b><small>${k.hint}</small></div>`).join("");
+  document.getElementById("forecastWindowTitle").textContent="Monthly Combined Forecast";
   document.querySelectorAll("#forecastViewToggle button").forEach(btn=>{btn.classList.toggle("active",btn.dataset.forecastView===forecastView);btn.onclick=()=>{forecastView=btn.dataset.forecastView;renderForecast();};});
   document.getElementById("forecastWindows").innerHTML=windows.map(w=>`<div class="pipeline-step"><b>${w.label}</b><span>${fmtCompact(w.revenue)} revenue</span><small>${fmtCompact(w.cost)} cost · ${fmtCompact(w.revenue-w.cost)} margin</small></div>`).join("");
-  document.getElementById("forecastBody").innerHTML=forecast.map(r=>`<tr><td>${r.dateOfLive.toLocaleDateString("en-GB",{month:"short",year:"numeric"})}</td><td><b>${r.client}</b><small>${r.chatbot}</small></td><td>${r.vendor||"Unassigned"}</td><td><span class="stage">Forecast</span></td><td>${fmtCompact(r.revenue)}</td><td>${fmtCompact(r.cost)}</td><td class="${r.margin<0?'c360-margin-negative':'c360-margin-positive'}">${fmtCompact(r.margin)}</td></tr>`).join("")||`<tr><td colspan="7"><div class="empty-state">No future Chatbot R&amp;M rows are available for the next ${horizon} months.</div></td></tr>`;
+  document.getElementById("forecastBody").innerHTML=forecast.map(r=>`<tr><td>${r.dateOfLive.toLocaleDateString("en-GB",{month:"short",year:"numeric"})}</td><td><b>${r.client}</b><small>${r.chatbot}</small></td><td>${r.vendor||"Unassigned"}</td><td><span class="stage">Forecast</span><small>${r.forecastBasis||"Chatbot R&M"}</small></td><td>${fmtCompact(r.revenue)}</td><td>${fmtCompact(r.cost)}</td><td class="${r.margin<0?'c360-margin-negative':'c360-margin-positive'}"><b>${fmtCompact(r.margin)}</b></td></tr>`).join("")||`<tr><td colspan="7"><div class="empty-state">No forecast baseline is available. Add a live Chatbot R&amp;M month or WA/RCS consumption history.</div></td></tr>`;
   document.getElementById("forecastStages").innerHTML=Object.entries(vendors).sort((a,b)=>b[1].revenue-a[1].revenue).map(([vendor,v])=>`<div class="mini-item"><b>${vendor}</b><span>${fmtCompact(v.revenue)} revenue · ${fmtCompact(v.revenue-v.cost)} margin</span></div>`).join("")||'<div class="empty-state">No vendor forecast data.</div>';
   document.getElementById("forecastRisks").innerHTML=forecast.filter(r=>r.margin<0).map(r=>`<div class="mini-item"><b>${r.chatbot}</b><span>${r.dateOfLive.toLocaleDateString("en-GB",{month:"short"})} · ${fmtCompact(r.margin)} margin</span></div>`).join("")||'<div class="empty-state">No negative forecast margins.</div>';
 }

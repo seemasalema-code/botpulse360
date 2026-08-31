@@ -1676,7 +1676,7 @@ function refreshIndustryUI(prefix, filterObj, onChange){
   updateIndustryBtn(prefix, filterObj);
 }
 
-function initTimebar(segId, dateId, labelId, state, onChange, yearGroupId, monthGroupId, views){
+function initTimebar(segId, dateId, labelId, state, onChange, yearGroupId, monthGroupId, views, alwaysShowDate=false){
   const seg = document.getElementById(segId);
   const dateInput0 = document.getElementById(dateId);
   const dateGroup = dateInput0.parentElement;
@@ -1694,10 +1694,11 @@ function initTimebar(segId, dateId, labelId, state, onChange, yearGroupId, month
   };
   const syncGroups = (v)=>{
     const useMonthPicker = v==="Year" || v==="Monthly";
-    dateGroup.style.display = useMonthPicker ? "none" : "";
+    dateGroup.style.display = alwaysShowDate ? "" : (useMonthPicker ? "none" : "");
     if(yearGroup) yearGroup.style.display = useMonthPicker ? "" : "none";
     if(monthGroup) monthGroup.style.display = useMonthPicker ? "" : "none";
     syncDateInput(v);
+    if(alwaysShowDate&&useMonthPicker){const label=dateGroup.querySelector("label");if(label)label.textContent="Delay as of";}
   };
   (views || ["Daily","Weekly","Monthly","Year"]).forEach(v=>{
     const b=document.createElement("button"); b.textContent=v; b.className=v===state.view?"active":"";
@@ -1716,7 +1717,7 @@ function initTimebar(segId, dateId, labelId, state, onChange, yearGroupId, month
     if(picked){ state.asOf=state.view==="Weekly"?sundayOf(picked):picked; syncDateInput(state.view); onChange(); }
   });
 }
-initTimebar("segView","asOfDate","periodLabel", timeChat, ()=>renderChatbots(), "yearGroupChat","monthGroupChat");
+initTimebar("segView","asOfDate","periodLabel", timeChat, ()=>renderChatbots(), "yearGroupChat","monthGroupChat", undefined, true);
 initTimebar("segViewRev","asOfDateRev","periodLabelRev", timeRev, ()=>renderRevenue(), "yearGroupRev","monthGroupRev", ["Monthly","Year"]);
 initTimebar("segViewCons","asOfDateCons","periodLabelCons", timeCons, ()=>renderConsumable(), "yearGroupCons","monthGroupCons", ["Year","Monthly"]);
 setupYearMonthUI("Chat", timeChat, ()=>renderChatbots());
@@ -1754,6 +1755,10 @@ function milestoneMatchesProject(p, key, start, end){
 // themselves, so every chip can still show how many records it would match.
 function projectsInScope(){
   const {start,end} = periodBounds(timeChat);
+  const todayCutoff=new Date();todayCutoff.setHours(0,0,0,0);
+  const selectedCutoff=new Date(timeChat.asOf);selectedCutoff.setHours(0,0,0,0);
+  const periodCutoff=new Date(end);periodCutoff.setHours(0,0,0,0);
+  const delayCutoff=new Date(Math.min(todayCutoff.getTime(),periodCutoff.getTime(),(timeChat.view==="Year"||timeChat.view==="Monthly")?selectedCutoff.getTime():periodCutoff.getTime()));
   return PROJECTS.filter(p => projectMatchesTime(p, timeChat, start, end) &&
     (filters.industries.size===0 || filters.industries.has(industryOf(p))));
 }
@@ -2214,9 +2219,12 @@ function renderChatbots(){
     const live=p.dates.liveDate?dateOnly(p.dates.liveDate):null;
     return (!brief||brief<=point) && target<point && (!live||live>point);
   };
-  const delayDaysAsOf=(p,asOf)=>p.dates.targetLive
-    ? Math.max(0,Math.floor((dateOnly(asOf)-dateOnly(p.dates.targetLive))/86400000))
-    : null;
+  const delayDaysAsOf=(p,asOf)=>{
+    if(!p.dates.targetLive)return null;
+    const point=dateOnly(asOf),live=p.dates.liveDate?dateOnly(p.dates.liveDate):null;
+    const calculationEnd=live&&live<=point?live:point;
+    return Math.max(0,Math.floor((calculationEnd-dateOnly(p.dates.targetLive))/86400000));
+  };
   const financialKey=s=>String(s||"").toLowerCase().replace(/\b(re|fw|fwd)\s*:/g,"").replace(/[^a-z0-9]+/g,"");
   const financialForProject=(p,eventDate)=>{
     const projectKey=financialKey(p.chatbot), clientKey=financialKey(p.client);
@@ -2257,7 +2265,7 @@ function renderChatbots(){
       else if(inPeriod(p.dates.dev)) highlights.push(`${p.chatbot} started development`);
       else if(inPeriod(p.dates.comm)) highlights.push(`${p.chatbot} — commercials shared`);
     });
-    const lowlights=PROJECTS.filter(p=>delayedAsOf(p,end)).sort((a,b)=>delayDaysAsOf(b,end)-delayDaysAsOf(a,end));
+    const lowlights=PROJECTS.filter(p=>delayedAsOf(p,delayCutoff)).sort((a,b)=>delayDaysAsOf(b,delayCutoff)-delayDaysAsOf(a,delayCutoff));
     const developmentProjects=PROJECTS.filter(p=>inPeriod(p.dates.dev));
     const liveProjects=PROJECTS.filter(p=>inPeriod(p.dates.liveDate));
     const developmentFinance=developmentProjects.map(p=>financialBreakdownForProject(p,p.dates.dev));
@@ -2290,7 +2298,7 @@ function renderChatbots(){
       <div class="weekly-change-grid">
         <div class="weekly-change-block new"><h3>New requirements · ${newRequirements.length}</h3>${list(newRequirements,"No new requirements recorded.",p=>`${p.chatbot} — ${p.stage}`)}</div>
         <div class="weekly-change-block high"><h3>Highlights · ${highlights.length}</h3>${list(highlights,"No positive milestone changes recorded.")}</div>
-        <div class="weekly-change-block low"><h3>Lowlights / delays · ${lowlights.length}</h3>${list(lowlights,"No delayed or blocked projects for this period.",p=>`${p.chatbot} — ${delayDaysAsOf(p,end)} days delayed${p.delayComment?`: ${p.delayComment}`:""}`)}</div>
+        <div class="weekly-change-block low"><h3>Lowlights / delays · ${lowlights.length}</h3>${list(lowlights,"No delayed or blocked projects for this period.",p=>`${p.chatbot} — ${delayDaysAsOf(p,delayCutoff)} days delayed${p.delayComment?`: ${p.delayComment}`:""}`)}</div>
         <div class="weekly-change-block action"><h3>Actions to be taken · ${lowlights.length}</h3>${list(lowlights,"No recovery actions required.",nextAction)}</div>
       </div>`;
     weeklySummary.querySelectorAll("[data-finance-detail]").forEach(card=>card.addEventListener("click",()=>{
@@ -2320,7 +2328,7 @@ function renderChatbots(){
   let EXTRA_COLS = (filters.delayedOnly||filters.deliveryStatus==="delayed")
     ? [
       {header:"Actual Live Date",cell:p=>p.dates.liveDate ? fmtD(p.dates.liveDate) : "Not live yet"},
-      {header:"Delay Days",cell:p=>{const days=delayDaysAsOf(p,end);return days===null?"—":`<b style="color:var(--delay)">-${days}</b>`;}},
+      {header:"Delay Days",cell:p=>{const days=delayDaysAsOf(p,delayCutoff);return days===null?"—":`<b style="color:var(--delay)">-${days}</b>`;}},
       {header:"Delay Reason / Comment",cell:p=>p.delayComment||"Reason not entered in sheet"}
     ]
     : filters.deliveryStatus==="development"

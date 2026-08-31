@@ -1782,7 +1782,10 @@ function filteredProjects(){
     (!filters.vendor || p.vendor===filters.vendor) &&
     (filters.aiEnabled==="All" || p.aiEnabled===filters.aiEnabled) &&
     (filters.industries.size===0 || filters.industries.has(industryOf(p))) &&
-    (!filters.delayedOnly || projectDelayedAsOf(p,end)) &&
+    // The top Delayed KPI is sourced from the sheet's Delivery Status flag, so its
+    // drill-down must use that same flag. Date-based delay reconstruction remains
+    // available for the reporting-period Delivery Status chip below.
+    (!filters.delayedOnly || /^delayed/i.test(String(p.delayFlag||""))) &&
     (!filters.deliveryStatus || (filters.deliveryStatus==="delayed"?projectDelayedAsOf(p,end):projectInDevelopmentNotLiveAsOf(p,end))) &&
     (!filters.milestone || milestoneMatchesProject(p, filters.milestone, start, end))
   );

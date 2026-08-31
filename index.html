@@ -1,4 +1,4 @@
-https://docs.google.com/spreadsheets/d/1xyUGn-5rwDN8l91Vw36zjYM-AsqV73ZlwJsIJtAV7b0/edit?gid=1311261314#gid=1311261314  https://docs.google.com/spreadsheets/d/1udQZmSHEpLWuQJO2k0t4UvA3zU8fUFkvx_1lIfINId8/edit?gid=888299704#gid=8882997041xyUGn-5rwDN8l91Vw36zjYM-AsqV73ZlwJsIJtAV7b0  1udQZmSHEpLWuQJO2k0t4UvA3zU8fUFkvx_1lIfINId8<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -219,14 +219,15 @@ https://docs.google.com/spreadsheets/d/1xyUGn-5rwDN8l91Vw36zjYM-AsqV73ZlwJsIJtAV
   #page-consumable .timebar .tf-group{gap:8px;}
   #page-consumable .timebar select,#page-consumable .timebar .ms-btn,#page-consumable .timebar input{min-height:38px;background:#fff;border-color:#DADDF0;}
   #page-consumable #monthPanelCons{left:auto;right:0;min-width:176px;}
-  #page-consumable .consumable-layout{grid-template-columns:minmax(0,1.55fr) minmax(340px,.85fr);gap:22px;margin-top:20px;align-items:start;}
-  #page-consumable .consumable-main,#page-consumable .consumable-side{min-width:0;}
+  #page-consumable .consumable-layout{grid-template-columns:repeat(2,minmax(0,1fr));gap:22px;margin-top:20px;align-items:stretch;}
+  #page-consumable .consumable-main,#page-consumable .consumable-side{min-width:0;display:flex;}
   #page-consumable #recordsCons,#page-consumable .top-clients-panel{background:#fff;border:1px solid #E1E4F1;border-radius:18px;overflow:hidden;box-shadow:0 12px 30px -24px rgba(34,40,84,.45);}
+  #page-consumable #recordsCons,#page-consumable .top-clients-panel{width:100%;height:590px;}
   #page-consumable #recordsCons .records-head{background:linear-gradient(135deg,#F7FAFF,#F7F4FF);}
-  #page-consumable #recordsCons .records-body{min-height:360px;max-height:520px;}
+  #page-consumable #recordsCons .records-body{height:calc(100% - 57px);min-height:0;max-height:none;}
   #page-consumable .top-clients-panel{padding:0;}
   #page-consumable .top-clients-panel h2{margin:0;padding:20px 20px 16px;background:linear-gradient(135deg,#FFF8F2,#F7F3FF);border-bottom:1px solid #E7E3F1;}
-  #page-consumable #consTopClients{padding:6px 12px 12px;overflow:hidden;}
+  #page-consumable #consTopClients{height:calc(100% - 57px);padding:6px 12px 12px;overflow:auto;}
   #page-consumable #consTopClients table{width:100%;table-layout:fixed;margin:0;}
   #page-consumable #consTopClients th:nth-child(1),#page-consumable #consTopClients td:nth-child(1){width:34px;text-align:center;}
   #page-consumable #consTopClients th:nth-child(2),#page-consumable #consTopClients td:nth-child(2){width:auto;white-space:normal;overflow-wrap:anywhere;line-height:1.35;}
@@ -241,7 +242,7 @@ https://docs.google.com/spreadsheets/d/1xyUGn-5rwDN8l91Vw36zjYM-AsqV73ZlwJsIJtAV
   #page-consumable #consTopClients td:first-child{font-weight:700;color:var(--accent);}
   #page-consumable #consTopClients .client-meta{font-size:9px;color:#8990AD;margin-top:4px;font-weight:500;}
   #page-consumable #consTotalRow td{background:var(--cons-mint);border-top:2px solid #9FD8C1;color:#155F4A;}
-  @media(max-width:1100px){#page-consumable .consumable-layout{grid-template-columns:1fr;}#page-consumable .consumable-side{position:static;}}
+  @media(max-width:1100px){#page-consumable .consumable-layout{grid-template-columns:1fr;}#page-consumable .consumable-side{position:static;}#page-consumable #recordsCons,#page-consumable .top-clients-panel{height:auto;}#page-consumable #recordsCons .records-body,#page-consumable #consTopClients{height:auto;max-height:520px;}}
   @media(max-width:700px){#page-consumable .kpi-row{grid-template-columns:1fr 1fr;gap:10px;}#page-consumable .kpi{min-height:108px;padding:16px;}#page-consumable .kpi .value{font-size:26px;}#page-consumable .timebar .tf-group,#page-consumable .timebar select,#page-consumable .timebar .ms-btn{width:100%;}#page-consumable #clientSelCons{min-width:0!important;}#page-consumable .consumable-layout{gap:14px;}#page-consumable #recordsCons .records-body{min-height:240px;overflow-x:auto;}}
   .bar-cell{display:flex; align-items:center; gap:8px;}
   .bar-track{flex:1; height:7px; background:var(--surface-alt); border-radius:5px; overflow:hidden;}
@@ -513,7 +514,7 @@ https://docs.google.com/spreadsheets/d/1xyUGn-5rwDN8l91Vw36zjYM-AsqV73ZlwJsIJtAV
   .rev-layout{grid-template-columns:minmax(0,1fr) minmax(420px,31%);gap:var(--section-gap);}
   #page-revenue .rev-layout{gap:var(--section-gap);margin-top:var(--section-gap);}
   #page-revenue .rev-main>.panel + .panel,#page-revenue #recordsRev{margin-top:var(--section-gap)!important;}
-  #page-consumable .consumable-layout{grid-template-columns:minmax(0,1.7fr) minmax(360px,.72fr);gap:var(--section-gap);}
+  #page-consumable .consumable-layout{grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--section-gap);}
   .cs-rev-layout{gap:var(--section-gap);}
   .cs-groups,.cs-groups-pair,.cs-trend-row{gap:var(--section-gap);}
 
@@ -673,7 +674,7 @@ body{background:linear-gradient(135deg,#F7F8F3 0%,#F3F6F1 62%,#EEF5F1 100%)}
         <span class="sync-text" id="syncText">Connecting to sheet…</span>
       </div>
       <button id="syncBtn">Sync now</button>
-      <a class="source-data-link" href="https://docs.google.com/spreadsheets/d/1xyUGn-5rwDN8l91Vw36zjYM-AsqV73ZlwJsIJtAV7b0/edit?gid=1311261314#gid=1311261314" target="_blank" rel="noopener noreferrer" aria-label="Open Botplus 360 source data in Google Sheets">View source data ↗</a>
+      <a class="source-data-link" href="https://docs.google.com/spreadsheets/d/1udQZmSHEpLWuQJO2k0t4UvA3zU8fUFkvx_1lIfINId8/edit?gid=888299704#gid=888299704" target="_blank" rel="noopener noreferrer" aria-label="Open Botplus 360 source data in Google Sheets">View source data ↗</a>
   </div>
   <div class="sync-error-banner" id="errorBanner"><div class="box" id="errorBox"></div></div>
 </div>
@@ -1086,7 +1087,7 @@ body{background:linear-gradient(135deg,#F7F8F3 0%,#F3F6F1 62%,#EEF5F1 100%)}
    The sheet must be shared as "Anyone with the link – Viewer" for the
    browser to read it directly (Share → General access → Anyone with the link).
    ========================================================================= */
-const SHEET_ID = "1xyUGn-5rwDN8l91Vw36zjYM-AsqV73ZlwJsIJtAV7b0";
+const SHEET_ID = "1udQZmSHEpLWuQJO2k0t4UvA3zU8fUFkvx_1lIfINId8";
 const TAB_PROJECTS = "Chatbot Projects";
 const TAB_COMMERCIALS = "Commercials";
 const TAB_CHATBOTRM = "Chatbot R&M";
@@ -3219,3 +3220,4 @@ syncData(true).then(()=>setTimeout(()=>syncData(false),150));
 </script>
 </body>
 </html>
+

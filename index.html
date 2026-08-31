@@ -1290,14 +1290,33 @@ function parseConsumableSheet(rows){
   return out;
 }
 
+// Google Visualization can return only visible rows when a source tab has an
+// active filter. Reconcile those live rows into the complete embedded snapshot
+// so a user's temporary Sheet filter never shrinks the dashboard portfolio.
+function reconcileFilteredSheet(sheetName, liveResult, headerTest, keyForRow){
+  const snapshot=(window.EMBEDDED_SHEETS_CURRENT&&window.EMBEDDED_SHEETS_CURRENT[sheetName])||[];
+  const live=liveResult&&liveResult.rows||[];
+  if(!snapshot.length||!live.length) return liveResult;
+  const snapHeader=snapshot.findIndex(headerTest),liveHeader=live.findIndex(headerTest);
+  if(snapHeader<0||liveHeader<0) return liveResult;
+  const merged=new Map();
+  snapshot.slice(snapHeader+1).forEach(row=>{const key=keyForRow(row);if(key)merged.set(key,row);});
+  live.slice(liveHeader+1).forEach(row=>{const key=keyForRow(row);if(key)merged.set(key,row);});
+  return {...liveResult,rows:[...live.slice(0,liveHeader+1),...merged.values()],raw:JSON.stringify([...live.slice(0,liveHeader+1),...merged.values()]),source:"live"};
+}
+
 async function syncData(preferSnapshot=false){
   setSyncState("connecting");
   try{
     const waPromise=fetchSheetRows(TAB_WA_CONSUMABLE, preferSnapshot).catch(()=>fetchSheetRows(TAB_CONSUMABLE, preferSnapshot));
     const rcsPromise=fetchSheetRows(TAB_RCS_CONSUMABLE, preferSnapshot).catch(e=>{console.warn("RCS consumables sheet fetch failed:",e);return {rows:[],raw:"",source:preferSnapshot?"snapshot":"live"};});
-    const [proj, rm, cons, rcsCons] = await Promise.all([
+    let [proj, rm, cons, rcsCons] = await Promise.all([
       fetchSheetRows(TAB_PROJECTS, preferSnapshot), fetchSheetRows(TAB_CHATBOTRM, preferSnapshot), waPromise, rcsPromise
     ]);
+    if(!preferSnapshot){
+      proj=reconcileFilteredSheet(TAB_PROJECTS,proj,row=>(row[1]||"").trim()==="Chatbot",row=>`${String(row[0]||"").trim().toLowerCase()}|${String(row[1]||"").trim().toLowerCase()}`);
+      rm=reconcileFilteredSheet(TAB_CHATBOTRM,rm,row=>row.some(v=>String(v||"").trim()==="Chatbot")&&row.some(v=>String(v||"").trim()==="Month"),row=>`${String(row[0]||"").trim().toLowerCase()}|${String(row[1]||"").trim().toLowerCase()}|${String(row[3]||"").trim().toLowerCase()}`);
+    }
     // The current workbook has no Client List tab. Client names and industries are
     // derived from the complete Projects, R&M, WA and RCS data pulled above.
     const clList = {rows:[], raw:"", source:preferSnapshot?"snapshot":"live"};

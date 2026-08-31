@@ -3066,14 +3066,17 @@ function renderVendorPerformance(){
   document.getElementById("vendorConcentration").innerHTML=rows.slice(0,4).map(r=>`<div class="mini-item"><b>${r.vendor}</b><span>${totalProjects?(r.projects/totalProjects*100).toFixed(1):0}% of portfolio · ${fmtCompact(r.margin)} margin</span></div>`).join("");
 }
 
-let forecastView="3";
+let forecastView="6";
 function renderForecast(){
   const today=new Date(), horizon=Number(forecastView), horizonEnd=new Date(today.getFullYear(),today.getMonth()+horizon+1,0);
   const fKey=s=>String(s||"").toLowerCase().replace(/[^a-z0-9]+/g,"");
-  const projectKey=(client,chatbot)=>fKey(client)+"|"+fKey(chatbot);
+  // Chatbot R&M and Projects share the chatbot name as their stable matching
+  // field. Client legal names can differ slightly between the two tabs, so a
+  // client+chatbot composite silently excluded otherwise valid live run-rates.
+  const projectKey=(client,chatbot)=>fKey(chatbot);
   const futureMonths=Array.from({length:horizon},(_,i)=>new Date(today.getFullYear(),today.getMonth()+i+1,1));
   const latestActual=new Map(),explicitFuture=new Map();
-  COMMERCIALS.forEach(r=>{const key=projectKey(r.client,r.chatbot),old=latestActual.get(key);if(key!=="|"&&(!old||r.dateOfLive>old.dateOfLive))latestActual.set(key,r);});
+  COMMERCIALS.forEach(r=>{const key=projectKey(r.client,r.chatbot),old=latestActual.get(key);if(key&&(!old||r.dateOfLive>old.dateOfLive))latestActual.set(key,r);});
   FORECAST_COMMERCIALS.filter(r=>r.dateOfLive<=horizonEnd).forEach(r=>explicitFuture.set(projectKey(r.client,r.chatbot)+"|"+monthKey(r.dateOfLive),r));
 
   const chatbotByMonth=new Map();

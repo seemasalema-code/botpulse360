@@ -1335,10 +1335,10 @@ async function syncData(preferSnapshot=false){
     let [proj, rm, cons, rcsCons] = await Promise.all([
       fetchSheetRows(TAB_PROJECTS, preferSnapshot), fetchSheetRows(TAB_CHATBOTRM, preferSnapshot), waPromise, rcsPromise
     ]);
-    if(!preferSnapshot){
-      proj=reconcileFilteredSheet(TAB_PROJECTS,proj,row=>(row[1]||"").trim()==="Chatbot",row=>`${String(row[0]||"").trim().toLowerCase()}|${String(row[1]||"").trim().toLowerCase()}`);
-      rm=reconcileFilteredSheet(TAB_CHATBOTRM,rm,row=>row.some(v=>String(v||"").trim()==="Chatbot")&&row.some(v=>String(v||"").trim()==="Month"),row=>`${String(row[0]||"").trim().toLowerCase()}|${String(row[1]||"").trim().toLowerCase()}|${String(row[3]||"").trim().toLowerCase()}`);
-    }
+    // The hidden Dashboard Feed tabs mirror the full source ranges and are not
+    // affected by filters on the working sheets. Treat them as authoritative.
+    // Merging the embedded snapshot here kept rows that had been deleted from
+    // Google Sheets, which made stale projects reappear on the dashboard.
     // The current workbook has no Client List tab. Client names and industries are
     // derived from the complete Projects, R&M, WA and RCS data pulled above.
     const clList = {rows:[], raw:"", source:preferSnapshot?"snapshot":"live"};
@@ -3323,7 +3323,10 @@ initIndustryUI("Cs", csFilter, ()=>renderClientSummary());
 document.getElementById("clearConsFiltersBtn").addEventListener("click",clearConsumableFilters);
 renderAll();
 applyMonthParam();
-syncData(true).then(()=>setTimeout(()=>syncData(false),150));
+// Load the live authoritative feeds first. fetchSheetRows already falls back
+// to the embedded snapshot when the network feed is unavailable, so a stale
+// snapshot no longer flashes before the current Google Sheet data arrives.
+syncData(false);
 </script>
 </body>
 </html>

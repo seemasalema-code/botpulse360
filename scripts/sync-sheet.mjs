@@ -29,11 +29,14 @@ function parseCsv(text) {
 }
 
 async function fetchCsv(name, gid) {
-  const url = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/export?format=csv&gid=${gid}`;
+  const urls = [
+    `https://docs.google.com/spreadsheets/d/${spreadsheetId}/gviz/tq?tqx=out:csv&headers=0&gid=${gid}`,
+    `https://docs.google.com/spreadsheets/d/${spreadsheetId}/export?format=csv&gid=${gid}`
+  ];
   let lastError;
-  for (let attempt = 1; attempt <= 3; attempt++) {
+  for (let attempt = 0; attempt < urls.length; attempt++) {
     try {
-      const response = await fetch(url, { signal: AbortSignal.timeout(240000) });
+      const response = await fetch(urls[attempt], { signal: AbortSignal.timeout(180000) });
       if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
       const rows = parseCsv(await response.text());
       if (rows.length < 2) throw new Error("sheet returned no data rows");
@@ -41,8 +44,7 @@ async function fetchCsv(name, gid) {
       return rows;
     } catch (error) {
       lastError = error;
-      console.warn(`${name}: attempt ${attempt} failed (${error.message})`);
-      if (attempt < 3) await new Promise(resolve => setTimeout(resolve, attempt * 15000));
+      console.warn(`${name}: source ${attempt + 1} failed (${error.message})`);
     }
   }
   throw lastError;
@@ -51,16 +53,18 @@ async function fetchCsv(name, gid) {
 const currentText = await readFile("data.js", "utf8");
 const currentJson = currentText.replace(/^\s*window\.EMBEDDED_SHEETS_CURRENT\s*=\s*/, "").replace(/;\s*$/, "");
 const workbook = JSON.parse(currentJson);
+const results = await Promise.allSettled(
+  Object.entries(tabs).map(async ([name, gid]) => [name, await fetchCsv(name, gid)])
+);
 let failures = 0;
-
-for (const [name, gid] of Object.entries(tabs)) {
-  try {
-    workbook[name] = await fetchCsv(name, gid);
-  } catch (error) {
+results.forEach((result, index) => {
+  const name = Object.keys(tabs)[index];
+  if (result.status === "fulfilled") workbook[result.value[0]] = result.value[1];
+  else {
     failures++;
-    console.error(`${name}: keeping the previous snapshot (${error.message})`);
+    console.error(`${name}: keeping the previous snapshot (${result.reason.message})`);
   }
-}
+});
 
 workbook.__meta = {
   spreadsheetId,

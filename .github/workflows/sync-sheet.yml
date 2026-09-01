@@ -23,6 +23,9 @@ jobs:
           node-version: "22"
       - name: Read all dashboard source sheets
         run: node scripts/sync-sheet.mjs
+        env:
+          BOTPLUS_ENDPOINT_URL: ${{ secrets.BOTPLUS_ENDPOINT_URL }}
+          BOTPLUS_SYNC_TOKEN: ${{ secrets.BOTPLUS_SYNC_TOKEN }}
       - name: Publish refreshed snapshot
         run: |
           if git diff --quiet -- data.js; then

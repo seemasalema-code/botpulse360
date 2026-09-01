@@ -9,6 +9,20 @@ const tabs = {
   "RCS_Consumables": 269889098
 };
 
+async function fetchProtectedWorkbook() {
+  const endpoint = process.env.BOTPLUS_ENDPOINT_URL;
+  const token = process.env.BOTPLUS_SYNC_TOKEN;
+  if (!endpoint || !token) return null;
+  const url = new URL(endpoint);
+  url.searchParams.set("feed", "1");
+  url.searchParams.set("token", token);
+  const response = await fetch(url, { signal: AbortSignal.timeout(330000) });
+  if (!response.ok) throw new Error(`protected endpoint returned ${response.status}`);
+  const payload = await response.json();
+  if (!payload || payload.error || !payload.sheets) throw new Error(payload?.error || "protected endpoint returned invalid data");
+  return payload;
+}
+
 function parseCsv(text) {
   const rows = [];
   let row = [], field = "", quoted = false;
@@ -53,18 +67,28 @@ async function fetchCsv(name, gid) {
 const currentText = await readFile("data.js", "utf8");
 const currentJson = currentText.replace(/^\s*window\.EMBEDDED_SHEETS_CURRENT\s*=\s*/, "").replace(/;\s*$/, "");
 const workbook = JSON.parse(currentJson);
-const results = await Promise.allSettled(
-  Object.entries(tabs).map(async ([name, gid]) => [name, await fetchCsv(name, gid)])
-);
 let failures = 0;
-results.forEach((result, index) => {
-  const name = Object.keys(tabs)[index];
-  if (result.status === "fulfilled") workbook[result.value[0]] = result.value[1];
-  else {
-    failures++;
-    console.error(`${name}: keeping the previous snapshot (${result.reason.message})`);
+const protectedWorkbook = await fetchProtectedWorkbook();
+if (protectedWorkbook) {
+  for (const name of Object.keys(tabs)) {
+    const rows = protectedWorkbook.sheets[name];
+    if (!Array.isArray(rows) || rows.length < 2) throw new Error(`${name}: protected endpoint returned no data rows`);
+    workbook[name] = rows;
+    console.log(`${name}: ${rows.length - 1} data rows`);
   }
-});
+} else {
+  const results = await Promise.allSettled(
+    Object.entries(tabs).map(async ([name, gid]) => [name, await fetchCsv(name, gid)])
+  );
+  results.forEach((result, index) => {
+    const name = Object.keys(tabs)[index];
+    if (result.status === "fulfilled") workbook[result.value[0]] = result.value[1];
+    else {
+      failures++;
+      console.error(`${name}: keeping the previous snapshot (${result.reason.message})`);
+    }
+  });
+}
 
 workbook.__meta = {
   spreadsheetId,

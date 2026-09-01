@@ -1214,8 +1214,15 @@ function fmtCompact(n){
 }
 
 function gvizJsonpUrl(sheetName, cbName){
-  const feedRange=sheetName==="Dashboard Feed - Projects"?"&range=A1:AS2000":sheetName==="Dashboard Feed - R&M"?"&range=A1:AM3500":"";
-  return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json;responseHandler:${cbName}&headers=0&sheet=${encodeURIComponent(sheetName)}${feedRange}&_=${Date.now()}`;
+  const feedRange={
+    "Dashboard Feed - Projects":"A1:AS2000",
+    "Dashboard Feed - R&M":"A1:AM3500",
+    "Commercials":"A1:AI5000",
+    "WA_Consumables":"A1:G2000",
+    "RCS_Consumables":"A1:G5000"
+  }[sheetName];
+  const rangeParam=feedRange?`&range=${feedRange}`:"";
+  return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json;responseHandler:${cbName}&headers=0&sheet=${encodeURIComponent(sheetName)}${rangeParam}&_=${Date.now()}`;
 }
 let jsonpCounter = 0;
 function loadSheetJSONP(sheetName){
@@ -1235,7 +1242,14 @@ function loadSheetJSONP(sheetName){
     const script = document.createElement("script");
     script.src = gvizJsonpUrl(sheetName, cbName);
     script.onerror = () => { if(settled) return; settled = true; cleanup(); reject(new Error("Couldn't load sheet — check it's shared as 'Anyone with the link'")); };
-    const timer = setTimeout(() => { if(settled) return; settled = true; cleanup(); reject(new Error("Timed out waiting for sheet data")); }, 12000);
+    const timer = setTimeout(() => {
+      if(settled) return;
+      settled = true;
+      if(script.parentNode) script.remove();
+      window[cbName] = () => {};
+      setTimeout(() => delete window[cbName], 120000);
+      reject(new Error("Timed out waiting for sheet data"));
+    }, 90000);
     document.head.appendChild(script);
   });
 }
@@ -1281,15 +1295,22 @@ function simpleHash(str){ let h=0; for(let i=0;i<str.length;i++){ h=(h*31+str.ch
 async function fetchSheetRows(sheetName, preferSnapshot=false){
   const snapshotName=sheetName==="Dashboard Feed - Projects"?"Chatbot Projects":sheetName==="Dashboard Feed - R&M"?"Chatbot R&M":sheetName;
   const snapshotRows = window.EMBEDDED_SHEETS_CURRENT && window.EMBEDDED_SHEETS_CURRENT[snapshotName];
-  if(preferSnapshot) return { rows:snapshotRows||[], raw:JSON.stringify(snapshotRows||[]), source:"snapshot" };
+  const cacheKey=`botplus360:${SHEET_ID}:${snapshotName}`;
+  let cachedRows=null;
+  try{ cachedRows=JSON.parse(localStorage.getItem(cacheKey)||"null"); }catch(_){ cachedRows=null; }
+  if(preferSnapshot){
+    const rows=Array.isArray(cachedRows)&&cachedRows.length?cachedRows:(snapshotRows||[]);
+    return { rows, raw:JSON.stringify(rows), source:Array.isArray(cachedRows)&&cachedRows.length?"cache":"snapshot" };
+  }
   try{
     const table = await loadSheetJSONP(sheetName);
     const rows = tableToRows(table);
+    try{ localStorage.setItem(cacheKey,JSON.stringify(rows)); }catch(_){}
     return { rows, raw: JSON.stringify(rows), source:"live" };
   }catch(err){
-    const rows = window.EMBEDDED_SHEETS_CURRENT && window.EMBEDDED_SHEETS_CURRENT[snapshotName];
+    const rows = Array.isArray(cachedRows)&&cachedRows.length?cachedRows:(window.EMBEDDED_SHEETS_CURRENT && window.EMBEDDED_SHEETS_CURRENT[snapshotName]);
     if(!rows) throw err;
-    return { rows, raw: JSON.stringify(rows), source:"snapshot" };
+    return { rows, raw: JSON.stringify(rows), source:Array.isArray(cachedRows)&&cachedRows.length?"cache":"snapshot" };
   }
 }
 
@@ -1488,7 +1509,7 @@ async function syncData(preferSnapshot=false){
 
     PROJECTS = newProjects; DELAYED_COUNT = delayed; COMMERCIALS = newCommercials; FORECAST_COMMERCIALS = newForecastCommercials;
     CONSUMABLE = newConsumable; RCS_CONSUMABLE = newRcsConsumable; CLIENT_NAMES = newClientNames; usingLiveData = true;
-    usingSnapshotData = [proj, rm, cons, rcsCons].some(item=>item && item.source==="snapshot");
+    usingSnapshotData = [proj, rm, cons, rcsCons].some(item=>item && item.source!=="live");
     CLIENT_INDUSTRY = newClientIndustry; INDUSTRIES = newIndustries;
     setSyncState("ok"); showChangeBadge(changed);
     changeBadge.textContent = "Sheet updated";
@@ -1508,7 +1529,7 @@ let lastSync=null;
 function setSyncState(state,msg){
   syncDot.className="sync-dot";
   if(state==="connecting"){ syncDot.classList.add("pulse"); syncText.textContent="Syncing…"; errorBanner.classList.remove("show"); }
-  else if(state==="ok"){ lastSync=new Date(); syncText.innerHTML=`<b>${usingSnapshotData?"Verified snapshot":"Live"}</b> · checked ${lastSync.toLocaleTimeString()}`; errorBanner.classList.remove("show"); }
+  else if(state==="ok"){ lastSync=new Date(); syncText.innerHTML=`<b>${usingSnapshotData?"Cached data":"Live"}</b> · checked ${lastSync.toLocaleTimeString()}`; errorBanner.classList.remove("show"); }
   else if(state==="error"){
     syncDot.classList.add(usingLiveData?"warn":"err");
     syncText.textContent = usingLiveData ? "Using last synced data" : "Showing sample data — not connected";
@@ -3364,4 +3385,3 @@ syncData(false);
 </script>
 </body>
 </html>
-

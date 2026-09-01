@@ -1542,8 +1542,26 @@ function setSyncState(state,msg){
 function showChangeBadge(changed){
   if(changed){ changeBadge.classList.add("show"); setTimeout(()=>changeBadge.classList.remove("show"), 8000); }
 }
-syncBtn.addEventListener("click", ()=>{ syncBtn.disabled=true; syncData().finally(()=>syncBtn.disabled=false); });
-setInterval(()=>syncData(false), REFRESH_MS);
+function reloadPublishedSnapshot(){
+  return new Promise((resolve,reject)=>{
+    const script=document.createElement("script");
+    script.src=`data.js?refresh=${Date.now()}`;
+    script.onload=()=>{script.remove();resolve();};
+    script.onerror=()=>{script.remove();reject(new Error("The published data snapshot could not be refreshed."));};
+    document.head.appendChild(script);
+  });
+}
+async function refreshDashboardSnapshot(){
+  setSyncState("connecting");
+  try{
+    await reloadPublishedSnapshot();
+    await syncData(true);
+  }catch(error){
+    setSyncState("error",error.message);
+  }
+}
+syncBtn.addEventListener("click", ()=>{ syncBtn.disabled=true; refreshDashboardSnapshot().finally(()=>syncBtn.disabled=false); });
+setInterval(refreshDashboardSnapshot, REFRESH_MS);
 
 /* ---------------- Page nav ---------------- */
 const PAGES = [{id:"executive",label:"Executive Summary",icon:"▦"},{id:"chatbots",label:"Projects",icon:"◇"},{id:"revenue",label:"Chatbots R&M",icon:"₹"},{id:"forecast",label:"Forecast",icon:"↗"},{id:"consumable",label:"WA Consumables",icon:"W"},{id:"rcsconsumable",label:"RCS Consumables",icon:"R"},{id:"clientsummary",label:"Client Summary",icon:"◎"},{id:"client360",label:"Client 360",icon:"360"},{id:"vendors",label:"Vendor Performance",icon:"⌁"}];
@@ -3378,10 +3396,10 @@ initIndustryUI("Cs", csFilter, ()=>renderClientSummary());
 document.getElementById("clearConsFiltersBtn").addEventListener("click",clearConsumableFilters);
 renderAll();
 applyMonthParam();
-// Load the live authoritative feeds first. fetchSheetRows already falls back
-// to the embedded snapshot when the network feed is unavailable, so a stale
-// snapshot no longer flashes before the current Google Sheet data arrives.
-syncData(false);
+// GitHub refreshes data.js from every source tab on a five-minute schedule.
+// Reading that prepared snapshot keeps the console fast and avoids long,
+// unreliable browser-to-Google requests against this large workbook.
+syncData(true);
 </script>
 </body>
 </html>

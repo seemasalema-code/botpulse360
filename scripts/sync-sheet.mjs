@@ -6,7 +6,7 @@ const tabs = {
   "Commercials": { gid: 1131928164, range: "A1:AI5000" },
   "Chatbot R&M": { gid: 559338930, range: "A1:AM5000" },
   "WA_Consumables": { gid: 172604510, range: "A1:G5000" },
-  "RCS_Consumables": { gid: 269889098, range: "B1:H5000" }
+  "RCS_Consumables": { gid: 269889098, range: "A1:Z5000" }
 };
 
 async function fetchProtectedWorkbook() {

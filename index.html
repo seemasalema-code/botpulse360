@@ -1219,7 +1219,7 @@ function gvizJsonpUrl(sheetName, cbName){
     "Dashboard Feed - R&M":"A1:AM3500",
     "Commercials":"A1:AI5000",
     "WA_Consumables":"A1:G2000",
-    "RCS_Consumables":"B1:H5000"
+    "RCS_Consumables":"A1:Z5000"
   }[sheetName];
   const rangeParam=feedRange?`&range=${feedRange}`:"";
   return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json;responseHandler:${cbName}&headers=0&sheet=${encodeURIComponent(sheetName)}${rangeParam}&_=${Date.now()}`;
@@ -1316,18 +1316,22 @@ async function fetchSheetRows(sheetName, preferSnapshot=false){
 
 function parseConsumableSheet(rows){
   const out=[];
-  let start=-1;
-  for(let i=0;i<rows.length;i++) if((rows[i][0]||"").toString().trim()&&parseDate(rows[i][1])){start=i;break;}
-  if(start<0) return out;
-  const header=rows.find(r=>r.some(h=>(h||"").trim()==="Industry"));
-  const industryIdx=header?header.findIndex(h=>(h||"").trim()==="Industry"):5;
-  const subIndustryIdx=header?header.findIndex(h=>(h||"").trim()==="Sub Industry"):6;
+  const norm=v=>(v||"").toString().trim().toLowerCase().replace(/[^a-z0-9]+/g,"");
+  const headerIndex=rows.findIndex(r=>r.some(v=>norm(v)==="client")&&r.some(v=>norm(v)==="month"));
+  if(headerIndex<0) return out;
+  const header=rows[headerIndex];
+  const find=(...names)=>header.findIndex(v=>names.includes(norm(v)));
+  const clientIdx=find("client","clientname"),monthIdx=find("month","billingmonth");
+  const revenueIdx=find("revenue","totalrevenue","netcorerevenue");
+  const costIdx=find("cost","totalcost","vendorcost");
+  const industryIdx=find("industry"),subIndustryIdx=find("subindustry");
+  if(clientIdx<0||monthIdx<0||revenueIdx<0||costIdx<0) return out;
   const num=s=>{const n=parseFloat((s||"0").toString().replace(/[₹,]/g,""));return isNaN(n)?0:n;};
-  for(let i=start;i<rows.length;i++){
-    const r=rows[i],client=(r[0]||"").toString().trim(),month=parseDate(r[1]);
+  for(let i=headerIndex+1;i<rows.length;i++){
+    const r=rows[i],client=(r[clientIdx]||"").toString().trim(),month=parseDate(r[monthIdx]);
     if(!client||!month) continue;
-    const revenue=num(r[2]),cost=num(r[3]); if(!revenue&&!cost) continue;
-    out.push({client,month,revenue,cost,margin:revenue-cost,industry:(r[industryIdx]||"").toString().trim(),subIndustry:(r[subIndustryIdx]||"").toString().trim()});
+    const revenue=num(r[revenueIdx]),cost=num(r[costIdx]); if(!revenue&&!cost) continue;
+    out.push({client,month,revenue,cost,margin:revenue-cost,industry:industryIdx<0?"":(r[industryIdx]||"").toString().trim(),subIndustry:subIndustryIdx<0?"":(r[subIndustryIdx]||"").toString().trim()});
   }
   return out;
 }

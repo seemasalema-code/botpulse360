@@ -1219,7 +1219,7 @@ function gvizJsonpUrl(sheetName, cbName){
     "Dashboard Feed - R&M":"A1:AM3500",
     "Commercials":"A1:AI5000",
     "WA_Consumables":"A1:G2000",
-    "RCS_Consumables":"A1:G5000"
+    "RCS_Consumables":"B1:H5000"
   }[sheetName];
   const rangeParam=feedRange?`&range=${feedRange}`:"";
   return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json;responseHandler:${cbName}&headers=0&sheet=${encodeURIComponent(sheetName)}${rangeParam}&_=${Date.now()}`;

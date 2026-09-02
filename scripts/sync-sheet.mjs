@@ -52,7 +52,7 @@ async function fetchCsv(name, { gid, range }) {
   let lastError;
   for (let attempt = 0; attempt < urls.length; attempt++) {
     try {
-      const response = await fetch(urls[attempt], { signal: AbortSignal.timeout(180000) });
+      const response = await fetch(urls[attempt], { signal: AbortSignal.timeout(45000) });
       if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
       const rows = parseCsv(await response.text());
       if (rows.length < 2) throw new Error("sheet returned no data rows");

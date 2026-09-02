@@ -2,11 +2,11 @@ import { readFile, writeFile } from "node:fs/promises";
 
 const spreadsheetId = "1udQZmSHEpLWuQJO2k0t4UvA3zU8fUFkvx_1lIfINId8";
 const tabs = {
-  "Chatbot Projects": 888299704,
-  "Commercials": 1131928164,
-  "Chatbot R&M": 559338930,
-  "WA_Consumables": 172604510,
-  "RCS_Consumables": 269889098
+  "Chatbot Projects": { gid: 888299704, range: "A1:AS2000" },
+  "Commercials": { gid: 1131928164, range: "A1:AI5000" },
+  "Chatbot R&M": { gid: 559338930, range: "A1:AM5000" },
+  "WA_Consumables": { gid: 172604510, range: "A1:G5000" },
+  "RCS_Consumables": { gid: 269889098, range: "A1:G5000" }
 };
 
 async function fetchProtectedWorkbook() {
@@ -42,9 +42,9 @@ function parseCsv(text) {
   return rows;
 }
 
-async function fetchCsv(name, gid) {
+async function fetchCsv(name, { gid, range }) {
   const urls = [
-    `https://docs.google.com/spreadsheets/d/${spreadsheetId}/gviz/tq?tqx=out:csv&headers=0&gid=${gid}`,
+    `https://docs.google.com/spreadsheets/d/${spreadsheetId}/gviz/tq?tqx=out:csv&headers=0&gid=${gid}&range=${encodeURIComponent(range)}`,
     `https://docs.google.com/spreadsheets/d/${spreadsheetId}/export?format=csv&gid=${gid}`
   ];
   let lastError;
@@ -68,7 +68,12 @@ const currentText = await readFile("data.js", "utf8");
 const currentJson = currentText.replace(/^\s*window\.EMBEDDED_SHEETS_CURRENT\s*=\s*/, "").replace(/;\s*$/, "");
 const workbook = JSON.parse(currentJson);
 let failures = 0;
-const protectedWorkbook = await fetchProtectedWorkbook();
+let protectedWorkbook = null;
+try {
+  protectedWorkbook = await fetchProtectedWorkbook();
+} catch (error) {
+  console.warn(`Protected endpoint failed (${error.message}); trying bounded Google Sheet feeds.`);
+}
 if (protectedWorkbook) {
   for (const name of Object.keys(tabs)) {
     const rows = protectedWorkbook.sheets[name];
@@ -78,7 +83,7 @@ if (protectedWorkbook) {
   }
 } else {
   const results = await Promise.allSettled(
-    Object.entries(tabs).map(async ([name, gid]) => [name, await fetchCsv(name, gid)])
+    Object.entries(tabs).map(async ([name, config]) => [name, await fetchCsv(name, config)])
   );
   results.forEach((result, index) => {
     const name = Object.keys(tabs)[index];
@@ -97,4 +102,6 @@ workbook.__meta = {
 };
 
 await writeFile("data.js", `window.EMBEDDED_SHEETS_CURRENT = ${JSON.stringify(workbook)};\n`, "utf8");
-if (failures) process.exitCode = 1;
+// Keep publishing successful tabs and the last-known-good rows for any tab
+// that is temporarily unavailable. A partial source outage must not stop every
+// future dashboard refresh.

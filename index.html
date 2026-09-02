@@ -1552,16 +1552,29 @@ function reloadPublishedSnapshot(){
   });
 }
 async function refreshDashboardSnapshot(){
+  if(refreshDashboardSnapshot.inFlight) return;
+  refreshDashboardSnapshot.inFlight=true;
   setSyncState("connecting");
   try{
     await reloadPublishedSnapshot();
-    await syncData(true);
+    // Prefer the live workbook; each feed independently falls back to the
+    // refreshed snapshot or last successful browser cache if Google is slow.
+    await syncData(false);
   }catch(error){
     setSyncState("error",error.message);
+  }finally{
+    refreshDashboardSnapshot.inFlight=false;
   }
 }
 syncBtn.addEventListener("click", ()=>{ syncBtn.disabled=true; refreshDashboardSnapshot().finally(()=>syncBtn.disabled=false); });
 setInterval(refreshDashboardSnapshot, REFRESH_MS);
+// Background-tab timers are throttled by browsers. Catch up as soon as the
+// dashboard becomes visible, focused, or comes back online.
+document.addEventListener("visibilitychange", ()=>{
+  if(document.visibilityState==="visible") refreshDashboardSnapshot();
+});
+window.addEventListener("focus", refreshDashboardSnapshot);
+window.addEventListener("online", refreshDashboardSnapshot);
 
 /* ---------------- Page nav ---------------- */
 const PAGES = [{id:"executive",label:"Executive Summary",icon:"▦"},{id:"chatbots",label:"Projects",icon:"◇"},{id:"revenue",label:"Chatbots R&M",icon:"₹"},{id:"forecast",label:"Forecast",icon:"↗"},{id:"consumable",label:"WA Consumables",icon:"W"},{id:"rcsconsumable",label:"RCS Consumables",icon:"R"},{id:"clientsummary",label:"Client Summary",icon:"◎"},{id:"client360",label:"Client 360",icon:"360"},{id:"vendors",label:"Vendor Performance",icon:"⌁"}];

@@ -691,9 +691,9 @@ h1{font-size:24px;line-height:1.15;letter-spacing:-.025em}
 .change-badge{align-self:flex-start}
 .sync-box{width:100%;padding:10px 12px;border-radius:11px;background:rgba(255,255,255,.75)}
 .sync-text{font-size:10px;line-height:1.45;overflow:hidden;text-overflow:ellipsis}
-#syncBtn,.source-data-link{width:100%;min-height:38px;justify-content:center;border-radius:10px;text-align:center}
-#syncBtn{order:2}
-.source-data-link{order:3;background:rgba(255,255,255,.82)}
+#syncBtn,#exportTabBtn,.source-data-link{width:100%;min-height:38px;justify-content:center;border-radius:10px;text-align:center}
+#syncBtn{order:2}#exportTabBtn{order:3}
+.source-data-link{order:4;background:rgba(255,255,255,.82)}
 .pagenav{width:100%;max-width:none;margin:0;padding:8px 14px;display:flex;flex:1 1 auto;flex-direction:column;gap:5px;overflow-y:auto}
 .pagetab{top:0;margin:0;padding:11px 12px;display:flex;align-items:center;gap:11px;border:1px solid transparent;border-radius:11px;color:#68708e;font-size:12px;line-height:1.25;white-space:normal}
 .pagetab .nav-icon{width:27px;height:27px;display:grid;place-items:center;flex:0 0 27px;border-radius:8px;background:#e9ebf3;color:#68708e;font-size:12px;font-weight:800}
@@ -703,7 +703,7 @@ h1{font-size:24px;line-height:1.15;letter-spacing:-.025em}
 .sync-error-banner{position:fixed;left:calc(var(--sidebar-width) + 20px);right:20px;top:12px;z-index:60;max-width:none;margin:0;padding:0}
 main{max-width:1500px;margin:0 auto;padding:26px 30px 0;border-top:0}
 footer{max-width:1500px;margin-left:auto;margin-right:auto;padding-left:30px!important;padding-right:30px!important}
-@media(max-height:720px) and (min-width:901px){header{padding-top:20px;padding-bottom:8px;gap:10px}.brand-eyebrow{display:none}.pagenav{padding-top:4px}.pagetab{padding:8px 10px}.pagetab .nav-icon{width:24px;height:24px;flex-basis:24px}.sidebar-footer{gap:6px;padding-bottom:12px}.sync-box{padding:7px 10px}#syncBtn,.source-data-link{min-height:32px;padding:6px 10px}}
+@media(max-height:720px) and (min-width:901px){header{padding-top:20px;padding-bottom:8px;gap:10px}.brand-eyebrow{display:none}.pagenav{padding-top:4px}.pagetab{padding:8px 10px}.pagetab .nav-icon{width:24px;height:24px;flex-basis:24px}.sidebar-footer{gap:6px;padding-bottom:12px}.sync-box{padding:7px 10px}#syncBtn,#exportTabBtn,.source-data-link{min-height:32px;padding:6px 10px}}
 @media(max-width:900px){
   :root{--sidebar-width:0px}
   body{padding-left:0}
@@ -715,7 +715,7 @@ footer{max-width:1500px;margin-left:auto;margin-right:auto;padding-left:30px!imp
   .pagetab{padding:9px 12px;white-space:nowrap}.pagetab .nav-icon{width:24px;height:24px;flex-basis:24px}
   main{padding:20px 20px 0}.sync-error-banner{position:static;max-width:none;margin:12px 20px 0;padding:0}
 }
-@media(max-width:640px){.sidebar-footer{width:100%;display:grid!important;grid-template-columns:1fr 1fr}.sync-box{grid-column:1/-1}.source-data-link,#syncBtn{width:100%}.brand-eyebrow{font-size:8px}h1{font-size:22px}}
+@media(max-width:640px){.sidebar-footer{width:100%;display:grid!important;grid-template-columns:1fr 1fr}.sync-box{grid-column:1/-1}.source-data-link,#syncBtn,#exportTabBtn{width:100%}.brand-eyebrow{font-size:8px}h1{font-size:22px}}
 
 /* Pastel Emerald Operations theme — retain the existing Lexend typography */
 :root{
@@ -731,7 +731,7 @@ body{background:linear-gradient(135deg,#F7F8F3 0%,#F3F6F1 62%,#EEF5F1 100%)}
 .brand-mark{background:linear-gradient(145deg,#3C8B68,#287153);box-shadow:0 9px 22px rgba(43,111,79,.22)}
 .pagetab.active{color:var(--accent-dark);border-color:#D4E1D5;box-shadow:0 8px 22px rgba(42,81,58,.08)}
 .pagetab.active .nav-icon{background:var(--accent)}
-#syncBtn{background:var(--accent)}#syncBtn:hover{background:var(--accent-dark)}
+#syncBtn{background:var(--accent)}#syncBtn:hover{background:var(--accent-dark)}#exportTabBtn{display:inline-flex;align-items:center;border:1px solid #8cb6a0;background:#eaf6ee;color:#286548;font-family:'Lexend',sans-serif;font-size:11px;font-weight:700;cursor:pointer;padding:9px 13px}#exportTabBtn:hover{background:#dff1e6}
 .source-data-link{color:var(--accent-dark);border-color:#D4E1D5}
 .source-data-link:hover{border-color:var(--accent);box-shadow:0 8px 20px rgba(47,111,78,.11)}
 .metric-card,.kpi,.panel,.insight-panel,.rail-card,.timebar,.scope-strip,.pipeline-panel,.records-panel{border-color:#DCE5D9}
@@ -758,6 +758,7 @@ body{background:linear-gradient(135deg,#F7F8F3 0%,#F3F6F1 62%,#EEF5F1 100%)}
         <span class="sync-text" id="syncText">Connecting to sheet…</span>
       </div>
       <button id="syncBtn">Sync now</button>
+      <button id="exportTabBtn" type="button">Export filtered tab</button>
       <a class="source-data-link" href="https://docs.google.com/spreadsheets/d/1udQZmSHEpLWuQJO2k0t4UvA3zU8fUFkvx_1lIfINId8/edit?gid=888299704#gid=888299704" target="_blank" rel="noopener noreferrer" aria-label="Open the live Chatbot Projects source workbook in Google Sheets">Source: Chatbot Projects (live) ↗</a>
   </div>
   <div class="sync-error-banner" id="errorBanner"><div class="box" id="errorBox"></div></div>
@@ -1614,6 +1615,19 @@ window.addEventListener("online", refreshDashboard);
 const PAGES = [{id:"executive",label:"Executive Summary",icon:"▦"},{id:"chatbots",label:"Projects",icon:"◇"},{id:"revenue",label:"Chatbots R&M",icon:"₹"},{id:"forecast",label:"Combined Forecast",icon:"↗"},{id:"chatbotforecast",label:"Chatbot Forecast",icon:"ƒ"},{id:"consumable",label:"WA Consumables",icon:"W"},{id:"rcsconsumable",label:"RCS Consumables",icon:"R"},{id:"clientsummary",label:"Client Summary",icon:"◎"},{id:"client360",label:"Client 360",icon:"360"},{id:"vendors",label:"Vendor Performance",icon:"⌁"}];
 let activePage = "executive";
 let clientSummaryOpened = false;
+function exportActiveTab(){
+  const section=document.getElementById("page-"+activePage);
+  const clean=value=>String(value||"").replace(/\s+/g," ").trim();
+  const tables=[...(section?.querySelectorAll("table")||[])].map(table=>{
+    const headers=[...table.querySelectorAll("thead th")].map(cell=>clean(cell.textContent));
+    const rows=[...table.querySelectorAll("tbody tr")].map(row=>[...row.querySelectorAll("td")].map(cell=>clean(cell.textContent))).filter(row=>row.length&&row.some(Boolean));
+    return {headers,rows};
+  }).filter(table=>table.headers.length&&table.rows.length).sort((a,b)=>b.rows.length-a.rows.length);
+  if(!tables.length){alert("There are no filtered records to export on this tab.");return;}
+  const table=tables[0];
+  downloadCsv("botpulse-"+activePage+"-filtered.csv",table.headers,table.rows);
+}
+document.getElementById("exportTabBtn")?.addEventListener("click",exportActiveTab);
 const pagenav = document.getElementById("pagenav");
 PAGES.forEach(p=>{
   const el=document.createElement("div");

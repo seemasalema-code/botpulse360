@@ -18,7 +18,7 @@ async function fetchProtectedWorkbook() {
   url.searchParams.set("token", token);
   // Do not let a stalled protected endpoint consume the entire scheduled run.
   // Bounded public feeds below remain a safe, last-known-good fallback.
-  const response = await fetch(url, { signal: AbortSignal.timeout(45000) });
+  const response = await fetch(url, { signal: AbortSignal.timeout(180000) });
   if (!response.ok) throw new Error(`protected endpoint returned ${response.status}`);
   const payload = await response.json();
   if (!payload || payload.error || !payload.sheets) throw new Error(payload?.error || "protected endpoint returned invalid data");

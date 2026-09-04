@@ -2508,19 +2508,21 @@ function setRevVendor(v){ revFilter.vendor = (revFilter.vendor===v)?null:v; rend
 function setRevType(t){ revFilter.type = (revFilter.type===t)?null:t; renderRevenue(); }
 document.getElementById("revClientProjectsClose").addEventListener("click",()=>{ revClientDrilldown=null; renderRevenue(); });
 
-function renderRevenueClientProjects(client,periodRows){
+function renderRevenueClientProjects(clientKey,periodRows){
   const monthlyPanel=document.getElementById("monthlyRmPanel"),detailPanel=document.getElementById("revClientProjectsPanel");
-  if(!client){ monthlyPanel.style.display="block"; detailPanel.style.display="none"; return; }
+  if(!clientKey){ monthlyPanel.style.display="block"; detailPanel.style.display="none"; return; }
   const projects={};
-  periodRows.filter(row=>row.client===client).forEach(row=>{
+  let clientLabel="";
+  periodRows.filter(row=>(clientMatchKey(row.client)||row.client)===clientKey).forEach(row=>{
+    clientLabel=clientLabel||row.client;
     const name=row.chatbot||row.client||"Unnamed project";
     if(!projects[name]) projects[name]={name,revenue:0,cost:0,margin:0};
     projects[name].revenue+=row.revenue; projects[name].cost+=row.cost; projects[name].margin+=row.margin;
   });
   const rows=Object.values(projects).sort((a,b)=>b.revenue-a.revenue);
-  if(rows.length<=1){ revClientDrilldown=null; monthlyPanel.style.display="block"; detailPanel.style.display="none"; return; }
+  if(rows.length===0){ revClientDrilldown=null; monthlyPanel.style.display="block"; detailPanel.style.display="none"; return; }
   monthlyPanel.style.display="none"; detailPanel.style.display="block";
-  document.getElementById("revClientProjectsTitle").innerHTML=`${client}<small>${rows.length} projects in selected period</small>`;
+  document.getElementById("revClientProjectsTitle").innerHTML=`${clientLabel}<small>${rows.length} project${rows.length===1?"":"s"} in selected period</small>`;
   document.getElementById("revClientProjectsList").innerHTML=rows.map(row=>{
     const pct=row.revenue?row.margin/row.revenue*100:0;
     return `<article class="client-project-item"><div class="client-project-name">${row.name}</div><div class="client-project-metrics">
@@ -2578,28 +2580,44 @@ function renderRevenue(){
     (revFilter.industries.size===0 || revFilter.industries.has(industryOf(c)))
   );
 
-  const totalRev = inPeriod.reduce((a,r)=>a+r.revenue,0);
-  const totalCost = inPeriod.reduce((a,r)=>a+r.cost,0);
-  const totalMargin = inPeriod.reduce((a,r)=>a+r.margin,0);
+  const totalRev = baseFilteredPeriod.reduce((a,r)=>a+r.revenue,0);
+  const totalCost = baseFilteredPeriod.reduce((a,r)=>a+r.cost,0);
+  const totalMargin = baseFilteredPeriod.reduce((a,r)=>a+r.margin,0);
   const marginPct = totalRev ? ((totalMargin/totalRev)*100).toFixed(1) : "0.0";
-  const lossRows=inPeriod.filter(r=>r.margin<0), lowMarginRows=inPeriod.filter(r=>r.revenue>0 && r.margin/r.revenue<.2);
-  // Aggregate legal-name variants before counting clients or ranking the largest client.
-  // The source label is retained for display; only the internal grouping key is normalized.
-  const periodClientRevenue={},periodClientLabels={};
-  inPeriod.forEach(row=>{const key=clientMatchKey(row.client)||row.client;periodClientRevenue[key]=(periodClientRevenue[key]||0)+row.revenue;if(!periodClientLabels[key])periodClientLabels[key]=row.client;});
-  const largestClientEntry=Object.entries(periodClientRevenue).sort((a,b)=>b[1]-a[1])[0]||[null,0],largestClientKey=largestClientEntry[0],largestClientName=periodClientLabels[largestClientKey]||null,largestClient=largestClientEntry[1];
+  // Every commercial row is first folded into one canonical client. Insight chips therefore
+  // count customers, not repeat monthly rows; the table can then drill each customer into projects.
+  const clientFinancials={};
+  baseFilteredPeriod.forEach(row=>{
+    const key=clientMatchKey(row.client)||row.client;
+    if(!key) return;
+    if(!clientFinancials[key]) clientFinancials[key]={key,client:row.client,revenue:0,cost:0,margin:0,projects:new Set()};
+    const client=clientFinancials[key];
+    client.revenue+=row.revenue; client.cost+=row.cost; client.margin+=row.margin;
+    client.projects.add(row.chatbot||row.client);
+  });
+  const periodClientRows=Object.values(clientFinancials);
+  const lossClients=periodClientRows.filter(row=>row.margin<0);
+  const lowMarginClients=periodClientRows.filter(row=>row.revenue>0&&row.margin/row.revenue<.2);
+  const lossClientKeys=new Set(lossClients.map(row=>row.key));
+  const lowMarginClientKeys=new Set(lowMarginClients.map(row=>row.key));
+  const largestClientEntry=[...periodClientRows].sort((a,b)=>b.revenue-a.revenue)[0]||null;
+  const largestClientKey=largestClientEntry?largestClientEntry.key:null,largestClientName=largestClientEntry?largestClientEntry.client:null,largestClient=largestClientEntry?largestClientEntry.revenue:0;
   const topConcentration=totalRev?largestClient/totalRev*100:0;
-  const filteredPeriod=baseFilteredPeriod.filter(row=>revInsightFilter==="loss"?row.margin<0:revInsightFilter==="low"?(row.revenue>0&&row.margin/row.revenue<.2):revInsightFilter==="concentration"?clientMatchKey(row.client)===largestClientKey:true);
-  const periodClients=new Set(inPeriod.map(r=>clientMatchKey(r.client)).filter(Boolean));
+  const filteredPeriod=baseFilteredPeriod.filter(row=>{
+    const key=clientMatchKey(row.client)||row.client;
+    return revInsightFilter==="loss"?lossClientKeys.has(key):revInsightFilter==="low"?lowMarginClientKeys.has(key):revInsightFilter==="concentration"?key===largestClientKey:true;
+  });
+  const periodClients=new Set(periodClientRows.map(row=>row.key));
+  const periodProjects=new Set(baseFilteredPeriod.map(row=>row.chatbot||row.client).filter(Boolean));
   const scopeName=exactSingleMonth?monthLabel(start):rangeLabel;
   document.getElementById("profitabilityInsights").innerHTML=`
     <div class="signal"><span>${scopeName} revenue</span><b>${fmtCompact(totalRev)}</b><small>Netcore billing recorded in the month</small></div>
     <div class="signal"><span>${scopeName} cost</span><b>${fmtCompact(totalCost)}</b><small>Vendor cost recorded in the month</small></div>
     <div class="signal"><span>${scopeName} margin</span><b>${fmtCompact(totalMargin)}</b><small>Revenue minus cost</small></div>
     <div class="signal"><span>Margin %</span><b>${marginPct}%</b><small>${totalMargin<0?"Monthly portfolio is loss-making":"Monthly portfolio is profitable"}</small></div>`;
-  const monthlyTakeaway=totalMargin<0?`Cost exceeds revenue by ${fmtCompact(Math.abs(totalMargin))}. Review the ${lossRows.length} loss-making bot-months first, then validate zero-revenue cost rows and vendor rental charges.`:`The selected period contributes ${fmtCompact(totalMargin)} margin at ${marginPct}%.`;
+  const monthlyTakeaway=totalMargin<0?`Cost exceeds revenue by ${fmtCompact(Math.abs(totalMargin))}. Review the ${lossClients.length} loss-making client${lossClients.length===1?"":"s"} first, then validate zero-revenue cost rows and vendor rental charges.`:`The selected period contributes ${fmtCompact(totalMargin)} margin at ${marginPct}%.`;
   const insightActive=key=>revInsightFilter===key?" active":"";
-  document.getElementById("rmScopeBanner").innerHTML=`<strong>${scopeName} scope</strong><button type="button" class="scope-pill${insightActive("clients")}" data-rev-insight="clients">${periodClients.size} clients</button><button type="button" class="scope-pill${insightActive("records")}" data-rev-insight="records">${inPeriod.length} bot-month records</button><button type="button" class="scope-pill loss${insightActive("loss")}" data-rev-insight="loss">${lossRows.length} loss-making bot-months</button><button type="button" class="scope-pill${insightActive("low")}" data-rev-insight="low">${lowMarginRows.length} below 20% bot-months</button><button type="button" class="scope-pill concentration${insightActive("concentration")}" data-rev-insight="concentration">${topConcentration.toFixed(1)}% top-client concentration</button><span class="scope-message"><b>What this means:</b> ${monthlyTakeaway}</span>`;
+  document.getElementById("rmScopeBanner").innerHTML=`<strong>${scopeName} scope</strong><button type="button" class="scope-pill${insightActive("clients")}" data-rev-insight="clients">${periodClients.size} clients</button><button type="button" class="scope-pill${insightActive("projects")}" data-rev-insight="projects">${periodProjects.size} projects</button><button type="button" class="scope-pill loss${insightActive("loss")}" data-rev-insight="loss">${lossClients.length} loss-making clients</button><button type="button" class="scope-pill${insightActive("low")}" data-rev-insight="low">${lowMarginClients.length} below 20% margin clients</button><button type="button" class="scope-pill concentration${insightActive("concentration")}" data-rev-insight="concentration">${topConcentration.toFixed(1)}% top-client concentration</button><span class="scope-message"><b>What this means:</b> ${monthlyTakeaway}</span>`;
   document.querySelectorAll("#rmScopeBanner [data-rev-insight]").forEach(btn=>btn.addEventListener("click",()=>setRevInsightFilter(btn.dataset.revInsight)));
   document.getElementById("revRecordsTitle").innerHTML=`Client Profitability <small>${scopeName} · aggregated from bot-level R&amp;M rows</small>`;
 
@@ -2608,7 +2626,7 @@ function renderRevenue(){
     {label:"Revenue", value:fmtCompact(totalRev), hint:isMonthlySnapshot?snapshotLabel:timeRev.view+" view", color:"var(--live)"},
     {label:"Cost", value:fmtCompact(totalCost), hint:isMonthlySnapshot?snapshotLabel:timeRev.view+" view", color:"var(--build)"},
     {label:"Margin", value:fmtCompact(totalMargin), hint:"margin % "+marginPct+"%", color:"var(--accent)"},
-    {label:"Bot-month Records", value:inPeriod.length, hint:scopeName, color:"var(--text)"},
+    {label:"Clients", value:periodClients.size, hint:scopeName, color:"var(--text)"},
   ].forEach(k=>{
     const el=document.createElement("div"); el.className="kpi"; el.style.setProperty("--kpi-color",k.color);
     el.innerHTML=`<div class="label">${k.label}</div><div class="value">${k.value}</div><div class="hint">${k.hint}</div>`;
@@ -2647,33 +2665,32 @@ function renderRevenue(){
   if(revFilter.vendor) crumbsRev.appendChild(makeCrumb("Vendor: "+revFilter.vendor, ()=>setRevVendor(revFilter.vendor)));
   if(revFilter.type) crumbsRev.appendChild(makeCrumb("Type: "+revFilter.type, ()=>setRevType(revFilter.type)));
   if(revFilter.industries.size>0) crumbsRev.appendChild(makeCrumb("Industry: "+industryBtnLabel(revFilter), ()=>clearIndustryFilter("Rev", revFilter, ()=>renderRevenue())));
-  if(revInsightFilter){const labels={clients:"All clients",records:"All bot-month records",loss:"Loss-making bot-months",low:"Below 20% bot-months",concentration:"Top-contributing client"};crumbsRev.appendChild(makeCrumb(labels[revInsightFilter],()=>setRevInsightFilter(revInsightFilter)));}
+  if(revInsightFilter){const labels={clients:"All clients",projects:"All projects",loss:"Loss-making clients",low:"Below 20% margin clients",concentration:"Top-contributing client"};crumbsRev.appendChild(makeCrumb(labels[revInsightFilter],()=>setRevInsightFilter(revInsightFilter)));}
 
   const body=document.getElementById("revRecordsBody"); body.innerHTML="";
   const byClientTotals = {};
   filteredPeriod.forEach(c=>{
-    if(!byClientTotals[c.client]) byClientTotals[c.client] = {revenue:0, cost:0, margin:0, projects:new Set()};
-    byClientTotals[c.client].revenue += c.revenue;
-    byClientTotals[c.client].cost += c.cost;
-    byClientTotals[c.client].margin += c.margin;
-    byClientTotals[c.client].projects.add(c.chatbot||c.client);
+    const key=clientMatchKey(c.client)||c.client;
+    if(!byClientTotals[key]) byClientTotals[key] = {key,client:c.client,revenue:0, cost:0, margin:0, projects:new Set()};
+    byClientTotals[key].revenue += c.revenue;
+    byClientTotals[key].cost += c.cost;
+    byClientTotals[key].margin += c.margin;
+    byClientTotals[key].projects.add(c.chatbot||c.client);
   });
-  const clientRows = Object.keys(byClientTotals).map(cl=>({client:cl, ...byClientTotals[cl],count:byClientTotals[cl].projects.size})).sort((a,b)=>b.revenue-a.revenue);
-  if(revClientDrilldown && !clientRows.some(row=>row.client===revClientDrilldown && row.count>1)) revClientDrilldown=null;
+  const clientRows = Object.values(byClientTotals).map(row=>({...row,count:row.projects.size})).sort((a,b)=>b.revenue-a.revenue);
+  if(revClientDrilldown && !clientRows.some(row=>row.key===revClientDrilldown)) revClientDrilldown=null;
   if(clientRows.length===0){ body.innerHTML=`<tr><td colspan="6"><div class="empty-state">No live projects match this filter.</div></td></tr>`; }
   else clientRows.forEach(r=>{
     const pct = r.revenue ? ((r.margin/r.revenue)*100).toFixed(1) : "0.0";
     const tr=document.createElement("tr");
     tr.innerHTML=`<td>${r.client}</td><td class="num">${r.count}</td><td class="num" title="${fmtINR(r.revenue)}">${fmtCompact(r.revenue)}</td>
       <td class="num" title="${fmtINR(r.cost)}">${fmtCompact(r.cost)}</td><td class="num" title="${fmtINR(r.margin)}">${fmtCompact(r.margin)}</td><td class="num">${pct}%</td>`;
-    if(r.count>1){
-      tr.className="client-drillable"+(revClientDrilldown===r.client?" active-row":"");
-      tr.title=`View ${r.count} projects for ${r.client}`;
-      tr.addEventListener("click",()=>{ revClientDrilldown=revClientDrilldown===r.client?null:r.client; renderRevenue(); });
-    }
+    tr.className="client-drillable"+(revClientDrilldown===r.key?" active-row":"");
+    tr.title=`View ${r.count} project${r.count===1?"":"s"} for ${r.client}`;
+    tr.addEventListener("click",()=>{ revClientDrilldown=revClientDrilldown===r.key?null:r.key; renderRevenue(); });
     body.appendChild(tr);
   });
-  document.getElementById("recCountRev").textContent = `${clientRows.length} client${clientRows.length===1?"":"s"} · ${filteredPeriod.length} bot record${filteredPeriod.length===1?"":"s"}`;
+  document.getElementById("recCountRev").textContent = `${clientRows.length} client${clientRows.length===1?"":"s"} · ${new Set(filteredPeriod.map(row=>row.chatbot||row.client)).size} project${new Set(filteredPeriod.map(row=>row.chatbot||row.client)).size===1?"":"s"}`;
 
   renderMonthlyTrend(filteredPeriod);
   renderRevenueClientProjects(revClientDrilldown,filteredPeriod);

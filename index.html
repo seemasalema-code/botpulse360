@@ -606,6 +606,56 @@
 #page-forecast #forecastRisks .mini-item:first-child{background:#edf8f2;border-color:#d3eadc}#page-forecast #forecastRisks .mini-item:last-child{background:#fff2ed;border-color:#f0d8cf}
 @media(max-width:1050px){#page-forecast .pipeline-track{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:650px){#page-forecast .pipeline-track{grid-template-columns:1fr}}
+
+/* Chatbot-only forecast: purpose-built, pastel forecast cards. Kept separate from the
+   combined forecast so live committed values and pre-live commercial inputs are never mixed. */
+#page-chatbotforecast .metric-grid{margin-top:18px;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+#page-chatbotforecast #chatbotForecastKpis .metric-card{display:grid;grid-template-rows:auto auto auto;align-content:start;gap:6px;min-width:0;min-height:118px;padding:17px 18px;cursor:default;overflow:hidden;box-shadow:0 8px 22px rgba(37,49,69,.04)}
+#page-chatbotforecast #chatbotForecastKpis .metric-card:hover{transform:none;box-shadow:0 8px 22px rgba(37,49,69,.04)}
+#page-chatbotforecast #chatbotForecastKpis .metric-card>span{display:block;font-size:10px;line-height:1.35;text-transform:uppercase;letter-spacing:.075em;color:var(--text-faint);font-weight:800}
+#page-chatbotforecast #chatbotForecastKpis .metric-card>b{display:block;font-size:27px;line-height:1.08;color:var(--text);overflow-wrap:anywhere}
+#page-chatbotforecast #chatbotForecastKpis .metric-card>small{display:block;font-size:10px;line-height:1.45;color:var(--text-muted);overflow-wrap:anywhere}
+#page-chatbotforecast #chatbotForecastKpis .metric-card:nth-child(1){background:#eaf6ef;border-color:#cce5d6}
+#page-chatbotforecast #chatbotForecastKpis .metric-card:nth-child(2){background:#eef3ff;border-color:#d7e0f8}
+#page-chatbotforecast #chatbotForecastKpis .metric-card:nth-child(3){background:#fff0f0;border-color:#f3d5d7}
+#page-chatbotforecast #chatbotForecastKpis .metric-card:nth-child(4){background:#fff7e8;border-color:#f1e1bc}
+#page-chatbotforecast .workspace-grid{margin-top:18px}
+#page-chatbotforecast .insight-panel{padding:20px}
+#page-chatbotforecast .forecast-mode-row{padding-bottom:14px;border-bottom:1px solid #e6ebdf}
+#page-chatbotforecast .forecast-mode-row h3{font-size:16px}
+#page-chatbotforecast .pipeline-view-toggle{display:inline-flex;gap:4px;padding:4px;border:1px solid #dce6dd;border-radius:12px;background:#f8fbf8}
+#page-chatbotforecast .pipeline-view-toggle button{border:0;background:transparent;color:var(--text-muted);font:700 11px 'Lexend',sans-serif;padding:8px 11px;border-radius:8px;cursor:pointer}
+#page-chatbotforecast .pipeline-view-toggle button.active{background:#fff;color:#277456;box-shadow:0 2px 6px rgba(26,69,47,.12)}
+#page-chatbotforecast .pipeline-track{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;margin-top:16px}
+#page-chatbotforecast .forecast-month-chip{display:grid;gap:11px;min-width:0;padding:16px;border:1px solid var(--border);border-radius:16px;background:#fbfaf7;box-shadow:0 5px 16px rgba(41,48,76,.04)}
+#page-chatbotforecast .forecast-month-chip:nth-child(3n+1){background:#eef7f1;border-color:#d3e8da}
+#page-chatbotforecast .forecast-month-chip:nth-child(3n+2){background:#f0f3ff;border-color:#dde2f9}
+#page-chatbotforecast .forecast-month-chip:nth-child(3n){background:#fff5eb;border-color:#f2dfc9}
+#page-chatbotforecast .forecast-month-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+#page-chatbotforecast .forecast-month-head b{font-size:13px;color:var(--text)}
+#page-chatbotforecast .forecast-month-total{font-size:18px;font-weight:800;color:var(--text)}
+#page-chatbotforecast .forecast-stream-chips{display:flex;gap:7px;flex-wrap:wrap}
+#page-chatbotforecast .forecast-stream-chip{display:inline-flex;align-items:center;padding:6px 9px;border-radius:999px;font-size:9px;line-height:1.15;font-weight:800;white-space:normal}
+#page-chatbotforecast .forecast-stream-chip.chatbot{background:#dff2e7;color:#267457}
+#page-chatbotforecast .forecast-stream-chip.rcs{background:#e6e9fb;color:#5c57a4}
+#page-chatbotforecast .forecast-month-chip small{display:block;color:var(--text-muted);font-size:10px;font-weight:700}
+#page-chatbotforecast .action-table{border-collapse:separate;border-spacing:0;overflow:hidden;border:1px solid #e1e7dd;border-radius:13px}
+#page-chatbotforecast .action-table th{padding:11px 12px;background:#f4f7f2;color:var(--text-faint);font-size:9px;letter-spacing:.07em}
+#page-chatbotforecast .action-table td{padding:13px 12px;font-size:11px}
+#page-chatbotforecast .action-table tbody tr:nth-child(1){background:#edf8f2}
+#page-chatbotforecast .action-table tbody tr:nth-child(2){background:#fff6f6}
+#page-chatbotforecast .action-table tbody tr:nth-child(3){background:#fff9ec}
+#page-chatbotforecast .rail-card{border-radius:16px;padding:18px}
+#page-chatbotforecast .rail-card:first-child{background:#f2f7ff;border-color:#dbe4f4}
+#page-chatbotforecast .rail-card:last-child{background:#fffaf0;border-color:#efe1c4}
+#page-chatbotforecast .rail-card h3{font-size:14px;margin:0 0 8px}
+#page-chatbotforecast .rail-card .rail-sub{font-size:10px;line-height:1.48;margin:0 0 13px}
+#page-chatbotforecast #chatbotPipelineStages{display:grid;gap:8px}
+#page-chatbotforecast .cf-stage-chip{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 11px;border:1px solid #eadfca;border-radius:11px;background:rgba(255,255,255,.72)}
+#page-chatbotforecast .cf-stage-chip b{font-size:11px}.cf-stage-chip span{font-size:10px;color:var(--text-muted);text-align:right;line-height:1.35}
+#page-chatbotforecast .cf-stage-chip[data-stage="quotes given"]{background:#f2efff;border-color:#ddd7f6}.cf-stage-chip[data-stage="development"]{background:#eef5ff;border-color:#d7e5f3}.cf-stage-chip[data-stage="discovery"]{background:#f7f1ff;border-color:#e5daf2}.cf-stage-chip[data-stage="uat"]{background:#eaf8f0;border-color:#d1eadc}
+@media(max-width:1100px){#page-chatbotforecast .metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#page-chatbotforecast .pipeline-track{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:650px){#page-chatbotforecast .metric-grid,#page-chatbotforecast .pipeline-track{grid-template-columns:1fr}#page-chatbotforecast .forecast-mode-row{align-items:flex-start;flex-direction:column}#page-chatbotforecast .cf-stage-chip{align-items:flex-start;flex-direction:column;gap:4px}#page-chatbotforecast .cf-stage-chip span{text-align:left}}
 #page-vendors .metric-grid{grid-template-columns:repeat(5,minmax(0,1fr))}
 @media(max-width:1180px){#page-vendors .metric-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:720px){#page-vendors .metric-grid{grid-template-columns:1fr 1fr}}
@@ -2533,20 +2583,23 @@ function renderRevenue(){
   const totalMargin = inPeriod.reduce((a,r)=>a+r.margin,0);
   const marginPct = totalRev ? ((totalMargin/totalRev)*100).toFixed(1) : "0.0";
   const lossRows=inPeriod.filter(r=>r.margin<0), lowMarginRows=inPeriod.filter(r=>r.revenue>0 && r.margin/r.revenue<.2);
-  const periodClientRevenue=inPeriod.reduce((map,row)=>{map[row.client]=(map[row.client]||0)+row.revenue;return map;},{});
-  const largestClientEntry=Object.entries(periodClientRevenue).sort((a,b)=>b[1]-a[1])[0]||[null,0],largestClientName=largestClientEntry[0],largestClient=largestClientEntry[1];
+  // Aggregate legal-name variants before counting clients or ranking the largest client.
+  // The source label is retained for display; only the internal grouping key is normalized.
+  const periodClientRevenue={},periodClientLabels={};
+  inPeriod.forEach(row=>{const key=clientMatchKey(row.client)||row.client;periodClientRevenue[key]=(periodClientRevenue[key]||0)+row.revenue;if(!periodClientLabels[key])periodClientLabels[key]=row.client;});
+  const largestClientEntry=Object.entries(periodClientRevenue).sort((a,b)=>b[1]-a[1])[0]||[null,0],largestClientKey=largestClientEntry[0],largestClientName=periodClientLabels[largestClientKey]||null,largestClient=largestClientEntry[1];
   const topConcentration=totalRev?largestClient/totalRev*100:0;
-  const filteredPeriod=baseFilteredPeriod.filter(row=>revInsightFilter==="loss"?row.margin<0:revInsightFilter==="low"?(row.revenue>0&&row.margin/row.revenue<.2):revInsightFilter==="concentration"?row.client===largestClientName:true);
-  const periodClients=new Set(inPeriod.map(r=>r.client).filter(Boolean));
+  const filteredPeriod=baseFilteredPeriod.filter(row=>revInsightFilter==="loss"?row.margin<0:revInsightFilter==="low"?(row.revenue>0&&row.margin/row.revenue<.2):revInsightFilter==="concentration"?clientMatchKey(row.client)===largestClientKey:true);
+  const periodClients=new Set(inPeriod.map(r=>clientMatchKey(r.client)).filter(Boolean));
   const scopeName=exactSingleMonth?monthLabel(start):rangeLabel;
   document.getElementById("profitabilityInsights").innerHTML=`
     <div class="signal"><span>${scopeName} revenue</span><b>${fmtCompact(totalRev)}</b><small>Netcore billing recorded in the month</small></div>
     <div class="signal"><span>${scopeName} cost</span><b>${fmtCompact(totalCost)}</b><small>Vendor cost recorded in the month</small></div>
     <div class="signal"><span>${scopeName} margin</span><b>${fmtCompact(totalMargin)}</b><small>Revenue minus cost</small></div>
     <div class="signal"><span>Margin %</span><b>${marginPct}%</b><small>${totalMargin<0?"Monthly portfolio is loss-making":"Monthly portfolio is profitable"}</small></div>`;
-  const monthlyTakeaway=totalMargin<0?`Cost exceeds revenue by ${fmtCompact(Math.abs(totalMargin))}. Review the ${lossRows.length} loss-making bot records first, then validate zero-revenue cost rows and vendor rental charges.`:`The selected period contributes ${fmtCompact(totalMargin)} margin at ${marginPct}%.`;
+  const monthlyTakeaway=totalMargin<0?`Cost exceeds revenue by ${fmtCompact(Math.abs(totalMargin))}. Review the ${lossRows.length} loss-making bot-months first, then validate zero-revenue cost rows and vendor rental charges.`:`The selected period contributes ${fmtCompact(totalMargin)} margin at ${marginPct}%.`;
   const insightActive=key=>revInsightFilter===key?" active":"";
-  document.getElementById("rmScopeBanner").innerHTML=`<strong>${scopeName} scope</strong><button type="button" class="scope-pill${insightActive("clients")}" data-rev-insight="clients">${periodClients.size} clients</button><button type="button" class="scope-pill${insightActive("records")}" data-rev-insight="records">${inPeriod.length} bot-month records</button><button type="button" class="scope-pill loss${insightActive("loss")}" data-rev-insight="loss">${lossRows.length} loss-making records</button><button type="button" class="scope-pill${insightActive("low")}" data-rev-insight="low">${lowMarginRows.length} below 20% margin</button><button type="button" class="scope-pill concentration${insightActive("concentration")}" data-rev-insight="concentration">${topConcentration.toFixed(1)}% top-client concentration</button><span class="scope-message"><b>What this means:</b> ${monthlyTakeaway}</span>`;
+  document.getElementById("rmScopeBanner").innerHTML=`<strong>${scopeName} scope</strong><button type="button" class="scope-pill${insightActive("clients")}" data-rev-insight="clients">${periodClients.size} clients</button><button type="button" class="scope-pill${insightActive("records")}" data-rev-insight="records">${inPeriod.length} bot-month records</button><button type="button" class="scope-pill loss${insightActive("loss")}" data-rev-insight="loss">${lossRows.length} loss-making bot-months</button><button type="button" class="scope-pill${insightActive("low")}" data-rev-insight="low">${lowMarginRows.length} below 20% bot-months</button><button type="button" class="scope-pill concentration${insightActive("concentration")}" data-rev-insight="concentration">${topConcentration.toFixed(1)}% top-client concentration</button><span class="scope-message"><b>What this means:</b> ${monthlyTakeaway}</span>`;
   document.querySelectorAll("#rmScopeBanner [data-rev-insight]").forEach(btn=>btn.addEventListener("click",()=>setRevInsightFilter(btn.dataset.revInsight)));
   document.getElementById("revRecordsTitle").innerHTML=`Client Profitability <small>${scopeName} · aggregated from bot-level R&amp;M rows</small>`;
 
@@ -2594,7 +2647,7 @@ function renderRevenue(){
   if(revFilter.vendor) crumbsRev.appendChild(makeCrumb("Vendor: "+revFilter.vendor, ()=>setRevVendor(revFilter.vendor)));
   if(revFilter.type) crumbsRev.appendChild(makeCrumb("Type: "+revFilter.type, ()=>setRevType(revFilter.type)));
   if(revFilter.industries.size>0) crumbsRev.appendChild(makeCrumb("Industry: "+industryBtnLabel(revFilter), ()=>clearIndustryFilter("Rev", revFilter, ()=>renderRevenue())));
-  if(revInsightFilter){const labels={clients:"All clients",records:"All bot-month records",loss:"Loss-making records",low:"Below 20% margin",concentration:"Top-contributing client"};crumbsRev.appendChild(makeCrumb(labels[revInsightFilter],()=>setRevInsightFilter(revInsightFilter)));}
+  if(revInsightFilter){const labels={clients:"All clients",records:"All bot-month records",loss:"Loss-making bot-months",low:"Below 20% bot-months",concentration:"Top-contributing client"};crumbsRev.appendChild(makeCrumb(labels[revInsightFilter],()=>setRevInsightFilter(revInsightFilter)));}
 
   const body=document.getElementById("revRecordsBody"); body.innerHTML="";
   const byClientTotals = {};
@@ -3171,7 +3224,10 @@ function renderChatbotForecast(){
   const stage=value=>String(value||"").trim().toLowerCase();
   const pausedStage=value=>/^(paused|on hold|onhold)$/i.test(String(value||"").trim());
   const liveStage=value=>stage(value)==="live";
-  const pipelineStage=value=>!liveStage(value)&&!pausedStage(value);
+  // Lost/cancelled work is not a forecast opportunity. It remains visible in Projects,
+  // but is deliberately excluded from this commercial pipeline calculation.
+  const closedStage=value=>/^(lost|cancelled|canceled|closed|not interested)$/i.test(String(value||"").trim());
+  const pipelineStage=value=>!liveStage(value)&&!pausedStage(value)&&!closedStage(value);
   const byBot=new Map();
   PROJECTS.forEach(p=>{const key=botKey(p.chatbot);if(key&&!byBot.has(key))byBot.set(key,p);});
   // Pause rule: historical R&M remains visible only up to the recorded pause month;
@@ -3199,6 +3255,7 @@ function renderChatbotForecast(){
   };
   PROJECTS.forEach(p=>{
     const key=botKey(p.chatbot); if(!key)return;
+    if(closedStage(p.stage))return;
     const group=liveStage(p.stage)?groups.live:(pausedStage(p.stage)?groups.paused:groups.pipeline);
     group.projects.push(p);
     (actualByBot.get(key)||[]).forEach(row=>group.actual.push(row));
@@ -3236,7 +3293,7 @@ function renderChatbotForecast(){
   document.getElementById("chatbotForecastBody").innerHTML=[live,paused,pipeline].map(group=>`<tr><td><b>${group.name}</b></td><td>${group.projects.length}</td><td>${fmtCompact(group.actual.revenue)}</td><td>${fmtCompact(group.future.revenue)}</td><td>${fmtCompact(group.future.cost)}</td><td>${fmtCompact(group.future.margin)}</td></tr>`).join("");
   const stageMap=new Map();
   pipeline.projects.forEach(p=>{const label=p.stage||"Other",value=stageMap.get(label)||{count:0,revenue:0};value.count++;futureMonths.forEach(m=>{const row=futureByBotMonth.get(botKey(p.chatbot)+"|"+monthKey(m));if(row)value.revenue+=row.revenue;});stageMap.set(label,value);});
-  document.getElementById("chatbotPipelineStages").innerHTML=[...stageMap.entries()].sort((a,b)=>b[1].count-a[1].count).map(([label,value])=>`<div class="mini-item"><b>${label}</b><span>${value.count} project${value.count===1?"":"s"} · ${fmtCompact(value.revenue)} entered R&M</span></div>`).join("")||'<div class="empty-state">No pre-live projects in the current source.</div>';
+  document.getElementById("chatbotPipelineStages").innerHTML=[...stageMap.entries()].sort((a,b)=>b[1].count-a[1].count).map(([label,value])=>`<div class="cf-stage-chip" data-stage="${stage(label)}"><b>${label}</b><span>${value.count} project${value.count===1?"":"s"} · ${fmtCompact(value.revenue)} entered R&M</span></div>`).join("")||'<div class="empty-state">No pre-live projects in the current source.</div>';
 }
 
 let c360Scope="all", c360Selected=null;

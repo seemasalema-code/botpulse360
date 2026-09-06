@@ -50,6 +50,10 @@
   .sync-error-banner.show{display:block;}
   .sync-error-banner .box{background:var(--hold-soft); border:1px solid #F3D9AE; color:#7A4A05; border-radius:12px; padding:13px 18px; font-size:13px; line-height:1.5;}
   .sync-error-banner b{background:#fff; padding:1px 6px; border-radius:4px; font-family:'Lexend', sans-serif; font-size:12px;}
+  .live-loading-banner{display:none;position:fixed;z-index:80;left:50%;top:22px;transform:translateX(-50%);align-items:center;gap:10px;max-width:calc(100vw - 36px);padding:12px 16px;border:1px solid #cde0d2;border-radius:12px;background:#fffdf9;color:var(--text);font:600 12px/1.4 'Lexend',sans-serif;box-shadow:0 12px 30px rgba(30,64,45,.14)}
+  .live-loading-banner::before{content:'';width:14px;height:14px;flex:0 0 14px;border:2px solid #cce4d5;border-top-color:var(--accent);border-radius:50%;animation:live-load-spin .75s linear infinite}
+  body.is-loading .live-loading-banner{display:flex}
+  @keyframes live-load-spin{to{transform:rotate(360deg)}}
 
   /* top-level page nav */
   .pagenav{max-width:1360px; margin:0 auto; padding:20px 40px 0; display:flex; gap:6px;}
@@ -1238,6 +1242,7 @@ td.num,.c360-money,.forecast-revenue,.forecast-cost,.forecast-margin{font-weight
       </div>
   </div>
   <div class="sync-error-banner" id="errorBanner"><div class="box" id="errorBox"></div></div>
+  <div class="live-loading-banner" id="liveLoadingBanner" role="status" aria-live="polite">Loading the current dashboard figures…</div>
 </div>
 
 <main>
@@ -2123,9 +2128,10 @@ const syncDot=document.getElementById("syncDot"), syncText=document.getElementBy
 let lastSync=null;
 function setSyncState(state,msg){
   syncDot.className="sync-dot";
-  if(state==="connecting"){ syncDot.classList.add("pulse"); syncText.textContent="Syncing…"; errorBanner.classList.remove("show"); }
-  else if(state==="ok"){ lastSync=new Date(); syncText.innerHTML=`<b>Live Google Sheet</b> · updated ${lastSync.toLocaleTimeString()}`; errorBanner.classList.remove("show"); }
+  if(state==="connecting"){ if(!usingLiveData)document.body.classList.add("is-loading"); syncDot.classList.add("pulse"); syncText.textContent="Syncing…"; errorBanner.classList.remove("show"); }
+  else if(state==="ok"){ document.body.classList.remove("is-loading"); lastSync=new Date(); syncText.innerHTML=`<b>Live Google Sheet</b> · updated ${lastSync.toLocaleTimeString()}`; errorBanner.classList.remove("show"); }
   else if(state==="error"){
+    document.body.classList.remove("is-loading");
     syncDot.classList.add(usingLiveData?"warn":"err");
     syncText.textContent = usingLiveData ? "Live refresh unavailable" : "Live Sheet unavailable";
     errorBox.innerHTML = `Couldn't reach the Google Sheet (${msg||"unknown error"}). Make sure it's shared as

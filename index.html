@@ -1152,6 +1152,62 @@ td.num,.c360-money,.forecast-revenue,.forecast-cost,.forecast-margin{font-weight
   #page-forecast .action-table{min-width:680px!important}
   #page-chatbotforecast .action-table{min-width:660px!important}
 }
+
+/* Tablet widths keep the requested side navigation, but use a compact icon rail
+   so the dashboard canvas remains wide enough for the financial views. */
+@media(min-width:701px) and (max-width:900px){
+  :root{--sidebar-width:78px}
+  body{padding:0 0 70px var(--sidebar-width)}
+  .hero{position:fixed;inset:0 auto 0 0;width:var(--sidebar-width);z-index:40;display:flex;flex-direction:column;overflow:hidden;background:linear-gradient(180deg,#EDF3EA 0%,#E6EFE8 100%);border:0;border-right:1px solid #D4E0D4;box-shadow:8px 0 24px rgba(36,75,53,.06)}
+  .hero header{width:100%;margin:0;padding:16px 12px 10px;display:flex;flex:0 0 auto;justify-content:center;align-items:center}
+  .sidebar-brand{width:auto;min-height:0;padding:0;background:transparent;border:0;box-shadow:none}
+  .sidebar-brand-copy{display:none}
+  .brand-mark{width:38px;height:38px;flex:0 0 38px;border-radius:12px}
+  .pagenav{width:100%;max-width:none;margin:0;padding:8px 11px;display:flex!important;flex:1 1 auto;flex-direction:column!important;gap:7px!important;overflow-y:auto;overflow-x:hidden}
+  .pagetab{top:0;min-height:0;margin:0;padding:9px;display:flex!important;align-items:center;justify-content:center;gap:0;border:1px solid transparent;border-radius:11px;background:transparent;box-shadow:none}
+  .pagetab>span:not(.nav-icon){display:none}
+  .pagetab .nav-icon{width:28px;height:28px;flex:0 0 28px;margin:0;border-radius:9px}
+  .pagetab.active{background:#fff;border-color:#D4E1D5;box-shadow:0 7px 16px rgba(42,81,58,.10)}
+  .sidebar-footer{width:100%;margin:0;padding:10px 11px 14px;display:flex!important;flex:0 0 auto;flex-direction:column;align-items:stretch!important;gap:7px;border-top:1px solid rgba(217,220,235,.72);background:transparent}
+  .sidebar-footer .change-badge,.sidebar-footer .sync-text{display:none!important}
+  .sidebar-footer .sync-box{width:100%;justify-content:center;margin:0;padding:10px;border-radius:10px}
+  .sidebar-footer #syncBtn{width:100%;min-height:36px;margin:0;padding:7px;font-size:0;border-radius:10px}
+  .sidebar-footer #syncBtn::after{content:'↻';font-size:16px;font-weight:700}
+  .sidebar-footer .sidebar-links{display:grid;grid-template-columns:1fr;gap:7px;width:100%}
+  .sidebar-footer .sidebar-links a{width:100%;min-height:30px;margin:0;padding:5px;font-size:0;border-radius:9px}
+  .sidebar-footer .cpaas-dashboard-link::after{content:'↗';font-size:14px;font-weight:700}
+  .sidebar-footer .source-data-link::after{content:'⌁';font-size:15px;font-weight:700}
+  main{max-width:1500px;margin:0 auto;padding:22px 18px 0;border-top:0}
+  footer{max-width:1500px;margin-left:auto;margin-right:auto;padding-left:18px!important;padding-right:18px!important}
+  .sync-error-banner{position:fixed;left:calc(var(--sidebar-width) + 16px);right:16px;top:12px;width:auto;z-index:60;max-width:none;margin:0;padding:0}
+}
+
+/* Wide data tables become labelled record cards on compact screens: no cut-off figures. */
+@media(max-width:900px){
+  #page-vendors .action-table-wrap,#page-forecast .action-table-wrap,#page-chatbotforecast .action-table-wrap{overflow:visible!important;max-height:none!important}
+  #page-vendors .action-table,#page-forecast .action-table,#page-chatbotforecast .action-table{display:block;min-width:0!important;border-collapse:separate;border-spacing:0 10px}
+  #page-vendors .action-table thead,#page-forecast .action-table thead,#page-chatbotforecast .action-table thead{display:none}
+  #page-vendors .action-table tbody,#page-forecast .action-table tbody,#page-chatbotforecast .action-table tbody{display:grid;gap:10px}
+  #page-vendors .action-table tbody tr,#page-forecast .action-table tbody tr,#page-chatbotforecast .action-table tbody tr{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 14px;padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:#FFFDF9!important}
+  #page-vendors .action-table tbody td,#page-forecast .action-table tbody td,#page-chatbotforecast .action-table tbody td{display:flex;align-items:baseline;justify-content:space-between;gap:9px;min-width:0;padding:8px 0!important;border-bottom:1px solid #E8EEE6;text-align:right!important;font-size:12px!important;overflow:visible!important}
+  #page-vendors .action-table tbody td:nth-last-child(-n+2),#page-forecast .action-table tbody td:nth-last-child(-n+2),#page-chatbotforecast .action-table tbody td:nth-last-child(-n+2){border-bottom:0}
+  #page-vendors .action-table tbody td::before,#page-forecast .action-table tbody td::before,#page-chatbotforecast .action-table tbody td::before{font-size:9px;font-weight:700;letter-spacing:.06em;color:var(--text-faint);text-transform:uppercase;text-align:left}
+  #vendorBody td:nth-child(1)::before{content:'Vendor'}#vendorBody td:nth-child(2)::before{content:'Projects'}#vendorBody td:nth-child(3)::before{content:'In development'}#vendorBody td:nth-child(4)::before{content:'Live'}#vendorBody td:nth-child(5)::before{content:'Delayed'}#vendorBody td:nth-child(6)::before{content:'Revenue'}#vendorBody td:nth-child(7)::before{content:'Margin'}#vendorBody td:nth-child(8)::before{content:'Margin %'}#vendorBody td:nth-child(9)::before{content:'Health'}
+  #forecastBody td:nth-child(1)::before{content:'Revenue stream'}#forecastBody td:nth-child(2)::before{content:'Achieved revenue'}#forecastBody td:nth-child(3)::before{content:'Remaining revenue'}#forecastBody td:nth-child(4)::before{content:'FY projected revenue'}#forecastBody td:nth-child(5)::before{content:'FY projected cost'}#forecastBody td:nth-child(6)::before{content:'FY projected margin'}
+  #chatbotForecastBody td:nth-child(1)::before{content:'Forecast group'}#chatbotForecastBody td:nth-child(2)::before{content:'Projects'}#chatbotForecastBody td:nth-child(3)::before{content:'Actual to date'}#chatbotForecastBody td:nth-child(4)::before{content:'Future revenue'}#chatbotForecastBody td:nth-child(5)::before{content:'Future cost'}#chatbotForecastBody td:nth-child(6)::before{content:'Future margin'}
+  #chatbotPotentialMonths td:nth-child(1)::before{content:'Month'}#chatbotPotentialMonths td:nth-child(2)::before{content:'Potential revenue'}#chatbotPotentialMonths td:nth-child(3)::before{content:'Potential cost'}#chatbotPotentialMonths td:nth-child(4)::before{content:'Potential margin'}#chatbotPotentialMonths td:nth-child(5)::before{content:'Margin %'}
+  #chatbotPotentialStages td:nth-child(1)::before{content:'Stage'}#chatbotPotentialStages td:nth-child(2)::before{content:'Projects'}#chatbotPotentialStages td:nth-child(3)::before{content:'Potential revenue'}#chatbotPotentialStages td:nth-child(4)::before{content:'Potential cost'}#chatbotPotentialStages td:nth-child(5)::before{content:'Potential margin'}#chatbotPotentialStages td:nth-child(6)::before{content:'Margin %'}
+  #chatbotClosingPosition td:nth-child(1)::before{content:'Scope'}#chatbotClosingPosition td:nth-child(2)::before{content:'Closing revenue'}#chatbotClosingPosition td:nth-child(3)::before{content:'Closing margin'}
+  #page-client360 .c360-table-panel{max-height:none!important;overflow:visible!important}
+  #page-client360 .c360-table-panel .action-table{display:block;min-width:0!important;border-collapse:separate;border-spacing:0 10px}
+  #page-client360 .c360-table-panel .action-table thead{display:none}
+  #page-client360 .c360-table-panel .action-table tbody{display:grid;gap:10px}
+  #page-client360 .c360-table-panel .action-table tbody tr{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 14px;padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:#FFFDF9!important}
+  #page-client360 .c360-table-panel .action-table tbody td{display:flex;align-items:baseline;justify-content:space-between;gap:9px;min-width:0;padding:8px 0!important;border-bottom:1px solid #E8EEE6;text-align:right!important;font-size:12px!important;overflow:visible!important}
+  #page-client360 .c360-table-panel .action-table tbody td:nth-last-child(-n+2){border-bottom:0}
+  #page-client360 .c360-table-panel .action-table tbody td::before{font-size:9px;font-weight:700;letter-spacing:.06em;color:var(--text-faint);text-transform:uppercase;text-align:left}
+  #c360Body td:nth-child(1)::before{content:'Client'}#c360Body td:nth-child(2)::before{content:'Chatbots'}#c360Body td:nth-child(3)::before{content:'Channels'}#c360Body td:nth-child(4)::before{content:'Chatbot revenue'}#c360Body td:nth-child(5)::before{content:'WA revenue'}#c360Body td:nth-child(6)::before{content:'RCS revenue'}#c360Body td:nth-child(7)::before{content:'Chatbot margin'}#c360Body td:nth-child(8)::before{content:'Net margin'}
+}
 </style>
 </head>
 <body>
@@ -2120,6 +2176,7 @@ const pagenav = document.getElementById("pagenav");
 PAGES.forEach(p=>{
   const el=document.createElement("div");
   el.className="pagetab"+(p.id===activePage?" active":"");
+  el.title=p.label;
   el.innerHTML=`<span class="nav-icon" aria-hidden="true">${p.icon}</span><span>${p.label}</span>`; el.dataset.page=p.id;
   el.addEventListener("click", ()=>{ activePage=p.id;
     if(p.id==="clientsummary" && !clientSummaryOpened){

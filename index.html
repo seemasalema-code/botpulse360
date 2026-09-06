@@ -1253,12 +1253,10 @@ td.num,.c360-money,.forecast-revenue,.forecast-cost,.forecast-margin{font-weight
 /* Project and consumable pages are management reading surfaces: summaries stay
    above the records, filters do not steal table width, and every visible value
    stays inside its own panel. */
-#page-chatbots .projects-command-grid{grid-template-columns:1fr;gap:16px}
-#page-chatbots .projects-main-column{display:contents}
-#page-chatbots #projectInsights{order:1}
-#page-chatbots .post-record-insights{order:2;margin:0}
-#page-chatbots .projects-command-grid>.overview{order:3;display:grid;grid-template-columns:minmax(240px,.7fr) minmax(0,1.3fr);gap:16px;align-items:start}
-#page-chatbots .records-focus-layout{order:4}
+#page-chatbots .projects-command-grid{grid-template-columns:minmax(0,1fr) 340px;gap:16px}
+#page-chatbots .projects-main-column{display:grid;gap:16px;min-width:0}
+#page-chatbots .post-record-insights{margin:0}
+#page-chatbots .projects-command-grid>.overview{display:grid;grid-template-columns:1fr;gap:14px;align-items:start}
 #page-chatbots .projects-command-grid .overview>.panel{background:#FFFDF9;border-color:#DCE5D9;box-shadow:0 7px 18px rgba(34,68,52,.045)}
 #page-chatbots .projects-command-grid .overview>.panel:first-child{background:#F7FBF8}
 #page-chatbots .projects-command-grid .overview>.panel:last-child{background:#F8FBFF;padding:18px 20px}
@@ -1272,13 +1270,13 @@ td.num,.c360-money,.forecast-revenue,.forecast-cost,.forecast-margin{font-weight
 #page-chatbots #records .records-body{max-height:none!important;overflow:visible!important}
 #page-chatbots #records table.data{min-width:0!important;width:100%;table-layout:fixed}
 #page-chatbots #records table.data thead th{position:static;padding:12px 16px;font-size:10px!important;font-weight:800!important;background:#F2F7F2;color:#64766B}
-#page-chatbots #records table.data tbody td{padding:13px 16px;font-size:12.5px!important;line-height:1.4;vertical-align:middle}
-#page-chatbots #records table.data th:nth-child(1),#page-chatbots #records table.data td:nth-child(1){width:36%;white-space:normal;overflow-wrap:anywhere}
-#page-chatbots #records table.data th:nth-child(2),#page-chatbots #records table.data td:nth-child(2){width:14%}
-#page-chatbots #records table.data th:nth-child(3),#page-chatbots #records table.data td:nth-child(3){width:13%}
-#page-chatbots #records table.data th:nth-child(4),#page-chatbots #records table.data td:nth-child(4){width:13%}
-#page-chatbots #records table.data th:nth-child(5),#page-chatbots #records table.data td:nth-child(5){width:9%}
-#page-chatbots #records table.data th:nth-child(6),#page-chatbots #records table.data td:nth-child(6){width:15%;white-space:normal;overflow-wrap:anywhere}
+#page-chatbots #records table.data tbody tr{height:48px}
+#page-chatbots #records table.data tbody td{max-width:0;padding:13px 16px;font-size:12.5px!important;line-height:1.4;vertical-align:middle;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#page-chatbots #records table.data th:nth-child(1),#page-chatbots #records table.data td:nth-child(1){width:32%}
+#page-chatbots #records table.data th:nth-child(2),#page-chatbots #records table.data td:nth-child(2){width:12%}
+#page-chatbots #records table.data th:nth-child(3),#page-chatbots #records table.data td:nth-child(3){width:12%}
+#page-chatbots #records table.data th:nth-child(4),#page-chatbots #records table.data td:nth-child(4){width:14%}
+#page-chatbots #records table.data th:nth-child(n+5),#page-chatbots #records table.data td:nth-child(n+5){width:auto!important}
 #page-chatbots #records .status-pill,#page-chatbots #records .vendor-tag{font-size:11px!important;font-weight:700!important}
 
 #page-consumable .consumable-layout{grid-template-columns:minmax(0,1.2fr) minmax(0,.9fr);gap:16px;align-items:start}
@@ -1300,11 +1298,13 @@ td.num,.c360-money,.forecast-revenue,.forecast-cost,.forecast-margin{font-weight
 #page-consumable #consTopClients th:nth-child(4),#page-consumable #consTopClients td:nth-child(4){width:18%!important;text-align:right}
 #page-consumable #consTopClients th:nth-child(5),#page-consumable #consTopClients td:nth-child(5){width:16%!important;text-align:right}
 
-@media(max-width:900px){
-  #page-chatbots .projects-command-grid>.overview{grid-template-columns:1fr}
+@media(max-width:1120px){
+  #page-chatbots .projects-command-grid{grid-template-columns:1fr}
+  #page-chatbots .projects-command-grid>.overview{grid-template-columns:1fr 1fr}
   #page-consumable .consumable-layout{grid-template-columns:1fr}
 }
 @media(max-width:650px){
+  #page-chatbots .projects-command-grid>.overview{grid-template-columns:1fr}
   #page-chatbots .projects-command-grid .overview #stageTabbar,#page-chatbots .projects-command-grid .overview #typeTabbar,#page-chatbots .projects-command-grid .overview #aiEnabledChips,#page-chatbots .projects-command-grid .overview #deliveryStatusChips{grid-template-columns:repeat(2,minmax(0,1fr))}
   #page-chatbots #records table.data{table-layout:auto}
   #page-chatbots #records table.data th,#page-chatbots #records table.data td{padding:11px 10px;font-size:12px!important}
@@ -3195,7 +3195,7 @@ function renderChatbots(){
       tr.innerHTML=`<td>${p.chatbot}</td><td>${p.platform||"—"}</td>
         <td><span class="vendor-tag" style="color:${vendorColor(p.vendor)}">${p.vendor||"—"}</span></td>
         <td><span class="status-pill" style="background:${c}1F; color:${c}"><span class="d" style="background:${c}"></span>${p.status||p.stage}</span></td>`
-        + EXTRA_COLS.map(col=>`<td>${col.cell(p)}</td>`).join("");
+        + EXTRA_COLS.map(col=>{const value=String(col.cell(p));return `<td title="${safeHtml(value.replace(/<[^>]*>/g,""))}">${value}</td>`;}).join("");
       recordsBody.appendChild(tr);
     });
   }

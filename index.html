@@ -1272,12 +1272,19 @@ td.num,.c360-money,.forecast-revenue,.forecast-cost,.forecast-margin{font-weight
 #page-chatbots #records table.data thead th{position:static;padding:12px 16px;font-size:10px!important;font-weight:800!important;background:#F2F7F2;color:#64766B}
 #page-chatbots #records table.data tbody tr{height:48px}
 #page-chatbots #records table.data tbody td{max-width:0;padding:13px 16px;font-size:12.5px!important;line-height:1.4;vertical-align:middle;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#page-chatbots #records table.data th:nth-child(1),#page-chatbots #records table.data td:nth-child(1){width:32%}
-#page-chatbots #records table.data th:nth-child(2),#page-chatbots #records table.data td:nth-child(2){width:12%}
-#page-chatbots #records table.data th:nth-child(3),#page-chatbots #records table.data td:nth-child(3){width:12%}
-#page-chatbots #records table.data th:nth-child(4),#page-chatbots #records table.data td:nth-child(4){width:14%}
-#page-chatbots #records table.data th:nth-child(n+5),#page-chatbots #records table.data td:nth-child(n+5){width:auto!important}
+#page-chatbots #records table.data th:nth-child(1),#page-chatbots #records table.data td:nth-child(1){width:27%}
+#page-chatbots #records table.data th:nth-child(2),#page-chatbots #records table.data td:nth-child(2){width:10%}
+#page-chatbots #records table.data th:nth-child(3),#page-chatbots #records table.data td:nth-child(3){width:11%}
+#page-chatbots #records table.data th:nth-child(4),#page-chatbots #records table.data td:nth-child(4){width:15%}
+#page-chatbots #records table.data th:nth-child(5),#page-chatbots #records table.data td:nth-child(5){width:13%}
+#page-chatbots #records table.data th:nth-child(n+6),#page-chatbots #records table.data td:nth-child(n+6){width:auto!important}
 #page-chatbots #records .status-pill,#page-chatbots #records .vendor-tag{font-size:11px!important;font-weight:700!important}
+
+#page-executive .metric-grid{grid-template-columns:repeat(6,minmax(0,1fr))}
+#page-executive .insight-stat:nth-child(5){background:var(--pastel-warning);border-color:#F0DEB7}
+#page-executive .insight-stat:nth-child(6){background:var(--pastel-percent);border-color:#DDD3FA}
+#page-executive .workspace-rail .rail-card:nth-child(2){background:#F5F1FF}
+#page-executive .workspace-rail .rail-card:nth-child(3){background:#F1F8F4}
 
 #page-consumable .consumable-layout{grid-template-columns:minmax(0,1.2fr) minmax(0,.9fr);gap:16px;align-items:start}
 #page-consumable #recordsCons,#page-consumable .top-clients-panel{height:auto!important;background:#FFFDF9;border-color:#DCE5D9;box-shadow:0 7px 18px rgba(34,68,52,.045)}
@@ -1299,14 +1306,19 @@ td.num,.c360-money,.forecast-revenue,.forecast-cost,.forecast-margin{font-weight
 #page-consumable #consTopClients th:nth-child(5),#page-consumable #consTopClients td:nth-child(5){width:16%!important;text-align:right}
 
 @media(max-width:1120px){
-  #page-chatbots .projects-command-grid{grid-template-columns:1fr}
-  #page-chatbots .projects-command-grid>.overview{grid-template-columns:1fr 1fr}
+  #page-chatbots .projects-command-grid{grid-template-columns:minmax(0,1fr) 300px}
+  #page-chatbots .projects-command-grid>.overview{grid-template-columns:1fr}
+  #page-executive .metric-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
   #page-consumable .consumable-layout{grid-template-columns:1fr}
+}
+@media(max-width:700px){
+  #page-chatbots .projects-command-grid{grid-template-columns:1fr}
 }
 @media(max-width:650px){
   #page-chatbots .projects-command-grid>.overview{grid-template-columns:1fr}
   #page-chatbots .projects-command-grid .overview #stageTabbar,#page-chatbots .projects-command-grid .overview #typeTabbar,#page-chatbots .projects-command-grid .overview #aiEnabledChips,#page-chatbots .projects-command-grid .overview #deliveryStatusChips{grid-template-columns:repeat(2,minmax(0,1fr))}
   #page-chatbots #records table.data{table-layout:auto}
+  #page-executive .metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
   #page-chatbots #records table.data th,#page-chatbots #records table.data td{padding:11px 10px;font-size:12px!important}
   #page-consumable #recordsCons table.data th,#page-consumable #recordsCons table.data td{padding:11px 9px;font-size:12px!important}
   #page-consumable #consTopClients th:nth-child(2),#page-consumable #consTopClients td:nth-child(2){width:38%!important}
@@ -1347,19 +1359,20 @@ td.num,.c360-money,.forecast-revenue,.forecast-cost,.forecast-margin{font-weight
 <main>
 
   <!-- ===================== PAGE: EXECUTIVE SUMMARY ===================== -->
-  <section class="page executive-section active" id="page-executive">
-    <div class="app-intro"><div><h2>Executive Summary</h2><p>Portfolio health, commercial outlook and the decisions that need attention now</p></div><div class="period-label" id="executivePeriod">Live portfolio view</div></div>
+  <section class="page executive-section executive-command active" id="page-executive">
+    <div class="app-intro"><div><h2>Chatbot Command Centre</h2><p>A decision view of portfolio, financial, delivery, client and vendor health</p></div><div class="period-label" id="executivePeriod">Live portfolio view</div></div>
     <div class="metric-grid" id="executiveKpis"></div>
     <div class="workspace-grid" style="margin-top:18px">
       <div class="workspace-main">
-        <div class="insight-panel"><h3>Portfolio Pulse</h3><div class="operations-pulse" id="executivePulse"></div></div>
+        <div class="insight-panel"><h3>Portfolio &amp; pipeline pulse</h3><div class="operations-pulse" id="executivePulse"></div></div>
         <div class="insight-panel"><h3>Priority Actions</h3><div class="attention-list" id="executiveActions"></div></div>
         <div class="insight-panel"><h3>Weekly / Monthly Delivery Outlook</h3><div class="pipeline-track" id="executiveOutlook"></div></div>
       </div>
       <aside class="workspace-rail">
         <div class="rail-card"><h3>Owner Workload</h3><p class="rail-sub">Active and at-risk work by owner</p><div class="mini-list" id="executiveOwners"></div></div>
+        <div class="rail-card"><h3>Client Health</h3><p class="rail-sub">Profitability and cross-product recovery signals</p><div class="mini-list" id="executiveClients"></div></div>
+        <div class="rail-card"><h3>Vendor Health</h3><p class="rail-sub">Portfolio coverage and delivery follow-up</p><div class="mini-list" id="executiveVendors"></div></div>
         <div class="rail-card"><h3>Blockers</h3><p class="rail-sub">What is stopping delivery</p><div class="mini-list" id="executiveBlockers"></div></div>
-        <div class="rail-card"><h3>Delivery Confidence</h3><div class="mini-list" id="executiveConfidence"></div></div>
       </aside>
     </div>
   </section>
@@ -2685,11 +2698,16 @@ function renderExecutive(){
   const snap=operationalSnapshot(),live=PROJECTS.filter(p=>String(p.stage||"").toLowerCase()==="live").length;
   const reportingStart=currentFinancialYearStart(),financialRows=COMMERCIALS.filter(r=>r.dateOfLive>=reportingStart);
   const revenue=financialRows.reduce((n,r)=>n+(+r.revenue||0),0),cost=financialRows.reduce((n,r)=>n+(+r.cost||0),0),margin=revenue-cost;
+  const delayed=PROJECTS.filter(p=>String(p.delayFlag||"").toLowerCase().startsWith("delayed")).length;
+  const potentialRevenue=document.querySelector("#chatbotPotentialSummary .potential-revenue b")?.textContent||"—";
+  const potentialMargin=document.querySelector("#chatbotPotentialSummary .potential-margin b")?.textContent||"—";
   const kpis=[
-    ["active","Active projects",snap.active.length,"currently progressing"],
-    ["attention","Delivery attention",snap.attention.length,"delayed in Development or UAT"],
-    ["live","Live portfolio",live,"in production"],
-    ["financial","Portfolio margin",fmtINR(margin),revenue?`${currentFinancialYearLabel()} · ${((margin/revenue)*100).toFixed(1)}% margin`:"commercial data pending"]
+    ["active","Total projects",PROJECTS.length,"across every stage"],
+    ["live","Live projects",live,"in production"],
+    ["attention","Delayed projects",delayed,"need a recovery plan"],
+    ["financial","FY revenue",fmtINR(revenue),currentFinancialYearLabel()],
+    ["financial","FY margin",fmtINR(margin),revenue?`${((margin/revenue)*100).toFixed(1)}% margin`:"commercial data pending"],
+    ["pipeline","Pre-live potential",potentialRevenue,`Potential margin ${potentialMargin}`]
   ];
   document.getElementById("executiveKpis").innerHTML=kpis.map(k=>'<button class="insight-stat" type="button" data-exec="'+k[0]+'"><div class="is-label">'+k[1]+'</div><div class="is-value">'+k[2]+'</div><div class="is-hint">'+k[3]+'</div></button>').join("");
   document.querySelectorAll('#executiveKpis [data-exec]').forEach(el=>el.addEventListener("click",()=>openProjectInsight(el.dataset.exec==="financial"?"active":el.dataset.exec)));
@@ -2704,8 +2722,22 @@ function renderExecutive(){
   const outlook=[["This week",outlookToday,weekEnd],["Next week",new Date(weekEnd.getTime()+DAY_MS),nextWeekEnd],["This month",outlookToday,monthEnd],["Next month",new Date(monthEnd.getTime()+DAY_MS),nextMonthEnd]].map(([label,startDate,endDate])=>{const n=snap.upcoming.filter(p=>p.dates.targetLive>=startDate&&p.dates.targetLive<=endDate).length;return '<div><span>'+label+'</span><b>'+n+'</b></div>';}).join("");
   document.getElementById("executiveOutlook").innerHTML='<div class="mini-list">'+outlook+'</div>';
   document.getElementById("executiveOwners").innerHTML=rankedList(snap.owners);
+  const clientRows=buildClient360();
+  document.getElementById("executiveClients").innerHTML=rankedList({
+    "Active chatbot clients":clientRows.filter(row=>row.hasChatbot).length,
+    "Chatbot loss":clientRows.filter(row=>row.chatbotMargin<0).length,
+    "WA/RCS offset loss":clientRows.filter(row=>row.recoveredByUsage).length,
+    "WA/RCS loss":clientRows.filter(row=>row.usageRisk).length
+  },"No client health records available");
+  const vendorHealth=PROJECTS.reduce((map,project)=>{
+    const name=project.vendor||"Unassigned",item=map.get(name)||{projects:0,delayed:0};
+    item.projects++;
+    if(String(project.delayFlag||"").toLowerCase().startsWith("delayed")) item.delayed++;
+    map.set(name,item);return map;
+  },new Map());
+  const vendorRows=[...vendorHealth.entries()].sort((a,b)=>b[1].delayed-a[1].delayed||b[1].projects-a[1].projects).slice(0,5);
+  document.getElementById("executiveVendors").innerHTML=vendorRows.length?'<div class="mini-list">'+vendorRows.map(([name,item])=>'<div><span>'+safeHtml(name)+'</span><b>'+item.projects+' projects · '+item.delayed+' delayed</b></div>').join("")+'</div>':'<div class="insight-empty">No vendor records available</div>';
   document.getElementById("executiveBlockers").innerHTML=rankedList(snap.blockers,"No blockers recorded");
-  document.getElementById("executiveConfidence").innerHTML=rankedList(snap.confidence);
 }
 function renderActionCentre(){
   const snap=operationalSnapshot(),rows=snap.followUp,critical=rows.filter(p=>opsConfidence(p)==="Critical"),client=rows.filter(p=>opsBlocker(p)==="Client"),vendor=rows.filter(p=>opsBlocker(p)==="Vendor");
@@ -3186,16 +3218,18 @@ function renderChatbots(){
   document.getElementById("recordsTitle").textContent = filters.milestone
     ? `Projects with ${milestoneLabel(filters.milestone)} in the selected period`
     : "Unified Project Records";
-  headRow.innerHTML = `<th>Chatbot</th><th>Bot Type</th><th>Vendor</th><th>${filters.milestone?"Current Stage":"Stage"}</th>` + EXTRA_COLS.map(col=>`<th>${col.header}</th>`).join("");
+  headRow.innerHTML = `<th>Chatbot</th><th>Bot Type</th><th>Vendor</th><th>Account Manager</th><th>${filters.milestone?"Current Stage":"Stage"}</th>` + EXTRA_COLS.map(col=>`<th>${col.header}</th>`).join("");
 
-  if(rows.length===0){ recordsBody.innerHTML=`<tr><td colspan="${4+EXTRA_COLS.length}"><div class="empty-state">No records match this filter.</div></td></tr>`; }
+  if(rows.length===0){ recordsBody.innerHTML=`<tr><td colspan="${5+EXTRA_COLS.length}"><div class="empty-state">No records match this filter.</div></td></tr>`; }
   else{
     rows.forEach(p=>{
       const c=stageColor(p.stage)||"#666F94"; const tr=document.createElement("tr");
-      tr.innerHTML=`<td>${p.chatbot}</td><td>${p.platform||"—"}</td>
-        <td><span class="vendor-tag" style="color:${vendorColor(p.vendor)}">${p.vendor||"—"}</span></td>
-        <td><span class="status-pill" style="background:${c}1F; color:${c}"><span class="d" style="background:${c}"></span>${p.status||p.stage}</span></td>`
-        + EXTRA_COLS.map(col=>{const value=String(col.cell(p));return `<td title="${safeHtml(value.replace(/<[^>]*>/g,""))}">${value}</td>`;}).join("");
+      const chatbot=safeHtml(p.chatbot||"—"),platform=safeHtml(p.platform||"—"),vendor=safeHtml(p.vendor||"—"),manager=safeHtml(p.salesConnect||"Unassigned"),projectStage=safeHtml(p.status||p.stage||"—");
+      tr.innerHTML=`<td title="${chatbot}">${chatbot}</td><td title="${platform}">${platform}</td>
+        <td title="${vendor}"><span class="vendor-tag" style="color:${vendorColor(p.vendor)}">${vendor}</span></td>
+        <td title="${manager}">${manager}</td>
+        <td title="${projectStage}"><span class="status-pill" style="background:${c}1F; color:${c}"><span class="d" style="background:${c}"></span>${projectStage}</span></td>`
+        + EXTRA_COLS.map(col=>{const raw=String(col.cell(p));const plain=raw.replace(/<[^>]*>/g,"").replace(/\s+/g," ").trim();const value=/^<b\b/i.test(raw)?raw:safeHtml(plain);return `<td title="${safeHtml(plain)}">${value}</td>`;}).join("");
       recordsBody.appendChild(tr);
     });
   }
@@ -4145,7 +4179,6 @@ document.querySelectorAll("#c360Segments button").forEach(btn=>btn.onclick=()=>{
 document.getElementById("c360Search")?.addEventListener("input",renderClient360);
 
 function renderAll(){
-  renderExecutive();
   renderChatbots();
   renderActionCentre();
   renderRevenue();
@@ -4155,6 +4188,7 @@ function renderAll(){
   renderVendorPerformance();
   renderForecast();
   renderChatbotForecast();
+  renderExecutive();
 }
 
 /* ---------------- Render: Consumable page (mirrors Chatbots R&M, keyed by Client + Month) ---------------- */

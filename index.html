@@ -1272,7 +1272,7 @@ td.num,.c360-money,.forecast-revenue,.forecast-cost,.forecast-margin{font-weight
 #page-chatbots #records table.data{min-width:0!important;width:100%;table-layout:fixed}
 #page-chatbots #records table.data thead th{position:static;padding:12px 16px;font-size:10px!important;font-weight:800!important;background:#F2F7F2;color:#64766B}
 #page-chatbots #records table.data tbody tr{height:48px}
-#page-chatbots #records table.data tbody td{max-width:0;padding:13px 16px;font-size:12.5px!important;line-height:1.4;vertical-align:middle;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#page-chatbots #records table.data tbody td{max-width:0;padding:13px 16px;font-size:11px!important;line-height:1.35;vertical-align:middle;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #page-chatbots #records table.data th:nth-child(1),#page-chatbots #records table.data td:nth-child(1){width:27%}
 #page-chatbots #records table.data th:nth-child(2),#page-chatbots #records table.data td:nth-child(2){width:10%}
 #page-chatbots #records table.data th:nth-child(3),#page-chatbots #records table.data td:nth-child(3){width:11%}
@@ -1325,7 +1325,7 @@ td.num,.c360-money,.forecast-revenue,.forecast-cost,.forecast-margin{font-weight
   #page-chatbots .projects-command-grid .overview #stageTabbar,#page-chatbots .projects-command-grid .overview #typeTabbar,#page-chatbots .projects-command-grid .overview #aiEnabledChips,#page-chatbots .projects-command-grid .overview #deliveryStatusChips{grid-template-columns:repeat(2,minmax(0,1fr))}
   #page-chatbots #records table.data{table-layout:auto}
   #page-executive .metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-  #page-chatbots #records table.data th,#page-chatbots #records table.data td{padding:11px 10px;font-size:12px!important}
+  #page-chatbots #records table.data th,#page-chatbots #records table.data td{padding:11px 10px;font-size:11px!important}
   #page-consumable #recordsCons table.data th,#page-consumable #recordsCons table.data td{padding:11px 9px;font-size:12px!important}
   #page-consumable #consTopClients th:nth-child(2),#page-consumable #consTopClients td:nth-child(2){width:38%!important}
   #page-consumable #consTopClients th:nth-child(3),#page-consumable #consTopClients td:nth-child(3),#page-consumable #consTopClients th:nth-child(4),#page-consumable #consTopClients td:nth-child(4){width:19%!important}
@@ -2335,7 +2335,9 @@ function makeCurrentFinancialYearTimeState(){
     months:new Set()
   };
 }
-const timeChat = makeCurrentFinancialYearTimeState(), timeRev = makeCurrentFinancialYearTimeState(), timeCons = makeCurrentFinancialYearTimeState();
+// Projects opens on the current calendar month. Revenue and consumables retain their
+// financial-year default because they are reporting views rather than an action queue.
+const timeChat = makeTimeState(), timeRev = makeCurrentFinancialYearTimeState(), timeCons = makeCurrentFinancialYearTimeState();
 
 function periodBounds(ts){
   if(ts.view==="Year" || ts.view==="Monthly"){
@@ -2804,12 +2806,15 @@ function renderProjectInsights(inPeriod){
     const d=p.dates||{};
     return key==="brief"?d.brief:key==="commercials"?d.comm:key==="development"?d.dev:key==="uat"?d.test:d.liveDate;
   };
+  // Movement remains period-aware, while respecting the project's current stage.
+  // A project that went Live after Development therefore never appears as a
+  // Development record in the table.
   const movementPipelineSets={
-    brief:scopedProjects.filter(p=>inPeriod(milestoneDate(p,"brief"))),
-    commercials:scopedProjects.filter(p=>inPeriod(milestoneDate(p,"commercials"))),
-    development:scopedProjects.filter(p=>inPeriod(milestoneDate(p,"development"))),
-    uat:scopedProjects.filter(p=>inPeriod(milestoneDate(p,"uat"))),
-    live:scopedProjects.filter(p=>inPeriod(milestoneDate(p,"live")))
+    brief:scopedProjects.filter(p=>inPeriod(milestoneDate(p,"brief"))&&(p.stage==="Discovery"||p.stage==="Demo Bot")),
+    commercials:scopedProjects.filter(p=>inPeriod(milestoneDate(p,"commercials"))&&p.stage==="Quotes Given"),
+    development:scopedProjects.filter(p=>inPeriod(milestoneDate(p,"development"))&&p.stage==="Development"),
+    uat:scopedProjects.filter(p=>inPeriod(milestoneDate(p,"uat"))&&p.stage==="UAT"),
+    live:scopedProjects.filter(p=>inPeriod(milestoneDate(p,"live"))&&p.stage==="Live")
   };
   const currentLabels={brief:"Brief / Discovery",commercials:"Commercials",development:"Development",uat:"UAT",live:"Live"};
   const movementLabels={brief:"New Briefs",commercials:"Commercials Shared",development:"Development Started",uat:"UAT Started",live:"Went Live"};
@@ -2824,10 +2829,10 @@ function renderProjectInsights(inPeriod){
     pipelineToggle.querySelectorAll("button").forEach(item=>item.classList.toggle("active",item.dataset.pipelineView===pipelineView));
     pipelineSets=pipelineView==="movement"?movementPipelineSets:currentPipelineSets;
     pipelineLabels=pipelineView==="movement"?movementLabels:currentLabels;
-    pipelineSubtitle.textContent=pipelineView==="movement"?"Milestones reached within the selected period":"Current stage of projects active in the selected period";
+    pipelineSubtitle.textContent=pipelineView==="movement"?"Current-stage entries reached within the selected period":"Current stage of projects active in the selected period";
     pipelinePeriodNote.style.display=pipelineView==="movement"?"block":"none";
     pipelinePeriodNote.textContent=pipelineView==="movement"
-      ? fmtD(selectedBounds.start)+" – "+fmtD(selectedBounds.end)+" · A project may appear in more than one milestone when it progressed through multiple stages in this period."
+      ? fmtD(selectedBounds.start)+" – "+fmtD(selectedBounds.end)+" · Projects remain in their current stage, even when an earlier milestone was completed in this period."
       : "";
     pipelineEl.innerHTML=Object.keys(pipelineLabels).map(key=>'<button type="button" class="pipeline-step" data-pipeline="'+key+'" aria-pressed="false"><span class="pipeline-bar">'+pipelineSets[key].length+'</span><span class="pipeline-label">'+pipelineLabels[key]+'</span></button>').join("");
   };

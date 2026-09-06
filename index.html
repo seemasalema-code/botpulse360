@@ -2177,6 +2177,9 @@ PAGES.forEach(p=>{
   const el=document.createElement("div");
   el.className="pagetab"+(p.id===activePage?" active":"");
   el.title=p.label;
+  el.setAttribute("role","button");
+  el.setAttribute("aria-label",p.label);
+  el.tabIndex=0;
   el.innerHTML=`<span class="nav-icon" aria-hidden="true">${p.icon}</span><span>${p.label}</span>`; el.dataset.page=p.id;
   el.addEventListener("click", ()=>{ activePage=p.id;
     if(p.id==="clientsummary" && !clientSummaryOpened){
@@ -2191,6 +2194,9 @@ PAGES.forEach(p=>{
     const pageId=p.id==="rcsconsumable"?"page-consumable":"page-"+p.id;
     document.querySelectorAll(".page").forEach(pg=>pg.classList.toggle("active", pg.id===pageId));
     renderAll();
+  });
+  el.addEventListener("keydown",event=>{
+    if(event.key==="Enter"||event.key===" "){event.preventDefault();el.click();}
   });
   pagenav.appendChild(el);
 });

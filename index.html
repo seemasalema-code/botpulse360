@@ -1092,6 +1092,49 @@ td.num,.c360-money,.forecast-revenue,.forecast-cost,.forecast-margin{font-weight
 #page-chatbotforecast .potential-summary .potential-cost{background:var(--pastel-cost)!important}
 #page-chatbotforecast .potential-summary .potential-margin{background:var(--pastel-margin)!important}
 
+/* Apply the same reading hierarchy to every remaining dashboard view. */
+.app-intro p,.insight-heading p,.pipeline-subtitle,.rail-sub{font-size:11px!important;line-height:1.5!important}
+.metric-card>span,.metric-card>small{font-size:10px!important;line-height:1.4!important}
+.metric-card>b{font-size:28px!important;line-height:1.12!important;font-weight:700!important;letter-spacing:-.025em}
+.records-head .rec-count,.app-intro .rec-count{font-size:11px!important;font-weight:700!important}
+
+/* Portfolio and project-health signals use calm, distinct pastels without changing their meaning. */
+#page-executive .metric-card:nth-child(1),#page-actions .metric-card:nth-child(1),#page-chatbots .kpi:nth-child(1){background:var(--pastel-revenue)!important;border-color:#C9E0F4!important}
+#page-executive .metric-card:nth-child(2),#page-actions .metric-card:nth-child(2),#page-chatbots .kpi:nth-child(2){background:var(--pastel-margin)!important;border-color:#C7E8D4!important}
+#page-executive .metric-card:nth-child(3),#page-actions .metric-card:nth-child(3),#page-chatbots .kpi:nth-child(3){background:var(--pastel-risk)!important;border-color:#EFCFD1!important}
+#page-executive .metric-card:nth-child(4),#page-actions .metric-card:nth-child(4),#page-chatbots .kpi:nth-child(4){background:var(--pastel-percent)!important;border-color:#DDD3FA!important}
+#page-executive .metric-card:nth-child(5),#page-chatbots .kpi:nth-child(5){background:var(--pastel-warning)!important;border-color:#F0DEB7!important}
+#page-chatbots .kpi .value,#page-executive .metric-card>b,#page-actions .metric-card>b{font-weight:700!important}
+
+/* Consumable, vendor and client-summary numbers always follow the financial colour key. */
+#page-consumable #consRecordsBody td:nth-child(2),#page-consumable #consTopClients td:nth-child(3){color:var(--ink-revenue)!important;font-weight:700!important}
+#page-consumable #consRecordsBody td:nth-child(3),#page-consumable #consTopClients td:nth-child(4){color:var(--ink-cost)!important;font-weight:700!important}
+#page-consumable #consRecordsBody td:nth-child(4),#page-consumable #consTopClients td:nth-child(5){color:var(--ink-margin)!important;font-weight:700!important}
+#page-consumable #consRecordsBody td:nth-child(5){color:var(--ink-percent)!important;font-weight:700!important}
+#page-consumable #consTotalRow td{font-weight:700!important}
+#page-vendors #vendorBody td:nth-child(6){color:var(--ink-revenue)!important;font-weight:700!important}
+#page-vendors #vendorBody td:nth-child(7){color:var(--ink-margin)!important;font-weight:700!important}
+#page-vendors #vendorBody td:nth-child(8){color:var(--ink-percent)!important;font-weight:700!important}
+#page-clientsummary .cs-group-title{font-size:12px!important;font-weight:700!important}
+#page-clientsummary .cs-stat .l{font-size:10px!important;font-weight:700!important;letter-spacing:.07em}
+#page-clientsummary .cs-stat .v{font-size:23px!important;line-height:1.15!important;font-weight:700!important}
+#page-clientsummary .cs-stat.m-rev .v{color:var(--ink-revenue)!important}
+#page-clientsummary .cs-stat.m-cost .v{color:var(--ink-cost)!important}
+#page-clientsummary .cs-stat.m-margin .v{color:var(--ink-margin)!important}
+#page-clientsummary .cs-stat.m-marginpct .v{color:var(--ink-percent)!important}
+
+/* Client 360 remains a full-width record view until a client is selected. */
+#page-client360 .c360-table-panel{border-color:#DCE5D9;background:#FFFDF9}
+#page-client360 .c360-table-panel .action-table th{background:#F4F8F4}
+#page-client360 .c360-table-panel .action-table td{font-size:12px!important}
+#page-client360 .c360-table-panel .action-table td:nth-child(4),#page-client360 .c360-table-panel .action-table td:nth-child(5),#page-client360 .c360-table-panel .action-table td:nth-child(6){color:var(--ink-revenue);font-weight:700}
+#page-client360 .c360-detail{background:#FFFDF9;border-color:#DCE5D9}
+#page-client360 .c360-detail-head b{font-size:16px!important;font-weight:700!important}
+#page-client360 .c360-detail h3{font-size:10px!important;font-weight:700!important}
+#page-client360 .c360-finance-summary b{font-size:14px!important;font-weight:700!important}
+#page-client360 .c360-recovery>div{font-size:10px!important}
+#page-client360 .c360-guidance{font-size:10px!important}
+
 @media(max-width:1320px){#page-revenue .rev-layout{grid-template-columns:1fr!important}.rm-monthly-key{display:none}}
 @media(max-width:700px){
   h1,.app-intro h2,.insight-heading h2{font-size:21px!important}
@@ -1102,6 +1145,12 @@ td.num,.c360-money,.forecast-revenue,.forecast-cost,.forecast-margin{font-weight
   #page-revenue .rm-monthly-panel .monthly-rm-scroll{overflow-x:auto!important}
   #page-revenue .rm-monthly-panel table.rev{min-width:640px!important}
   #page-revenue .rm-monthly-panel table.rev th,#page-revenue .rm-monthly-panel table.rev td{padding:11px 10px!important}
+  #page-clientsummary .cs-monthly-table-wrap{overflow-x:auto!important}
+  #page-clientsummary #csMonthlyTable{min-width:620px!important}
+  #page-clientsummary #csMonthlyTable th,#page-clientsummary #csMonthlyTable td{overflow:visible!important;text-overflow:clip!important}
+  #page-forecast .action-table-wrap,#page-chatbotforecast .action-table-wrap{overflow-x:auto!important}
+  #page-forecast .action-table{min-width:680px!important}
+  #page-chatbotforecast .action-table{min-width:660px!important}
 }
 </style>
 </head>

@@ -930,7 +930,6 @@ main,footer{max-width:var(--app-max);margin-left:auto;margin-right:auto}
 
 /* Keep the commercial views fully readable: the page can grow vertically, but the
    data panes do not create a second, horizontal scrolling canvas. */
-html,body{overflow-x:clip}
 #page-revenue .rev-layout{grid-template-columns:minmax(0,1fr) minmax(260px,300px);gap:14px}
 #page-chatbotforecast .workspace-grid{grid-template-columns:minmax(0,1fr) minmax(260px,300px);gap:14px}
 #page-revenue .monthly-rm-scroll,#page-revenue #recordsRev .records-body,#page-forecast .action-table-wrap,#page-chatbotforecast .action-table-wrap{max-height:none;overflow:visible}
@@ -975,12 +974,48 @@ html,body{overflow-x:clip}
 #page-forecast .forecast-month-chip small b{font-weight:850}
 #page-forecast .action-table{table-layout:fixed}
 #page-forecast .action-table th,#page-forecast .action-table td{padding:10px 7px;overflow-wrap:anywhere}
-#page-forecast #forecastBody td:nth-child(5){color:#23668e;font-weight:850}
-#page-forecast #forecastBody td:nth-child(6){color:#b44444;font-weight:800}
-#page-forecast #forecastBody td:nth-child(7){color:#19724c;font-weight:850}
+#page-forecast #forecastBody .forecast-revenue{color:#23668e;font-weight:850}
+#page-forecast #forecastBody .forecast-cost{color:#b44444;font-weight:800}
+#page-forecast #forecastBody .forecast-margin{color:#19724c;font-weight:850}
+#page-forecast #forecastBody .forecast-total-row{background:#edf8f2;border-top:2px solid #89c6a1}
 #page-forecast .workspace-rail .rail-card h3,#page-chatbotforecast .workspace-rail .rail-card h3{font-weight:850;color:#193126}
 @media(max-width:1180px){#page-revenue .rev-layout,#page-chatbotforecast .workspace-grid{grid-template-columns:1fr}#page-chatbotforecast .workspace-rail{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:700px){#page-forecast .metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#page-chatbotforecast .workspace-rail{grid-template-columns:1fr}#page-revenue .monthly-rm-scroll,#page-revenue #recordsRev .records-body{overflow-x:auto}}
+/* Compact tables must reflow within their cards — never force the full page sideways. */
+#page-revenue table.rev,#page-revenue table.data,#page-clientsummary #csMonthlyTable,#page-chatbotforecast .action-table,#page-forecast .action-table{min-width:0!important}
+#page-chatbotforecast .workspace-rail .rail-card{min-width:0;overflow:hidden}
+#page-chatbotforecast .chatbot-closing-card .action-table{width:100%;table-layout:fixed!important}
+#page-chatbotforecast .chatbot-closing-card th:nth-child(1),#page-chatbotforecast .chatbot-closing-card td:nth-child(1){width:42%}
+#page-chatbotforecast .chatbot-closing-card th:nth-child(2),#page-chatbotforecast .chatbot-closing-card td:nth-child(2),#page-chatbotforecast .chatbot-closing-card th:nth-child(3),#page-chatbotforecast .chatbot-closing-card td:nth-child(3){width:29%;text-align:right}
+#page-chatbotforecast .chatbot-closing-card tbody tr:first-child{background:#eaf8ef}
+#page-chatbotforecast .chatbot-closing-card tbody tr:last-child{background:#fff1ef}
+#page-chatbotforecast .chatbot-closing-card td:last-child{color:#19724c;font-weight:850}
+#page-chatbotforecast .action-table th{font-weight:850;color:#587060;background:#f4f8f4}
+#page-chatbotforecast .potential-month-table tbody tr:nth-child(3n+1){background:#eaf8f1}
+#page-chatbotforecast .potential-month-table tbody tr:nth-child(3n+2){background:#f5f1ff}
+#page-chatbotforecast .potential-month-table tbody tr:nth-child(3n){background:#fff5ea}
+#page-chatbotforecast .potential-month-table td:nth-child(2){color:#23668e;font-weight:850}
+#page-chatbotforecast .potential-month-table td:nth-child(3){color:#b44444;font-weight:800}
+#page-chatbotforecast .potential-month-table td:nth-child(4){color:#19724c;font-weight:850}
+#page-chatbotforecast .potential-month-table td:nth-child(5){color:#6750aa;font-weight:800}
+
+/* Client Summary gives equal visual weight to the trend and the monthly figures. */
+#page-clientsummary .cs-rev-layout{grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch}
+#page-clientsummary .cs-rev-layout>.rev-main,#page-clientsummary .cs-rev-layout>.rev-side{min-width:0}
+#page-clientsummary .cs-rev-layout>.rev-side{position:static}
+#page-clientsummary .cs-monthly-table-wrap{overflow:visible}
+#page-clientsummary #csMonthlyTable{width:100%;table-layout:fixed}
+#page-clientsummary #csMonthlyTable th,#page-clientsummary #csMonthlyTable td{padding:10px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#page-clientsummary #csMonthlyTable th:first-child,#page-clientsummary #csMonthlyTable td:first-child{width:23%;text-align:left}
+#page-clientsummary #csMonthlyTable th:not(:first-child),#page-clientsummary #csMonthlyTable td:not(:first-child){width:19.25%;text-align:right}
+#page-clientsummary #csMonthlyTable th{font-weight:850;background:#f4f8f4;color:#587060}
+#page-clientsummary #csMonthlyTable td:nth-child(2){color:#23668e;font-weight:800}
+#page-clientsummary #csMonthlyTable td:nth-child(3){color:#b44444;font-weight:800}
+#page-clientsummary #csMonthlyTable td:nth-child(4){color:#19724c;font-weight:850}
+#page-clientsummary #csMonthlyTable td:nth-child(5){font-weight:800}
+#page-clientsummary .cs-rev-layout .panel h2{font-weight:850;color:#193126}
+#page-clientsummary #csMonthlyTable tbody tr:nth-child(even){background:#f8fbf8}
+@media(max-width:900px){#page-clientsummary .cs-rev-layout{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -1311,7 +1346,7 @@ html,body{overflow-x:clip}
     <div class="app-intro"><div><h2>Combined Revenue Forecast</h2><p>Live chatbot run-rate plus the trailing 3-month WhatsApp and RCS consumption average</p></div></div>
     <div class="metric-grid" id="forecastKpis"></div>
     <div class="workspace-grid" style="margin-top:18px">
-      <div class="workspace-main"><div class="insight-panel"><div class="forecast-mode-row"><h3 id="forecastWindowTitle">Monthly Revenue Forecast</h3></div><div class="pipeline-track" id="forecastWindows"></div></div><div class="insight-panel action-table-wrap"><table class="action-table"><thead><tr><th>Month</th><th>Chatbot</th><th>WA consumables</th><th>RCS consumables</th><th>Projected revenue</th><th>Projected cost</th><th>Projected margin</th></tr></thead><tbody id="forecastBody"></tbody></table></div></div>
+      <div class="workspace-main"><div class="insight-panel"><div class="forecast-mode-row"><h3 id="forecastWindowTitle">Monthly Revenue Forecast</h3></div><div class="pipeline-track" id="forecastWindows"></div></div><div class="insight-panel action-table-wrap"><h3>FY revenue and margin plan</h3><table class="action-table"><thead><tr><th>Revenue stream</th><th>Achieved revenue</th><th>Remaining revenue</th><th>FY projected revenue</th><th>FY projected cost</th><th>FY projected margin</th></tr></thead><tbody id="forecastBody"></tbody></table></div></div>
       <aside class="workspace-rail"><div class="rail-card"><h3>Projected by Revenue Stream</h3><div class="mini-list" id="forecastStages"></div></div><div class="rail-card"><h3>Projected vs Achieved</h3><div class="mini-list" id="forecastRisks"></div></div></aside>
     </div>
   </section>
@@ -1434,7 +1469,7 @@ html,body{overflow-x:clip}
               <div class="tab" data-view="wa">WA</div>
               <div class="tab" data-view="rcs">RCS</div>
             </div>
-            <div style="overflow-x:auto;">
+            <div class="cs-monthly-table-wrap">
               <table class="rev" id="csMonthlyTable">
                 <thead><tr>
                   <th>Month</th>
@@ -3628,8 +3663,9 @@ function renderForecast(){
   ].map(k=>`<div class="metric-card"><span>${k.label}</span><b>${k.value}</b><small>${k.hint}</small></div>`).join("");
   document.getElementById("forecastWindowTitle").textContent=`${currentFinancialYearLabel(today)} forecast through ${monthLabel(horizonEnd)}`;
   document.getElementById("forecastWindows").innerHTML=windows.map(w=>`<div class="forecast-month-chip"><div class="forecast-month-head"><b>${w.label}</b><span class="forecast-month-total">${fmtCompact(w.revenue)}</span></div><div class="forecast-stream-chips"><span class="forecast-stream-chip chatbot">Chatbot ${fmtCompact(w.chatbot)}</span><span class="forecast-stream-chip wa">WA ${fmtCompact(w.wa)}</span><span class="forecast-stream-chip rcs">RCS ${fmtCompact(w.rcs)}</span></div><small>Projected margin <b>${fmtCompact(w.margin)}</b></small></div>`).join("");
-  document.getElementById("forecastBody").innerHTML=windows.map(w=>`<tr><td><b>${w.label}</b></td><td>${fmtCompact(w.chatbot)}</td><td>${fmtCompact(w.wa)}</td><td>${fmtCompact(w.rcs)}</td><td><b>${fmtCompact(w.revenue)}</b></td><td>${fmtCompact(w.cost)}</td><td><b>${fmtCompact(w.margin)}</b></td></tr>`).join("")||`<tr><td colspan="7"><div class="empty-state">No forecast baseline is available. Add live Chatbot R&amp;M or WA/RCS consumption history.</div></td></tr>`;
   const streams=[{name:"Chatbot",actual:actualChatbot,actualCost:actualChatbotCost,future:sum(windows,"chatbot"),futureCost:sum(windows,"chatbotCost")},{name:"WA consumables",actual:actualWa,actualCost:actualWaCost,future:sum(windows,"wa"),futureCost:sum(windows,"waCost")},{name:"RCS consumables",actual:actualRcs,actualCost:actualRcsCost,future:sum(windows,"rcs"),futureCost:sum(windows,"rcsCost")}];
+  const streamRows=streams.map(s=>{const revenue=s.actual+s.future,cost=s.actualCost+s.futureCost,margin=revenue-cost;return `<tr><td><b>${s.name}</b></td><td>${fmtCompact(s.actual)}</td><td>${fmtCompact(s.future)}</td><td class="forecast-revenue"><b>${fmtCompact(revenue)}</b></td><td class="forecast-cost">${fmtCompact(cost)}</td><td class="forecast-margin"><b>${fmtCompact(margin)}</b></td></tr>`;}).join("");
+  document.getElementById("forecastBody").innerHTML=`${streamRows}<tr class="forecast-total-row"><td><b>Total</b></td><td><b>${fmtCompact(achieved)}</b></td><td><b>${fmtCompact(remaining)}</b></td><td class="forecast-revenue"><b>${fmtCompact(projected)}</b></td><td class="forecast-cost"><b>${fmtCompact(achievedCost+sum(windows,"cost"))}</b></td><td class="forecast-margin"><b>${fmtCompact(projectedMargin)}</b></td></tr>`;
   document.getElementById("forecastStages").innerHTML=streams.map(s=>{const revenue=s.actual+s.future,margin=revenue-s.actualCost-s.futureCost;return `<div class="mini-item"><b>${s.name}</b><span>${fmtCompact(revenue)} revenue · ${fmtCompact(margin)} margin</span></div>`;}).join("");
   document.getElementById("forecastRisks").innerHTML=`<div class="mini-item"><b>${achievementPct.toFixed(1)}% achieved</b><span>${fmtCompact(achieved)} of ${fmtCompact(projected)}</span></div><div class="mini-item"><b>${fmtCompact(projectedMargin)} projected margin</b><span>${fmtCompact(remainingMargin)} in the remaining forecast</span></div>`;
 }

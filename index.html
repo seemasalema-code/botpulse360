@@ -898,6 +898,35 @@ main,footer{max-width:var(--app-max);margin-left:auto;margin-right:auto}
 #page-revenue #profitabilityInsights .signal:nth-child(4){background:#f3efff;border-color:#ddd2ff}
 #page-revenue #profitabilityInsights .signal:nth-child(4) b{color:#6750aa}
 @media(max-width:700px){#page-revenue #profitabilityInsights{padding:12px;gap:10px}#page-revenue #profitabilityInsights .signal{min-height:96px;padding:14px}#page-revenue #profitabilityInsights .signal b{font-size:25px}}
+
+/* Compact sidebar actions leave enough vertical room for every navigation tab. */
+.sidebar-links{display:flex;gap:8px;min-width:0}
+.cpaas-dashboard-link{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:8px 11px;border:1px solid #d2dcfb;border-radius:10px;background:#eef3ff;color:#385f9d;font-family:'Lexend',sans-serif;font-size:10px;font-weight:750;text-decoration:none;white-space:nowrap}
+.cpaas-dashboard-link:hover{background:#e5edff;border-color:#bfcdf5}
+
+/* Pre-live potential is deliberately shown only as FY totals, with clear colour meaning. */
+#page-chatbotforecast .potential-summary{gap:12px;margin:14px 0 16px}
+#page-chatbotforecast .potential-summary>div{min-height:92px;padding:16px 17px;border-radius:13px;box-shadow:0 5px 14px rgba(32,56,45,.04)}
+#page-chatbotforecast .potential-summary small{font-size:10px;font-weight:800;letter-spacing:.055em}
+#page-chatbotforecast .potential-summary b{font-size:27px;line-height:1.1;font-weight:800;letter-spacing:-.03em}
+#page-chatbotforecast .potential-summary .potential-revenue{background:#eaf5ff;border-color:#cce1f5}
+#page-chatbotforecast .potential-summary .potential-revenue b{color:#23668e}
+#page-chatbotforecast .potential-summary .potential-cost{background:#fff0ef;border-color:#f2cfcc}
+#page-chatbotforecast .potential-summary .potential-cost b{color:#b44444}
+#page-chatbotforecast .potential-summary .potential-margin{background:#eaf8ef;border-color:#c8e8d4}
+#page-chatbotforecast .potential-summary .potential-margin b{color:#19724c}
+#page-chatbotforecast .potential-month-table{margin:0 0 16px}
+#page-chatbotforecast .potential-month-table td:nth-child(2){font-weight:800;color:#23668e}
+#page-chatbotforecast .chatbot-closing-card{background:linear-gradient(145deg,#f4f0ff,#faf8ff)}
+#page-chatbotforecast .chatbot-closing-card .action-table{font-size:11px}
+#page-chatbotforecast .chatbot-closing-card td{padding-top:12px;padding-bottom:12px}
+@media(min-width:901px){
+  .sidebar-footer .sidebar-links{display:grid;grid-template-columns:1fr 1fr;gap:7px;width:100%;order:3}
+  .sidebar-footer .sidebar-links .source-data-link,.sidebar-footer .sidebar-links .cpaas-dashboard-link{width:100%;min-height:32px;margin:0;padding:6px 5px;font-size:9px;line-height:1.2}
+  .sidebar-footer .sidebar-links .source-data-link{display:flex;align-items:center;justify-content:center;order:initial}
+}
+@media(max-width:640px){.sidebar-links{width:100%;display:grid;grid-template-columns:1fr 1fr}.sidebar-links .source-data-link,.sidebar-links .cpaas-dashboard-link{width:100%;font-size:10px}}
+@media(max-width:700px){#page-chatbotforecast .potential-summary>div{min-height:78px;padding:14px}#page-chatbotforecast .potential-summary b{font-size:24px}}
 </style>
 </head>
 <body>
@@ -920,8 +949,10 @@ main,footer{max-width:var(--app-max);margin-left:auto;margin-right:auto}
         <span class="sync-text" id="syncText">Connecting to sheet…</span>
       </div>
       <button id="syncBtn">Sync now</button>
-      <button id="exportTabBtn" type="button">Export filtered tab</button>
-      <a class="source-data-link" href="https://docs.google.com/spreadsheets/d/1udQZmSHEpLWuQJO2k0t4UvA3zU8fUFkvx_1lIfINId8/edit?gid=888299704#gid=888299704" target="_blank" rel="noopener noreferrer" aria-label="Open the live Chatbot Projects source workbook in Google Sheets">Source: Chatbot Projects (live) ↗</a>
+      <div class="sidebar-links">
+        <a class="cpaas-dashboard-link" href="https://seemasalema-code.github.io/cpaas-overview/" target="_blank" rel="noopener noreferrer" aria-label="Open the CPaaS Overview dashboard">CPaaS Overview ↗</a>
+        <a class="source-data-link" href="https://docs.google.com/spreadsheets/d/1udQZmSHEpLWuQJO2k0t4UvA3zU8fUFkvx_1lIfINId8/edit?gid=888299704#gid=888299704" target="_blank" rel="noopener noreferrer" aria-label="Open the live Chatbot Projects source workbook in Google Sheets">Source sheet ↗</a>
+      </div>
   </div>
   <div class="sync-error-banner" id="errorBanner"><div class="box" id="errorBox"></div></div>
 </div>
@@ -1246,15 +1277,15 @@ main,footer{max-width:var(--app-max);margin-left:auto;margin-right:auto}
           <table class="action-table"><thead><tr><th>Forecast group</th><th>Projects</th><th>Actual to date</th><th>Future revenue</th><th>Future cost</th><th>Future margin</th></tr></thead><tbody id="chatbotForecastBody"></tbody></table>
         </div>
         <div class="insight-panel action-table-wrap" id="chatbotPotentialPanel">
-          <h3>Maximum pre-live potential</h3>
-          <p class="prelive-potential-note" id="chatbotPotentialNote"></p>
+          <h3>Pre-live potential</h3>
           <div class="potential-summary" id="chatbotPotentialSummary"></div>
-          <div class="pipeline-track" id="chatbotPotentialMonths"></div>
+          <table class="action-table potential-month-table"><thead><tr><th>Month</th><th>Potential revenue</th><th>Potential cost</th><th>Potential margin</th><th>Margin %</th></tr></thead><tbody id="chatbotPotentialMonths"></tbody></table>
           <table class="action-table"><thead><tr><th>Stage</th><th>Projects</th><th>Potential revenue</th><th>Potential cost</th><th>Potential margin</th><th>Margin %</th></tr></thead><tbody id="chatbotPotentialStages"></tbody></table>
         </div>
       </div>
       <aside class="workspace-rail">
-        <div class="rail-card"><h3>Pre-live potential</h3><p class="rail-sub">An unweighted maximum from the current month through March. Development is included once; recurring R&amp;M repeats each remaining month. It does not use a go-live date.</p><div class="mini-list" id="chatbotPipelineStages"></div></div>
+        <div class="rail-card"><h3>Pre-live potential</h3><div class="mini-list" id="chatbotPipelineStages"></div></div>
+        <div class="rail-card chatbot-closing-card"><h3>Closing position</h3><table class="action-table"><thead><tr><th>Scope</th><th>Closing revenue</th><th>Closing margin</th></tr></thead><tbody id="chatbotClosingPosition"></tbody></table></div>
       </aside>
     </div>
   </section>
@@ -1842,7 +1873,7 @@ window.addEventListener("focus", refreshDashboard);
 window.addEventListener("online", refreshDashboard);
 
 /* ---------------- Page nav ---------------- */
-const PAGES = [{id:"executive",label:"Executive Summary",icon:"⌂"},{id:"chatbots",label:"Projects",icon:"◈"},{id:"revenue",label:"Chatbots R&M",icon:"₹"},{id:"chatbotforecast",label:"Chatbot Forecast",icon:"◌"},{id:"consumable",label:"WA Consumables",icon:"◉"},{id:"rcsconsumable",label:"RCS Consumables",icon:"◍"},{id:"clientsummary",label:"Client Summary",icon:"◒"},{id:"client360",label:"Client 360",icon:"360"},{id:"vendors",label:"Vendor Performance",icon:"◆"}];
+const PAGES = [{id:"executive",label:"Executive Summary",icon:"⌂"},{id:"chatbots",label:"Projects",icon:"◈"},{id:"revenue",label:"Chatbots R&M",icon:"₹"},{id:"forecast",label:"Combined Forecast",icon:"↗"},{id:"chatbotforecast",label:"Chatbot Forecast",icon:"◌"},{id:"consumable",label:"WA Consumables",icon:"◉"},{id:"rcsconsumable",label:"RCS Consumables",icon:"◍"},{id:"clientsummary",label:"Client Summary",icon:"◒"},{id:"client360",label:"Client 360",icon:"360"},{id:"vendors",label:"Vendor Performance",icon:"◆"}];
 let activePage = "executive";
 let clientSummaryOpened = false;
 function exportActiveTab(){
@@ -1857,7 +1888,6 @@ function exportActiveTab(){
   const table=tables[0];
   downloadCsv("botpulse-"+activePage+"-filtered.csv",table.headers,table.rows);
 }
-document.getElementById("exportTabBtn")?.addEventListener("click",exportActiveTab);
 const pagenav = document.getElementById("pagenav");
 PAGES.forEach(p=>{
   const el=document.createElement("div");
@@ -3669,15 +3699,16 @@ function renderChatbotForecast(){
   }).join("")||'<div class="empty-state">No remaining months in this financial year.</div>';
   document.getElementById("chatbotForecastBody").innerHTML=[live,paused].map(group=>`<tr><td><b>${group.name}</b></td><td>${group.projects.length}</td><td>${fmtCompact(group.actual.revenue)}</td><td>${fmtCompact(group.future.revenue)}</td><td>${fmtCompact(group.future.cost)}</td><td>${fmtCompact(group.future.margin)}</td></tr>`).join("");
 
-  document.getElementById("chatbotPotentialNote").textContent=`Maximum unweighted commercial potential for ${currentFinancialYearLabel(today)}: ${potentialMonths.length} month${potentialMonths.length===1?"":"s"} from ${monthLabel(potentialMonths[0])} through ${monthLabel(horizonEnd)}. One-time development is included once in the FY total; recurring R&M is shown monthly below. Projects without entered commercials are excluded.`;
-  document.getElementById("chatbotPotentialSummary").innerHTML=`<div><small>One-time development</small><b>${fmtCompact(potentialTotals.devRevenue)}</b><span>${fmtCompact(potentialTotals.devCost)} cost</span></div><div><small>Recurring R&M / month</small><b>${fmtCompact(potentialTotals.monthlyRevenue)}</b><span>${fmtCompact(potentialTotals.monthlyCost)} cost</span></div><div><small>FY potential margin</small><b>${fmtCompact(potentialTotals.margin)}</b><span>${potentialTotals.revenue?(potentialTotals.margin/potentialTotals.revenue*100).toFixed(1):"0.0"}% of ${fmtCompact(potentialTotals.revenue)} revenue</span></div>`;
-  document.getElementById("chatbotPotentialMonths").innerHTML=potentialMonths.map(month=>{
-    const revenue=potentialTotals.monthlyRevenue,cost=potentialTotals.monthlyCost;
-    return `<div class="forecast-month-chip"><div class="forecast-month-head"><b>${monthLabel(month)}</b><span class="forecast-month-total">${fmtCompact(revenue)}</span></div><div class="forecast-stream-chips"><span class="forecast-stream-chip chatbot">Recurring R&M potential</span></div><small>${fmtCompact(revenue-cost)} recurring margin</small></div>`;
-  }).join("")||'<div class="empty-state">No months remain in the selected financial year.</div>';
+  document.getElementById("chatbotPotentialSummary").innerHTML=`<div class="potential-revenue"><small>Total potential revenue</small><b>${fmtCompact(potentialTotals.revenue)}</b></div><div class="potential-cost"><small>Total potential cost</small><b>${fmtCompact(potentialTotals.cost)}</b></div><div class="potential-margin"><small>Total potential margin</small><b>${fmtCompact(potentialTotals.margin)}</b></div>`;
+  document.getElementById("chatbotPotentialMonths").innerHTML=potentialMonths.map((month,index)=>{
+    const revenue=potentialTotals.monthlyRevenue+(index===0?potentialTotals.devRevenue:0),cost=potentialTotals.monthlyCost+(index===0?potentialTotals.devCost:0),margin=revenue-cost,pct=revenue?(margin/revenue*100).toFixed(1):"0.0";
+    return `<tr><td><b>${monthLabel(month)}</b></td><td><b>${fmtCompact(revenue)}</b></td><td>${fmtCompact(cost)}</td><td class="${margin<0?"negative":"positive"}">${fmtCompact(margin)}</td><td>${pct}%</td></tr>`;
+  }).join("")||'<tr><td colspan="5"><div class="empty-state">No months remain in the selected financial year.</div></td></tr>';
   document.getElementById("chatbotPotentialStages").innerHTML=potentialOrder.map(label=>{const value=potentialByStage.get(label),pct=value.revenue?(value.margin/value.revenue*100).toFixed(1):"0.0";return `<tr><td><b>${label}</b></td><td>${value.count}</td><td>${fmtCompact(value.revenue)}</td><td>${fmtCompact(value.cost)}</td><td>${fmtCompact(value.margin)}</td><td>${pct}%</td></tr>`;}).join("");
   const stageSummary=potentialOrder.map(label=>{const value=potentialByStage.get(label);return `<div class="cf-stage-chip" data-stage="${stage(label)}"><b>${label}</b><span>${value.count} project${value.count===1?"":"s"} · ${fmtCompact(value.revenue)} potential</span></div>`;}).join("");
   document.getElementById("chatbotPipelineStages").innerHTML=`<div class="cf-stage-chip"><b>Commercials pending</b><span>${commercialsPending.length} project${commercialsPending.length===1?"":"s"} excluded</span></div>${stageSummary}`;
+  const liveClosingRevenue=live.actual.revenue+live.future.revenue,liveClosingMargin=live.actual.margin+live.future.margin;
+  document.getElementById("chatbotClosingPosition").innerHTML=`<tr><td><b>Live projects</b></td><td><b>${fmtCompact(liveClosingRevenue)}</b></td><td class="${liveClosingMargin<0?"negative":"positive"}"><b>${fmtCompact(liveClosingMargin)}</b></td></tr><tr><td><b>Live + pre-live potential</b></td><td><b>${fmtCompact(liveClosingRevenue+potentialTotals.revenue)}</b></td><td class="${liveClosingMargin+potentialTotals.margin<0?"negative":"positive"}"><b>${fmtCompact(liveClosingMargin+potentialTotals.margin)}</b></td></tr>`;
 }
 
 let c360Scope="all", c360Selected=null;

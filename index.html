@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Netcore Cloud — Conversational AI Operations Console</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
     --bg:#F5F6FC; --surface:#FFFFFF; --surface-alt:#F0F2FA; --surface-tint:#EEEAFE; --border:#E5E7F3;
@@ -746,7 +747,7 @@ body{background:linear-gradient(135deg,#F7F8F3 0%,#F3F6F1 62%,#EEF5F1 100%)}
 
 /* A single, readable system across the full dashboard. Tables retain a
    horizontal scroll inside their own card instead of encroaching on neighbours. */
-:root{--dashboard-font:'Montserrat',Arial,sans-serif;--app-max:1600px;--app-gutter:clamp(16px,2.25vw,34px);--section-gap:16px}
+:root{--dashboard-font:'Lexend',Arial,sans-serif;--app-max:1600px;--app-gutter:clamp(16px,2.25vw,34px);--section-gap:16px}
 html{-webkit-text-size-adjust:100%}
 body,body *,button,input,select,textarea,table,svg text{font-family:var(--dashboard-font)!important}
 body{font-size:14px;line-height:1.45}
@@ -1016,6 +1017,92 @@ main,footer{max-width:var(--app-max);margin-left:auto;margin-right:auto}
 #page-clientsummary .cs-rev-layout .panel h2{font-weight:850;color:#193126}
 #page-clientsummary #csMonthlyTable tbody tr:nth-child(even){background:#f8fbf8}
 @media(max-width:900px){#page-clientsummary .cs-rev-layout{grid-template-columns:1fr}}
+
+/* Dashboard-wide visual system: consistent Lexend type, semantic pastels, and readable finance. */
+:root{
+  --font-ui:'Lexend',Arial,sans-serif;
+  --pastel-revenue:#EAF5FF; --ink-revenue:#23668E;
+  --pastel-cost:#FFF0EF; --ink-cost:#B44444;
+  --pastel-margin:#EAF8EF; --ink-margin:#19724C;
+  --pastel-percent:#F2EEFF; --ink-percent:#6750AA;
+  --pastel-warning:#FFF5E5; --pastel-risk:#FDEEEF;
+}
+body,body *,button,input,select,textarea,table,svg text{font-family:var(--font-ui)!important}
+body{font-size:13px;line-height:1.45}
+h1,.app-intro h2,.insight-heading h2{font-size:24px!important;line-height:1.25;font-weight:700!important;letter-spacing:-.02em}
+.panel h2,.records-title h2,.insight-panel h3,.rail-card h3,.forecast-mode-row h3{font-size:16px!important;line-height:1.35;font-weight:700!important;letter-spacing:-.01em}
+.panel h2 small,.records-title h2 small,.insight-panel h3 small,.forecast-mode-row h3 small{font-size:10.5px!important;font-weight:500!important;letter-spacing:0}
+.kpi .label,.metric-label,.insight-stat .is-label,.monthly-rm-stat span{font-size:10px!important;line-height:1.35;font-weight:700!important;letter-spacing:.07em}
+.kpi .value,.metric-value,.insight-stat .is-value{font-size:28px!important;line-height:1.15;font-weight:700!important;letter-spacing:-.025em}
+.metric-hint,.kpi .hint,.insight-stat .is-hint{font-size:11px!important;line-height:1.4}
+.pagetab{font-size:12px!important;font-weight:700!important}
+table.rev th,table.data thead th,.action-table th{font-size:10px!important;font-weight:700!important;letter-spacing:.07em}
+table.rev td,table.data tbody td,.action-table td{font-size:12.5px!important;line-height:1.4}
+td.num,.c360-money,.forecast-revenue,.forecast-cost,.forecast-margin{font-weight:700!important}
+.c360-segments button,.scope-pill,.status-pill,.vendor-tag{font-weight:700!important}
+
+/* The financial palette means the same thing on every view. */
+#page-revenue .signal:nth-child(1),#page-consumable .kpi:nth-child(1),#page-rcsconsumable .kpi:nth-child(1){background:var(--pastel-revenue);border-color:#C9E0F4}
+#page-revenue .signal:nth-child(2),#page-consumable .kpi:nth-child(2),#page-rcsconsumable .kpi:nth-child(2){background:var(--pastel-cost);border-color:#F1CCCC}
+#page-revenue .signal:nth-child(3),#page-consumable .kpi:nth-child(3),#page-rcsconsumable .kpi:nth-child(3){background:var(--pastel-margin);border-color:#C7E8D4}
+#page-revenue .signal:nth-child(4),#page-consumable .kpi:nth-child(4),#page-rcsconsumable .kpi:nth-child(4){background:var(--pastel-percent);border-color:#DDD3FA}
+#page-revenue .signal:nth-child(1) b,#page-consumable .kpi:nth-child(1) .value,#page-rcsconsumable .kpi:nth-child(1) .value{color:var(--ink-revenue)}
+#page-revenue .signal:nth-child(2) b,#page-consumable .kpi:nth-child(2) .value,#page-rcsconsumable .kpi:nth-child(2) .value{color:var(--ink-cost)}
+#page-revenue .signal:nth-child(3) b,#page-consumable .kpi:nth-child(3) .value,#page-rcsconsumable .kpi:nth-child(3) .value{color:var(--ink-margin)}
+#page-revenue .signal:nth-child(4) b,#page-consumable .kpi:nth-child(4) .value,#page-rcsconsumable .kpi:nth-child(4) .value{color:var(--ink-percent)}
+#page-revenue #revByVendor td:nth-child(2),#page-revenue #revRecordsBody td:nth-child(3),#page-clientsummary #csMonthlyTable td:nth-child(2){color:var(--ink-revenue)!important}
+#page-revenue #revByVendor td:nth-child(3),#page-revenue #revRecordsBody td:nth-child(4),#page-clientsummary #csMonthlyTable td:nth-child(3){color:var(--ink-cost)!important}
+#page-revenue #revByVendor td:nth-child(4),#page-revenue #revRecordsBody td:nth-child(5),#page-clientsummary #csMonthlyTable td:nth-child(4){color:var(--ink-margin)!important}
+#page-revenue #revByVendor td:nth-child(5),#page-revenue #revRecordsBody td:nth-child(6),#page-clientsummary #csMonthlyTable td:nth-child(5){color:var(--ink-percent)!important}
+
+/* A five-column financial table belongs below the R&M work area, never in a narrow rail. */
+#page-revenue .rev-layout{grid-template-columns:minmax(0,1fr) minmax(320px,350px)!important;gap:16px}
+#page-revenue .rm-financial-panel{background:#FFFDF9}
+#page-revenue .monthly-rm-summary{gap:10px}
+#page-revenue .monthly-rm-stat:nth-child(1){background:var(--pastel-revenue)!important;border-color:#C9E0F4!important}
+#page-revenue .monthly-rm-stat:nth-child(2){background:var(--pastel-cost)!important;border-color:#F1CCCC!important}
+#page-revenue .monthly-rm-stat:nth-child(3){background:var(--pastel-margin)!important;border-color:#C7E8D4!important}
+#page-revenue .monthly-rm-stat:nth-child(4){background:var(--pastel-percent)!important;border-color:#DDD3FA!important}
+#page-revenue .monthly-rm-stat:nth-child(1) strong{color:var(--ink-revenue)!important}
+#page-revenue .monthly-rm-stat:nth-child(2) strong{color:var(--ink-cost)!important}
+#page-revenue .monthly-rm-stat:nth-child(3) strong{color:var(--ink-margin)!important}
+#page-revenue .monthly-rm-stat:nth-child(4) strong{color:var(--ink-percent)!important}
+#page-revenue .rm-monthly-panel{margin-top:16px;padding:18px}
+#page-revenue .rm-monthly-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:12px}
+#page-revenue .rm-monthly-head h2{margin:0!important}
+#page-revenue .rm-monthly-key{font-size:10px;font-weight:600;color:var(--text-faint);white-space:nowrap}
+#page-revenue .rm-monthly-panel .monthly-rm-scroll{overflow:visible!important}
+#page-revenue .rm-monthly-panel table.rev{width:100%;min-width:0!important;table-layout:fixed}
+#page-revenue .rm-monthly-panel table.rev th,#page-revenue .rm-monthly-panel table.rev td{padding:12px 14px!important;overflow:visible!important;text-overflow:clip!important;white-space:nowrap}
+#page-revenue .rm-monthly-panel table.rev th:first-child,#page-revenue .rm-monthly-panel table.rev td:first-child{width:26%;text-align:left}
+#page-revenue .rm-monthly-panel table.rev th:not(:first-child),#page-revenue .rm-monthly-panel table.rev td:not(:first-child){width:18.5%;text-align:right}
+#page-revenue #monthlyRevBody td:nth-child(2){color:var(--ink-revenue)!important;font-weight:700!important}
+#page-revenue #monthlyRevBody td:nth-child(3){color:var(--ink-cost)!important;font-weight:700!important}
+#page-revenue #monthlyRevBody td:nth-child(4){color:var(--ink-margin)!important;font-weight:700!important}
+#page-revenue #monthlyRevBody td:nth-child(5){color:var(--ink-percent)!important;font-weight:700!important}
+#page-revenue #monthlyRevBody tr:nth-child(even){background:#F8FBF8}
+
+/* Keep specialised views in the same quiet pastel family. */
+#page-vendors .metric-card:nth-child(1),#page-forecast #forecastKpis .metric-card:nth-child(1){background:var(--pastel-revenue)!important;border-color:#C9E0F4}
+#page-vendors .metric-card:nth-child(2),#page-forecast #forecastKpis .metric-card:nth-child(2){background:var(--pastel-margin)!important;border-color:#C7E8D4}
+#page-vendors .metric-card:nth-child(3),#page-forecast #forecastKpis .metric-card:nth-child(3){background:var(--pastel-warning)!important;border-color:#F0DEB7}
+#page-vendors .metric-card:nth-child(4),#page-forecast #forecastKpis .metric-card:nth-child(4){background:var(--pastel-risk)!important;border-color:#EFCFD1}
+#page-vendors .metric-card:nth-child(5),#page-forecast #forecastKpis .metric-card:nth-child(5){background:var(--pastel-percent)!important;border-color:#DDD3FA}
+#page-chatbotforecast .potential-summary .potential-revenue{background:var(--pastel-revenue)!important}
+#page-chatbotforecast .potential-summary .potential-cost{background:var(--pastel-cost)!important}
+#page-chatbotforecast .potential-summary .potential-margin{background:var(--pastel-margin)!important}
+
+@media(max-width:1320px){#page-revenue .rev-layout{grid-template-columns:1fr!important}.rm-monthly-key{display:none}}
+@media(max-width:700px){
+  h1,.app-intro h2,.insight-heading h2{font-size:21px!important}
+  .panel h2,.records-title h2,.insight-panel h3,.rail-card h3,.forecast-mode-row h3{font-size:15px!important}
+  .kpi .value,.metric-value,.insight-stat .is-value{font-size:26px!important}
+  table.rev td,table.data tbody td,.action-table td{font-size:12px!important}
+  #page-revenue .rm-monthly-panel{padding:15px}
+  #page-revenue .rm-monthly-panel .monthly-rm-scroll{overflow-x:auto!important}
+  #page-revenue .rm-monthly-panel table.rev{min-width:640px!important}
+  #page-revenue .rm-monthly-panel table.rev th,#page-revenue .rm-monthly-panel table.rev td{padding:11px 10px!important}
+}
 </style>
 </head>
 <body>
@@ -1237,13 +1324,9 @@ main,footer{max-width:var(--app-max);margin-left:auto;margin-right:auto}
       </div>
 
       <aside class="rev-side">
-        <div class="panel">
+        <div class="panel rm-financial-panel">
           <h2>Financial Breakdown <small id="monthlyRmPeriod">selected period</small></h2>
           <div class="monthly-rm-summary" id="monthlyRmSummary"></div>
-          <div class="monthly-rm-scroll">
-            <table class="rev"><thead><tr><th>Month</th><th style="text-align:right">Revenue</th><th style="text-align:right">Cost</th><th style="text-align:right">Margin</th><th style="text-align:right">Margin %</th></tr></thead><tbody id="monthlyRevBody"></tbody></table>
-          </div>
-          <button type="button" class="monthly-rm-toggle" id="monthlyRmToggle" style="display:none;">Show all months</button>
         </div>
         <div class="panel" id="revClientProjectsPanel" style="display:none;">
           <div class="client-project-head"><h2 id="revClientProjectsTitle">Client projects</h2><button type="button" class="client-project-close" id="revClientProjectsClose">Back to monthly</button></div>
@@ -1251,6 +1334,13 @@ main,footer{max-width:var(--app-max);margin-left:auto;margin-right:auto}
         </div>
       </aside>
     </div>
+    <section class="panel rm-monthly-panel" aria-labelledby="rmMonthlyHeading">
+      <div class="rm-monthly-head"><h2 id="rmMonthlyHeading">Monthly Revenue &amp; Margin <small>Click a month to open its project view</small></h2><span class="rm-monthly-key">Revenue · Cost · Margin · Margin %</span></div>
+      <div class="monthly-rm-scroll">
+        <table class="rev"><thead><tr><th>Month</th><th style="text-align:right">Revenue</th><th style="text-align:right">Cost</th><th style="text-align:right">Margin</th><th style="text-align:right">Margin %</th></tr></thead><tbody id="monthlyRevBody"></tbody></table>
+      </div>
+      <button type="button" class="monthly-rm-toggle" id="monthlyRmToggle" style="display:none;">Show all months</button>
+    </section>
   </section>
 
   <!-- ===================== PAGE: CONSUMABLE ===================== -->

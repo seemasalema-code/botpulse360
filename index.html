@@ -1249,6 +1249,66 @@ td.num,.c360-money,.forecast-revenue,.forecast-cost,.forecast-margin{font-weight
   #page-client360 .c360-segments{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px}
   #page-client360 .c360-segments button{min-height:80px;padding:12px}
 }
+
+/* Project and consumable pages are management reading surfaces: summaries stay
+   above the records, filters do not steal table width, and every visible value
+   stays inside its own panel. */
+#page-chatbots .projects-command-grid{grid-template-columns:1fr;gap:16px}
+#page-chatbots .projects-command-grid>.overview{order:-1;display:grid;grid-template-columns:minmax(240px,.7fr) minmax(0,1.3fr);gap:16px;align-items:start}
+#page-chatbots .projects-command-grid .overview>.panel{background:#FFFDF9;border-color:#DCE5D9;box-shadow:0 7px 18px rgba(34,68,52,.045)}
+#page-chatbots .projects-command-grid .overview>.panel:first-child{background:#F7FBF8}
+#page-chatbots .projects-command-grid .overview>.panel:last-child{background:#F8FBFF;padding:18px 20px}
+#page-chatbots .projects-command-grid .overview #stageTabbar,#page-chatbots .projects-command-grid .overview #typeTabbar,#page-chatbots .projects-command-grid .overview #aiEnabledChips,#page-chatbots .projects-command-grid .overview #deliveryStatusChips{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+#page-chatbots .projects-command-grid .overview .tab,#page-chatbots .projects-command-grid .overview .chip{min-height:40px;padding:9px 11px;font-size:12px;font-weight:700;line-height:1.25}
+#page-chatbots .projects-command-grid .overview .tab-group-label,#page-chatbots .projects-command-grid .overview .filter-label{font-size:10px;font-weight:800;letter-spacing:.075em;color:#637168}
+#page-chatbots #records{background:#FFFDF9;border-color:#DCE5D9}
+#page-chatbots #records .records-head{padding:18px 20px;background:#F7FBF8}
+#page-chatbots #records .records-title h2{font-size:16px!important;font-weight:700!important}
+#page-chatbots #records .rec-count{font-size:11px!important;font-weight:700!important;color:#718077}
+#page-chatbots #records .records-body{max-height:none!important;overflow:visible!important}
+#page-chatbots #records table.data{min-width:0!important;width:100%;table-layout:fixed}
+#page-chatbots #records table.data thead th{position:static;padding:12px 16px;font-size:10px!important;font-weight:800!important;background:#F2F7F2;color:#64766B}
+#page-chatbots #records table.data tbody td{padding:13px 16px;font-size:12.5px!important;line-height:1.4;vertical-align:middle}
+#page-chatbots #records table.data th:nth-child(1),#page-chatbots #records table.data td:nth-child(1){width:36%;white-space:normal;overflow-wrap:anywhere}
+#page-chatbots #records table.data th:nth-child(2),#page-chatbots #records table.data td:nth-child(2){width:14%}
+#page-chatbots #records table.data th:nth-child(3),#page-chatbots #records table.data td:nth-child(3){width:13%}
+#page-chatbots #records table.data th:nth-child(4),#page-chatbots #records table.data td:nth-child(4){width:13%}
+#page-chatbots #records table.data th:nth-child(5),#page-chatbots #records table.data td:nth-child(5){width:9%}
+#page-chatbots #records table.data th:nth-child(6),#page-chatbots #records table.data td:nth-child(6){width:15%;white-space:normal;overflow-wrap:anywhere}
+#page-chatbots #records .status-pill,#page-chatbots #records .vendor-tag{font-size:11px!important;font-weight:700!important}
+
+#page-consumable .consumable-layout{grid-template-columns:minmax(0,1.2fr) minmax(0,.9fr);gap:16px;align-items:start}
+#page-consumable #recordsCons,#page-consumable .top-clients-panel{height:auto!important;background:#FFFDF9;border-color:#DCE5D9;box-shadow:0 7px 18px rgba(34,68,52,.045)}
+#page-consumable #recordsCons .records-head,#page-consumable .top-clients-panel h2{padding:18px 20px;background:#F7FBF8;border-bottom-color:#DCE5D9}
+#page-consumable #recordsCons .records-title h2,#page-consumable .top-clients-panel h2{font-size:16px!important;font-weight:700!important;color:#193126}
+#page-consumable #recordsCons .records-body,#page-consumable #consTopClients{height:auto!important;max-height:none!important;overflow:visible!important}
+#page-consumable #recordsCons table.data,#page-consumable #consTopClients table.rev{min-width:0!important;width:100%;table-layout:fixed}
+#page-consumable #recordsCons table.data thead th{position:static;padding:12px 14px;background:#F2F7F2;color:#64766B;font-size:10px!important;font-weight:800!important}
+#page-consumable #recordsCons table.data tbody td{padding:13px 14px;font-size:12.5px!important;line-height:1.4;overflow-wrap:anywhere}
+#page-consumable #recordsCons table.data th:first-child,#page-consumable #recordsCons table.data td:first-child{width:42%;white-space:normal}
+#page-consumable #recordsCons table.data th:not(:first-child),#page-consumable #recordsCons table.data td:not(:first-child){width:14.5%}
+#page-consumable #consTopClients{padding:6px 12px 12px}
+#page-consumable #consTopClients th{padding:11px 6px!important;font-size:9.5px!important;font-weight:800!important;white-space:normal;line-height:1.25}
+#page-consumable #consTopClients td{padding:12px 6px!important;font-size:12.5px!important;line-height:1.35;white-space:normal;overflow-wrap:anywhere}
+#page-consumable #consTopClients th:nth-child(1),#page-consumable #consTopClients td:nth-child(1){width:7%!important}
+#page-consumable #consTopClients th:nth-child(2),#page-consumable #consTopClients td:nth-child(2){width:41%!important;text-align:left}
+#page-consumable #consTopClients th:nth-child(3),#page-consumable #consTopClients td:nth-child(3){width:18%!important;text-align:right}
+#page-consumable #consTopClients th:nth-child(4),#page-consumable #consTopClients td:nth-child(4){width:18%!important;text-align:right}
+#page-consumable #consTopClients th:nth-child(5),#page-consumable #consTopClients td:nth-child(5){width:16%!important;text-align:right}
+
+@media(max-width:900px){
+  #page-chatbots .projects-command-grid>.overview{grid-template-columns:1fr}
+  #page-consumable .consumable-layout{grid-template-columns:1fr}
+}
+@media(max-width:650px){
+  #page-chatbots .projects-command-grid .overview #stageTabbar,#page-chatbots .projects-command-grid .overview #typeTabbar,#page-chatbots .projects-command-grid .overview #aiEnabledChips,#page-chatbots .projects-command-grid .overview #deliveryStatusChips{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #page-chatbots #records table.data{table-layout:auto}
+  #page-chatbots #records table.data th,#page-chatbots #records table.data td{padding:11px 10px;font-size:12px!important}
+  #page-consumable #recordsCons table.data th,#page-consumable #recordsCons table.data td{padding:11px 9px;font-size:12px!important}
+  #page-consumable #consTopClients th:nth-child(2),#page-consumable #consTopClients td:nth-child(2){width:38%!important}
+  #page-consumable #consTopClients th:nth-child(3),#page-consumable #consTopClients td:nth-child(3),#page-consumable #consTopClients th:nth-child(4),#page-consumable #consTopClients td:nth-child(4){width:19%!important}
+  #page-consumable #consTopClients th:nth-child(5),#page-consumable #consTopClients td:nth-child(5){width:17%!important}
+}
 </style>
 </head>
 <body>

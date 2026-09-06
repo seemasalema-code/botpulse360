@@ -1214,6 +1214,41 @@ td.num,.c360-money,.forecast-revenue,.forecast-cost,.forecast-margin{font-weight
   #page-client360 .c360-table-panel .action-table tbody td::before{font-size:9px;font-weight:700;letter-spacing:.06em;color:var(--text-faint);text-transform:uppercase;text-align:left}
   #c360Body td:nth-child(1)::before{content:'Client'}#c360Body td:nth-child(2)::before{content:'Chatbots'}#c360Body td:nth-child(3)::before{content:'Channels'}#c360Body td:nth-child(4)::before{content:'Chatbot revenue'}#c360Body td:nth-child(5)::before{content:'WA revenue'}#c360Body td:nth-child(6)::before{content:'RCS revenue'}#c360Body td:nth-child(7)::before{content:'Chatbot margin'}#c360Body td:nth-child(8)::before{content:'Net margin'}
 }
+/* Client Summary uses the same restrained financial palette as every other dashboard.
+   Stream cards identify the source; metric cards identify the financial meaning. */
+#page-clientsummary .timebar,#page-clientsummary .panel,#page-clientsummary #recordsCs{
+  background:#FFFDF9;border-color:#DCE5D9;box-shadow:0 7px 18px rgba(34,68,52,.045);
+}
+#page-clientsummary .cs-card{border:1px solid #DCE5D9!important;border-left:4px solid #AFCFBC!important;background:#FFFDF9!important;box-shadow:0 7px 18px rgba(34,68,52,.045)}
+#page-clientsummary .cs-card-total{background:#F4F8F3!important;border-left-color:#5B9A76!important}
+#page-clientsummary .cs-card-comm{border-left-color:#7AAAD0!important}
+#page-clientsummary .cs-card-cons{border-left-color:#D6A45E!important}
+#page-clientsummary .cs-card-rcs{border-left-color:#977CC8!important}
+#page-clientsummary .cs-card .cs-group-title{color:#31483A!important;text-align:left}
+#page-clientsummary .cs-stat.m-rev{background:var(--pastel-revenue)!important;border:1px solid #C9E0F4!important}
+#page-clientsummary .cs-stat.m-cost{background:var(--pastel-cost)!important;border:1px solid #F1CCCC!important}
+#page-clientsummary .cs-stat.m-margin{background:var(--pastel-margin)!important;border:1px solid #C9E7D5!important}
+#page-clientsummary .cs-stat.m-marginpct{background:var(--pastel-percent)!important;border:1px solid #DDD3FA!important}
+#page-clientsummary .cs-stat.m-rev .l,#page-clientsummary .cs-stat.m-rev .v{color:var(--ink-revenue)!important}
+#page-clientsummary .cs-stat.m-cost .l,#page-clientsummary .cs-stat.m-cost .v{color:var(--ink-cost)!important}
+#page-clientsummary .cs-stat.m-margin .l,#page-clientsummary .cs-stat.m-margin .v{color:var(--ink-margin)!important}
+#page-clientsummary .cs-stat.m-marginpct .l,#page-clientsummary .cs-stat.m-marginpct .v{color:var(--ink-percent)!important}
+#page-clientsummary .cs-trend-tab{background:#EEF6F0;border:1px solid #D4E6D7;color:#476054}
+#page-clientsummary .month-first-note{background:#F5F1FF;color:#5E5198}
+#page-clientsummary #csBreakdownTabs .tab{border-color:#DCE5D9;background:#F4F8F3;color:#607068}
+#page-clientsummary #csBreakdownTabs .tab.active{background:#E1EFE5!important;color:#286A4C!important;border-color:#BFDCC9!important}
+#page-clientsummary #csMonthlyTable thead th{background:#F4F8F3;color:#587060}
+#page-clientsummary #csMonthlyTable tbody tr:nth-child(even){background:#F8FBF8}
+
+/* Keep Client 360's eight filter chips in a deliberate two-row grid on laptop and tablet. */
+#page-client360 .c360-segments{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:12px}
+#page-client360 .c360-segments button{display:grid;grid-template-rows:minmax(30px,auto) auto;align-content:start;min-height:86px;padding:13px 14px}
+#page-client360 .c360-segments button:nth-child(7){background:#FFF0E9}
+#page-client360 .c360-segments button:nth-child(8){background:#FBEEEE}
+@media(max-width:650px){
+  #page-client360 .c360-segments{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px}
+  #page-client360 .c360-segments button{min-height:80px;padding:12px}
+}
 </style>
 </head>
 <body>
@@ -1519,8 +1554,8 @@ td.num,.c360-money,.forecast-revenue,.forecast-cost,.forecast-margin{font-weight
         <button data-scope="rcs">RCS <b id="c360RcsCount">0</b></button>
         <button data-scope="risk">Chatbot loss <b id="c360RiskCount">0</b></button>
         <button data-scope="offset">WA/RCS offsets loss <b id="c360OffsetCount">0</b></button>
-        <button data-scope="netrisk">Net loss after WA/RCS <b id="c360NetRiskCount">0</b></button>
         <button data-scope="usageRisk">WA/RCS loss <b id="c360UsageRiskCount">0</b></button>
+        <button data-scope="netrisk">Net loss after WA/RCS <b id="c360NetRiskCount">0</b></button>
       </div>
     </div>
     <div class="c360-record-toolbar">

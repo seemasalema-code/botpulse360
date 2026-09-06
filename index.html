@@ -1260,8 +1260,9 @@ td.num,.c360-money,.forecast-revenue,.forecast-cost,.forecast-margin{font-weight
 #page-chatbots .projects-command-grid .overview>.panel{background:#FFFDF9;border-color:#DCE5D9;box-shadow:0 7px 18px rgba(34,68,52,.045)}
 #page-chatbots .projects-command-grid .overview>.panel:first-child{background:#F7FBF8}
 #page-chatbots .projects-command-grid .overview>.panel:last-child{background:#F8FBFF;padding:18px 20px}
-#page-chatbots .projects-command-grid .overview #stageTabbar,#page-chatbots .projects-command-grid .overview #typeTabbar,#page-chatbots .projects-command-grid .overview #aiEnabledChips,#page-chatbots .projects-command-grid .overview #deliveryStatusChips{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-#page-chatbots .projects-command-grid .overview .tab,#page-chatbots .projects-command-grid .overview .chip{min-height:40px;padding:9px 11px;font-size:12px;font-weight:700;line-height:1.25}
+#page-chatbots .projects-command-grid .overview #stageTabbar,#page-chatbots .projects-command-grid .overview #typeTabbar,#page-chatbots .projects-command-grid .overview #aiEnabledChips,#page-chatbots .projects-command-grid .overview #deliveryStatusChips{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+#page-chatbots .projects-command-grid .overview .tab,#page-chatbots .projects-command-grid .overview .chip{min-width:0;min-height:42px;padding:9px 10px;font-size:12px;font-weight:700;line-height:1.25}
+#page-chatbots .projects-command-grid .overview .tab b,#page-chatbots .projects-command-grid .overview .chip b{flex:0 0 auto;margin-left:6px}
 #page-chatbots .projects-command-grid .overview .tab-group-label,#page-chatbots .projects-command-grid .overview .filter-label{font-size:10px;font-weight:800;letter-spacing:.075em;color:#637168}
 #page-chatbots #records{background:#FFFDF9;border-color:#DCE5D9}
 #page-chatbots #records .records-head{padding:18px 20px;background:#F7FBF8}
@@ -1281,10 +1282,15 @@ td.num,.c360-money,.forecast-revenue,.forecast-cost,.forecast-margin{font-weight
 #page-chatbots #records .status-pill,#page-chatbots #records .vendor-tag{font-size:11px!important;font-weight:700!important}
 
 #page-executive .metric-grid{grid-template-columns:repeat(6,minmax(0,1fr))}
+#page-executive .insight-stat:nth-child(2){background:var(--pastel-margin);border-color:#C7E8D4}
+#page-executive .insight-stat:nth-child(3){background:var(--pastel-risk);border-color:#EFCFD1}
 #page-executive .insight-stat:nth-child(5){background:var(--pastel-warning);border-color:#F0DEB7}
 #page-executive .insight-stat:nth-child(6){background:var(--pastel-percent);border-color:#DDD3FA}
-#page-executive .workspace-rail .rail-card:nth-child(2){background:#F5F1FF}
-#page-executive .workspace-rail .rail-card:nth-child(3){background:#F1F8F4}
+#page-executive .workspace-rail .rail-card:nth-child(1){background:#F5F1FF}
+#page-executive .workspace-rail .rail-card:nth-child(2){background:#F1F8F4}
+#page-executive .post-record-insights{margin:0}
+#page-executive #executiveVendors .mini-list>div{grid-template-columns:1fr;gap:3px}
+#page-executive #executiveVendors .mini-list>div b{font-size:11px;color:#53675A;text-align:left}
 
 #page-consumable .consumable-layout{grid-template-columns:minmax(0,1.2fr) minmax(0,.9fr);gap:16px;align-items:start}
 #page-consumable #recordsCons,#page-consumable .top-clients-panel{height:auto!important;background:#FFFDF9;border-color:#DCE5D9;box-shadow:0 7px 18px rgba(34,68,52,.045)}
@@ -1366,10 +1372,12 @@ td.num,.c360-money,.forecast-revenue,.forecast-cost,.forecast-margin{font-weight
       <div class="workspace-main">
         <div class="insight-panel"><h3>Portfolio &amp; pipeline pulse</h3><div class="operations-pulse" id="executivePulse"></div></div>
         <div class="insight-panel"><h3>Priority Actions</h3><div class="attention-list" id="executiveActions"></div></div>
-        <div class="insight-panel"><h3>Weekly / Monthly Delivery Outlook</h3><div class="pipeline-track" id="executiveOutlook"></div></div>
+        <div class="insight-grid post-record-insights">
+          <div class="insight-panel"><h3>Follow-up Required</h3><div class="attention-list" id="attentionList"></div></div>
+          <div class="insight-panel"><h3>Upcoming Milestones</h3><div class="milestone-list" id="milestoneList"></div></div>
+        </div>
       </div>
       <aside class="workspace-rail">
-        <div class="rail-card"><h3>Owner Workload</h3><p class="rail-sub">Active and at-risk work by owner</p><div class="mini-list" id="executiveOwners"></div></div>
         <div class="rail-card"><h3>Client Health</h3><p class="rail-sub">Profitability and cross-product recovery signals</p><div class="mini-list" id="executiveClients"></div></div>
         <div class="rail-card"><h3>Vendor Health</h3><p class="rail-sub">Portfolio coverage and delivery follow-up</p><div class="mini-list" id="executiveVendors"></div></div>
         <div class="rail-card"><h3>Blockers</h3><p class="rail-sub">What is stopping delivery</p><div class="mini-list" id="executiveBlockers"></div></div>
@@ -1442,11 +1450,6 @@ td.num,.c360-money,.forecast-revenue,.forecast-cost,.forecast-margin{font-weight
         <div class="pipeline-track" id="pipelineTrack"></div>
       </div>
     </section>
-
-    <div class="insight-grid post-record-insights">
-      <div class="insight-panel"><h3>Follow-up Required</h3><div class="attention-list" id="attentionList"></div></div>
-      <div class="insight-panel"><h3>Upcoming Milestones</h3><div class="milestone-list" id="milestoneList"></div></div>
-    </div>
 
     <div class="records-focus-layout">
     <section id="records">
@@ -2718,10 +2721,6 @@ function renderExecutive(){
   const pulseProjects={followup:[snap.followUp,"Projects requiring follow-up this week"],milestones:[dueProjects,"Upcoming milestones · next 7 days"],commercial:[pulseCommercialProjects(),"Projects with recorded Netcore revenue"]};
   document.querySelectorAll('#executivePulse [data-pulse]').forEach(card=>card.addEventListener("click",()=>{const selection=pulseProjects[card.dataset.pulse];openPulseRecords(selection[0],selection[1]);}));
   document.getElementById("executiveActions").innerHTML=snap.followUp.length?snap.followUp.slice(0,8).map(p=>'<div class="attention-row"><span class="attention-dot"></span><div><div class="attention-name">'+safeHtml(p.chatbot||p.client)+'</div><div class="attention-meta">'+safeHtml(opsAction(p))+'</div></div><div class="attention-age">'+opsDaysInStage(p)+' days</div></div>').join(""):'<div class="insight-empty">No projects require follow-up.</div>';
-  const outlookToday=new Date();outlookToday.setHours(0,0,0,0);const weekEnd=new Date(outlookToday);weekEnd.setDate(weekEnd.getDate()+6);const nextWeekEnd=new Date(outlookToday);nextWeekEnd.setDate(nextWeekEnd.getDate()+13);const monthEnd=new Date(outlookToday.getFullYear(),outlookToday.getMonth()+1,0);const nextMonthEnd=new Date(outlookToday.getFullYear(),outlookToday.getMonth()+2,0);
-  const outlook=[["This week",outlookToday,weekEnd],["Next week",new Date(weekEnd.getTime()+DAY_MS),nextWeekEnd],["This month",outlookToday,monthEnd],["Next month",new Date(monthEnd.getTime()+DAY_MS),nextMonthEnd]].map(([label,startDate,endDate])=>{const n=snap.upcoming.filter(p=>p.dates.targetLive>=startDate&&p.dates.targetLive<=endDate).length;return '<div><span>'+label+'</span><b>'+n+'</b></div>';}).join("");
-  document.getElementById("executiveOutlook").innerHTML='<div class="mini-list">'+outlook+'</div>';
-  document.getElementById("executiveOwners").innerHTML=rankedList(snap.owners);
   const clientRows=buildClient360();
   document.getElementById("executiveClients").innerHTML=rankedList({
     "Active chatbot clients":clientRows.filter(row=>row.hasChatbot).length,

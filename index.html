@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Netcore Cloud — Conversational AI Operations Console</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
     --bg:#F5F6FC; --surface:#FFFFFF; --surface-alt:#F0F2FA; --surface-tint:#EEEAFE; --border:#E5E7F3;
@@ -743,6 +743,84 @@ body{background:linear-gradient(135deg,#F7F8F3 0%,#F3F6F1 62%,#EEF5F1 100%)}
 .potential-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:12px 0}
 .potential-summary>div{padding:11px;border:1px solid var(--border);border-radius:10px;background:#f5f8f4}.potential-summary small,.potential-summary b{display:block}.potential-summary small{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}.potential-summary b{font-size:15px;margin-top:4px}.potential-summary span{display:block;margin-top:3px;font-size:10px;color:var(--text-muted)}
 @media(max-width:700px){.potential-summary{grid-template-columns:1fr}}
+
+/* A single, readable system across the full dashboard. Tables retain a
+   horizontal scroll inside their own card instead of encroaching on neighbours. */
+:root{--dashboard-font:'Montserrat',Arial,sans-serif;--app-max:1600px;--app-gutter:clamp(16px,2.25vw,34px);--section-gap:16px}
+html{-webkit-text-size-adjust:100%}
+body,body *,button,input,select,textarea,table,svg text{font-family:var(--dashboard-font)!important}
+body{font-size:14px;line-height:1.45}
+h1{font-size:clamp(25px,2vw,32px);font-weight:700}
+.app-intro h2{font-size:clamp(20px,1.6vw,24px);font-weight:700}
+.app-intro p,.metric-hint,.kpi .hint{font-size:11px;line-height:1.45}
+.pagetab{font-size:12px;font-weight:700;letter-spacing:.01em}
+.pagenav{gap:10px;row-gap:10px}
+.kpi-row,.metric-grid,.insight-stats,.cs-groups,.cs-groups-pair,.cs-trend-row,.c360-segments{gap:14px}
+.kpi,.metric-card,.insight-stat{min-width:0}
+.kpi{padding:18px;min-height:112px}
+.kpi .label,.metric-label{font-size:10px;letter-spacing:.075em}
+.kpi .value{font-size:clamp(27px,2vw,34px)}
+.timebar{gap:12px 14px;padding:14px 16px}
+.timebar .tf-group{gap:8px;min-width:0}
+.timebar input[type=text]{min-width:min(260px,100%)}
+.timebar input,.timebar select,.ms-btn{max-width:100%}
+.panel,.insight-panel,.rail-card{padding:18px}
+.panel h2,.insight-panel h3{font-size:15px}
+.workspace-grid{grid-template-columns:minmax(0,1fr) 330px;gap:16px}
+.workspace-main,.workspace-rail,.rev-main,.consumable-main,.consumable-side{min-width:0}
+.workspace-rail{min-width:0}
+.action-table-wrap,.records-body,.c360-table-panel,.aging-wrap{max-width:100%;overflow:auto;overscroll-behavior-x:contain}
+.action-table{min-width:680px}
+table.rev,table.data{min-width:760px}
+table.rev th,table.data thead th,.action-table th{font-size:10px;letter-spacing:.07em}
+table.rev td,table.data tbody td,.action-table td{font-size:12px;line-height:1.4}
+table.rev td small,table.data tbody td small,.action-table td small{font-size:10px;line-height:1.35}
+#page-consumable .consumable-layout{grid-template-columns:minmax(0,1fr) minmax(330px,.82fr);gap:16px}
+#page-consumable #recordsCons,#page-consumable .top-clients-panel{height:auto;min-height:0}
+#page-consumable #recordsCons .records-body,#page-consumable #consTopClients{max-height:560px}
+#page-consumable #consTopClients th,#page-consumable #consTopClients td{font-size:12px;padding:12px 10px}
+#page-consumable #consTopClients .client-meta{display:none}
+.cs-rev-layout{grid-template-columns:minmax(0,1fr) minmax(330px,.72fr)}
+.c360-segments{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+.c360-segments button{min-width:0;min-height:82px;padding:13px 15px;overflow-wrap:anywhere}
+.c360-record-toolbar{flex-wrap:wrap}
+.c360-table-panel{max-width:100%}
+.c360-table-panel table{min-width:1080px}
+.c360-layout{grid-template-columns:minmax(0,1.65fr) minmax(320px,.7fr);gap:16px}
+.c360-detail{min-width:0}
+.pipeline-track{gap:12px}
+
+@media(max-width:1320px){
+  .workspace-grid,.rev-layout,#page-consumable .consumable-layout,.cs-rev-layout{grid-template-columns:1fr}
+  .workspace-rail,.rev-side{position:static}
+  .workspace-rail{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .c360-layout{grid-template-columns:1fr}
+  .c360-detail{max-height:none}
+  .cs-groups-pair.cs-groups-three{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:1080px){
+  #page-chatbots .kpi-row,#page-chatbots .period-stats,#page-chatbots .project-insights .insight-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .kpi-row,.metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .timebar .tf-group{flex-wrap:wrap}
+}
+@media(max-width:700px){
+  :root{--app-gutter:14px;--section-gap:12px}
+  body{font-size:13px}
+  header{padding-top:20px}.pagenav{flex-wrap:nowrap;overflow-x:auto;padding-top:12px}
+  .pagetab{flex:0 0 auto;padding:10px 13px}
+  .app-intro{display:grid;gap:6px}.app-intro h2{font-size:20px}
+  .kpi-row,.metric-grid,.insight-stats,.cs-groups,.cs-groups-pair,.cs-groups-pair.cs-groups-three,.workspace-rail{grid-template-columns:1fr}
+  .kpi{min-height:100px;padding:16px}.kpi .value{font-size:28px}
+  .timebar,.timebar .tf-group{width:100%}.timebar .tf-group{align-items:stretch}
+  .timebar select,.timebar input,.ms-btn{width:100%;min-width:0!important}
+  .seg{width:100%;overflow:auto}.seg button{flex:1 0 auto;padding:8px 11px}
+  .period-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .panel,.insight-panel,.rail-card{padding:15px}
+  .c360-segments{grid-template-columns:1fr;gap:10px}
+  .c360-record-toolbar{align-items:stretch}.c360-export{width:100%}
+  .c360-table-panel table{min-width:930px}
+  table.rev,table.data{min-width:650px}.action-table{min-width:620px}
+}
 </style>
 </head>
 <body>
@@ -1099,7 +1177,6 @@ body{background:linear-gradient(135deg,#F7F8F3 0%,#F3F6F1 62%,#EEF5F1 100%)}
         </div>
       </div>
       <aside class="workspace-rail">
-        <div class="rail-card"><h3>Live &amp; paused rule</h3><p class="rail-sub">Live projects use the most recent recorded R&amp;M cost and revenue when no future R&amp;M row exists. Paused/on-hold projects retain only R&amp;M recorded up to their pause month and are never extended.</p></div>
         <div class="rail-card"><h3>Pre-live potential</h3><p class="rail-sub">An unweighted maximum from the current month through March. Development is included once; recurring R&amp;M repeats each remaining month. It does not use a go-live date.</p><div class="mini-list" id="chatbotPipelineStages"></div></div>
       </aside>
     </div>
@@ -3616,7 +3693,7 @@ function renderConsumable(){
     head.innerHTML='<th>Client</th><th style="text-align:right">Revenue</th><th style="text-align:right">Cost</th><th style="text-align:right">Margin</th><th style="text-align:right">Margin %</th>';
     if(clientRecords.length===0) body.innerHTML=`<tr><td colspan="5"><div class="empty-state">No client activity matches the selected period.</div></td></tr>`;
     else clientRecords.forEach(r=>{
-      const pct=r.revenue?(r.margin/r.revenue*100).toFixed(1):"0.0",tr=document.createElement("tr");tr.className="client-drillable";tr.title=`View month-wise records for ${r.client}`;tr.innerHTML=`<td><b>${r.client}</b><small>${r.records} billing record${r.records===1?"":"s"}</small></td><td class="num">${fmtINR(r.revenue)}</td><td class="num">${fmtINR(r.cost)}</td><td class="num">${fmtINR(r.margin)}</td><td class="num">${pct}%</td>`;tr.addEventListener("click",()=>setConsClient(r.client));body.appendChild(tr);
+      const pct=r.revenue?(r.margin/r.revenue*100).toFixed(1):"0.0",tr=document.createElement("tr");tr.className="client-drillable";tr.title=`View month-wise records for ${r.client}`;tr.innerHTML=`<td><b>${r.client}</b></td><td class="num">${fmtINR(r.revenue)}</td><td class="num">${fmtINR(r.cost)}</td><td class="num">${fmtINR(r.margin)}</td><td class="num">${pct}%</td>`;tr.addEventListener("click",()=>setConsClient(r.client));body.appendChild(tr);
     });
     if(clientRecords.length) totalRow.innerHTML=`<tr style="font-weight:800;border-top:2px solid var(--text);"><td>Total — ${clientRecords.length} clients</td><td class="num">${fmtINR(totalRev)}</td><td class="num">${fmtINR(totalCost)}</td><td class="num">${fmtINR(totalMargin)}</td><td class="num">${marginPct}%</td></tr>`;
   }else{

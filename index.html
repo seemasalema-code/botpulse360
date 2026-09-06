@@ -821,6 +821,42 @@ table.rev td small,table.data tbody td small,.action-table td small{font-size:10
   .c360-table-panel table{min-width:930px}
   table.rev,table.data{min-width:650px}.action-table{min-width:620px}
 }
+
+/* Header navigation replaces the fixed side rail. It forms rows of labelled
+   tabs, so a 14-inch screen never loses working width to navigation. */
+:root{--sidebar-width:0px}
+body{padding:0 0 54px}
+.hero{position:relative;inset:auto;width:100%;height:auto;display:block;overflow:visible;border:0;border-bottom:1px solid var(--border);box-shadow:none;background:linear-gradient(135deg,#fbfdf9 0%,#f4f7fb 100%)}
+.hero::before{display:none}
+.hero header{width:min(100%,var(--app-max));margin:0 auto;padding:22px var(--app-gutter) 12px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.sidebar-brand{width:auto;min-height:0;padding:0;background:transparent;border:0;box-shadow:none}
+.brand-mark{box-shadow:0 8px 20px rgba(35,122,89,.16)}
+.sidebar-footer{width:min(100%,var(--app-max));margin:0 auto;padding:0 var(--app-gutter) 15px;display:flex!important;flex-direction:row;align-items:center!important;flex-wrap:wrap;gap:9px;border:0;background:transparent}
+.sidebar-footer .change-badge,.sidebar-footer .sync-box{width:auto;min-width:0;margin:0}
+.sidebar-footer #syncBtn,.sidebar-footer #exportTabBtn,.sidebar-footer .source-data-link{width:auto;min-height:38px;margin:0;padding:8px 13px}
+.sidebar-footer .source-data-link{display:flex;align-items:center}
+.pagenav{width:min(100%,var(--app-max));margin:0 auto;padding:0 var(--app-gutter) 13px;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;overflow:visible}
+.pagetab{min-width:0;min-height:48px;padding:9px 11px;display:flex;align-items:center;justify-content:flex-start;gap:10px;white-space:normal;line-height:1.25;background:rgba(255,255,255,.72);border:1px solid #dce6df;border-radius:12px}
+.pagetab .nav-icon{flex:0 0 27px;width:27px;height:27px;margin:0;display:grid;place-items:center;border-radius:9px;background:#e9f2ed;color:#287857;font-size:13px;font-weight:800}
+.pagetab:nth-child(2) .nav-icon{background:#eeeafd;color:#6752c5}.pagetab:nth-child(3) .nav-icon{background:#e8f2fb;color:#3476a6}.pagetab:nth-child(4) .nav-icon{background:#fef0df;color:#b66a11}.pagetab:nth-child(5) .nav-icon{background:#e9f6f3;color:#167f70}.pagetab:nth-child(6) .nav-icon{background:#e8f4ef;color:#168358}.pagetab:nth-child(7) .nav-icon{background:#f7ebf2;color:#a95580}.pagetab:nth-child(8) .nav-icon{background:#edf2fb;color:#4f6fa6}.pagetab:nth-child(9) .nav-icon{background:#f3edfc;color:#7355b2}.pagetab:nth-child(10) .nav-icon{background:#fceeed;color:#b95751}
+.pagetab.active{background:#fff;border-color:#4d9776;box-shadow:0 7px 18px rgba(44,108,78,.10)}
+.pagetab.active .nav-icon{background:#3d8e6b;color:#fff}
+.sync-error-banner{position:static;left:auto;right:auto;width:min(100% - (var(--app-gutter) * 2),var(--app-max));margin:0 auto 12px}
+main,footer{max-width:var(--app-max);margin-left:auto;margin-right:auto}
+
+/* Vendor performance uses the same quiet pastel hierarchy as the other views. */
+#page-vendors .metric-grid{gap:14px}
+#page-vendors .metric-card{border:1px solid #dce5db;box-shadow:0 7px 18px rgba(34,68,52,.045)}
+#page-vendors .metric-card:nth-child(1){background:#edf3fb}#page-vendors .metric-card:nth-child(2){background:#edf8f2}#page-vendors .metric-card:nth-child(3){background:#fff5e4}#page-vendors .metric-card:nth-child(4){background:#fceced}#page-vendors .metric-card:nth-child(5){background:#f2edfc}
+#page-vendors .action-table-wrap{background:#fffdf9;border-color:#dfe8df}#page-vendors .action-table tbody tr:nth-child(even){background:#f7faf7}
+#page-vendors .workspace-rail .rail-card:first-child{background:#fff5f4;border-color:#f1d6d4}#page-vendors .workspace-rail .rail-card:last-child{background:#f1f6fd;border-color:#d8e4f2}
+.vendor-watch-button{width:100%;border:0;border-bottom:1px solid #edd8d5;background:transparent;padding:11px 2px;display:flex;align-items:center;justify-content:space-between;gap:12px;color:inherit;text-align:left;cursor:pointer;font:inherit}
+.vendor-watch-button:last-child{border-bottom:0}.vendor-watch-button b{color:#9e433d}.vendor-watch-button span{color:#755c58;font-size:11px}.vendor-watch-button:hover,.vendor-watch-button:focus-visible{background:#fff;border-radius:8px;outline:2px solid #d98780;outline-offset:2px}
+
+@media(max-width:1120px){.pagenav{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:820px){.pagenav{grid-template-columns:repeat(3,minmax(0,1fr))}.hero header{padding-top:18px}.sidebar-footer{padding-bottom:12px}}
+@media(max-width:620px){.hero header{align-items:flex-start}.pagenav{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.pagetab{font-size:11px;padding:9px}.sidebar-footer{align-items:stretch!important}.sidebar-footer .change-badge,.sidebar-footer .sync-box{width:100%}.sidebar-footer #syncBtn,.sidebar-footer #exportTabBtn,.sidebar-footer .source-data-link{flex:1 1 145px;justify-content:center}.workspace-grid{grid-template-columns:1fr}}
+@media(max-width:390px){.pagenav{grid-template-columns:1fr}.pagetab{min-height:44px}}
 </style>
 </head>
 <body>
@@ -1715,7 +1751,7 @@ window.addEventListener("focus", refreshDashboard);
 window.addEventListener("online", refreshDashboard);
 
 /* ---------------- Page nav ---------------- */
-const PAGES = [{id:"executive",label:"Executive Summary",icon:"▦"},{id:"chatbots",label:"Projects",icon:"◇"},{id:"revenue",label:"Chatbots R&M",icon:"₹"},{id:"forecast",label:"Combined Forecast",icon:"↗"},{id:"chatbotforecast",label:"Chatbot Forecast",icon:"ƒ"},{id:"consumable",label:"WA Consumables",icon:"W"},{id:"rcsconsumable",label:"RCS Consumables",icon:"R"},{id:"clientsummary",label:"Client Summary",icon:"◎"},{id:"client360",label:"Client 360",icon:"360"},{id:"vendors",label:"Vendor Performance",icon:"⌁"}];
+const PAGES = [{id:"executive",label:"Executive Summary",icon:"⌂"},{id:"chatbots",label:"Projects",icon:"◈"},{id:"revenue",label:"Chatbots R&M",icon:"₹"},{id:"forecast",label:"Combined Forecast",icon:"↗"},{id:"chatbotforecast",label:"Chatbot Forecast",icon:"◌"},{id:"consumable",label:"WA Consumables",icon:"◉"},{id:"rcsconsumable",label:"RCS Consumables",icon:"◍"},{id:"clientsummary",label:"Client Summary",icon:"◒"},{id:"client360",label:"Client 360",icon:"360"},{id:"vendors",label:"Vendor Performance",icon:"◆"}];
 let activePage = "executive";
 let clientSummaryOpened = false;
 function exportActiveTab(){
@@ -3330,6 +3366,26 @@ function renderClientSummary(){
   }
 }
 
+function delayedProjectsForVendor(vendor){
+  return PROJECTS.filter(p=>(p.vendor||"Unassigned")===vendor&&/^delayed/i.test(String(p.delayFlag||"")));
+}
+function openVendorDelayedProjects(vendor){
+  const delayed=delayedProjectsForVendor(vendor);
+  if(!delayed.length)return;
+  resetProjectChipFilters();
+  filters.industries.clear();
+  filters.vendor=vendor;
+  filters.focusProjects=new Set(delayed.map(projectFilterKey));
+  projectInsightSelection={kind:"vendor-delay",key:vendor,title:`${vendor} · delayed projects`};
+  activePage="chatbots";
+  document.querySelectorAll(".pagetab").forEach(tab=>tab.classList.toggle("active",tab.dataset.page==="chatbots"));
+  document.querySelectorAll(".page").forEach(page=>page.classList.toggle("active",page.id==="page-chatbots"));
+  const panel=document.getElementById("industryPanelChat");
+  if(panel){panel.querySelectorAll(".ind-cb").forEach(cb=>cb.checked=false);const all=panel.querySelector(".ind-all-cb");if(all)all.checked=true;}
+  updateIndustryBtn("Chat",filters);
+  renderAll();
+  setTimeout(focusRecords,0);
+}
 function renderVendorPerformance(){
   const vendors=[...new Set(PROJECTS.map(p=>p.vendor||"Unassigned"))].sort();
   const reportingStart=currentFinancialYearStart();
@@ -3338,7 +3394,7 @@ function renderVendorPerformance(){
   const rows=vendors.map(vendor=>{
     const projects=PROJECTS.filter(p=>(p.vendor||"Unassigned")===vendor), live=projects.filter(p=>p.dates?.liveDate).length;
     const development=projects.filter(p=>!p.dates?.liveDate&&/^(development|build)$/i.test(String(p.stage||""))).length;
-    const delayed=projects.filter(p=>/^delayed/i.test(String(p.delayFlag||""))||(!p.dates?.liveDate&&p.dates?.targetLive&&p.dates.targetLive<new Date())).length;
+    const delayed=delayedProjectsForVendor(vendor).length;
     const finance=Object.values(latestFinancial).filter(r=>(r.vendor||"Unassigned")===vendor), revenue=finance.reduce((s,r)=>s+r.revenue,0), cost=finance.reduce((s,r)=>s+r.cost,0), margin=revenue-cost, marginPct=revenue?margin/revenue*100:0;
     const health=delayed===0?"Good":delayed/projects.length>.35?"At risk":"Watch";
     return {vendor,projects:projects.length,development,live,delayed,revenue,cost,margin,marginPct,health};
@@ -3348,7 +3404,9 @@ function renderVendorPerformance(){
   document.getElementById("vendorKpis").innerHTML=cards.map(k=>`<div class="metric-card"><span>${k.label}</span><b>${k.value}</b><small>${k.hint}</small></div>`).join("");
   document.getElementById("vendorBody").innerHTML=rows.map(r=>`<tr><td><b>${r.vendor}</b></td><td>${r.projects}</td><td>${r.development}</td><td>${r.live}</td><td>${r.delayed}</td><td>${fmtCompact(r.revenue)}</td><td>${fmtCompact(r.margin)}</td><td>${r.marginPct.toFixed(1)}%</td><td class="health-${r.health==="Good"?"good":r.health==="Watch"?"watch":"risk"}">${r.health}</td></tr>`).join("")||'<tr><td colspan="9"><div class="empty-state">No vendor data available.</div></td></tr>';
   const watch=rows.filter(r=>r.delayed>0).sort((a,b)=>b.delayed-a.delayed);
-  document.getElementById("vendorWatchlist").innerHTML=watch.map(r=>`<div class="mini-item"><b>${r.vendor}</b><span>${r.delayed} delayed · ${r.projects} projects</span></div>`).join("")||'<div class="empty-state">No vendor delays detected.</div>';
+  const watchlist=document.getElementById("vendorWatchlist");
+  watchlist.innerHTML=watch.map(r=>`<button type="button" class="vendor-watch-button" data-vendor="${safeHtml(r.vendor)}" aria-label="Show ${safeHtml(r.vendor)} delayed projects"><b>${safeHtml(r.vendor)}</b><span>${r.delayed} delayed · ${r.projects} projects</span></button>`).join("")||'<div class="empty-state">No vendor delays detected.</div>';
+  watchlist.querySelectorAll(".vendor-watch-button").forEach(button=>button.addEventListener("click",()=>openVendorDelayedProjects(button.dataset.vendor)));
   document.getElementById("vendorConcentration").innerHTML=rows.slice(0,4).map(r=>`<div class="mini-item"><b>${r.vendor}</b><span>${totalProjects?(r.projects/totalProjects*100).toFixed(1):0}% of portfolio · ${fmtCompact(r.margin)} margin</span></div>`).join("");
 }
 

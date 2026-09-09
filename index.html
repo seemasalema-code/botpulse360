@@ -1982,17 +1982,71 @@ function clientMatchKey(value){
 }
 function simpleHash(str){ let h=0; for(let i=0;i<str.length;i++){ h=(h*31+str.charCodeAt(i))|0; } return h; }
 
-async function fetchSheetRows(sheetName){
-  const gid=LIVE_TABS[sheetName];
-  if(gid===undefined)throw new Error(`No live-sheet configuration for ${sheetName}`);
-  const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),90000);
+const LIVE_FETCH_TIMEOUT_MS=12000;
+const LIVE_JSONP_TIMEOUT_MS=15000;
+function gvizCellValue(cell,column){
+  if(!cell||cell.v===null||cell.v===undefined)return "";
+  const value=cell.v;
+  if(value instanceof Date)return value.toISOString().slice(0,column&&column.type==="datetime"?19:10);
+  if((column&&["date","datetime"].includes(column.type))&&typeof value==="string"){
+    const match=value.match(/^Date\((\d{4}),(\d{1,2}),(\d{1,2})/);
+    if(match)return `${match[1]}-${String(+match[2]+1).padStart(2,"0")}-${match[3].padStart(2,"0")}`;
+  }
+  return String(value);
+}
+function rowsFromGviz(payload,sheetName){
+  if(!payload||payload.status!=="ok"||!payload.table)throw new Error(`${sheetName} live query failed`);
+  const columns=payload.table.cols||[];
+  if(!columns.length)throw new Error(`${sheetName} returned no columns`);
+  const header=columns.map((column,index)=>String(column&&((column.label||column.id))||`Column ${index+1}`));
+  const rows=[header,...(payload.table.rows||[]).map(row=>columns.map((column,index)=>gvizCellValue(row&&row.c&&row.c[index],column)))];
+  if(rows.length<2)throw new Error(`${sheetName} returned no data rows`);
+  return rows;
+}
+function readGvizRows(gid,sheetName){
+  return new Promise((resolve,reject)=>{
+    const callbackName=`liveSheet_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+    const script=document.createElement("script");
+    let settled=false;
+    const cleanup=()=>{clearTimeout(timeout);script.remove();delete window[callbackName];};
+    const finish=(handler,value)=>{if(settled)return;settled=true;cleanup();handler(value);};
+    const timeout=setTimeout(()=>finish(reject,new Error(`${sheetName} live query timed out`)),LIVE_JSONP_TIMEOUT_MS);
+    window[callbackName]=payload=>{
+      try{finish(resolve,rowsFromGviz(payload,sheetName));}
+      catch(error){finish(reject,error);}
+    };
+    script.async=true;
+    script.onerror=()=>finish(reject,new Error(`${sheetName} live query could not be reached`));
+    script.src=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?gid=${encodeURIComponent(gid)}&tqx=${encodeURIComponent(`out:json;responseHandler:${callbackName}`)}`;
+    document.head.appendChild(script);
+  });
+}
+async function fetchDirectRows(gid,sheetName){
+  const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),LIVE_FETCH_TIMEOUT_MS);
   try{
     const response=await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}`,{cache:"no-store",signal:controller.signal});
     if(!response.ok)throw new Error(`${sheetName} returned ${response.status}`);
-    const rows=parseCsv(await response.text());
+    const text=await response.text();
+    if(!text.trim()||/^\s*<!doctype html/i.test(text))throw new Error(`${sheetName} did not return live rows`);
+    const rows=parseCsv(text);
     if(rows.length<2)throw new Error(`${sheetName} returned no data rows`);
-    return {rows,raw:JSON.stringify(rows),source:"live"};
+    return rows;
   }finally{clearTimeout(timeout);}
+}
+async function fetchSheetRows(sheetName){
+  const gid=LIVE_TABS[sheetName];
+  if(gid===undefined)throw new Error(`No live-sheet configuration for ${sheetName}`);
+  try{
+    const rows=await fetchDirectRows(gid,sheetName);
+    return {rows,raw:JSON.stringify(rows),source:"live"};
+  }catch(directError){
+    try{
+      const rows=await readGvizRows(gid,sheetName);
+      return {rows,raw:JSON.stringify(rows),source:"live"};
+    }catch(queryError){
+      throw new Error(`${sheetName} could not load live data`);
+    }
+  }
 }
 
 function parseConsumableSheet(rows){
@@ -2249,8 +2303,7 @@ function setSyncState(state,msg){
     document.body.classList.remove("is-loading");
     syncDot.classList.add(usingLiveData?"warn":"err");
     syncText.textContent = usingLiveData ? "Live refresh unavailable" : "Live Sheet unavailable";
-    errorBox.innerHTML = `Couldn't reach the Google Sheet (${msg||"unknown error"}). Make sure it's shared as
-      <b>Anyone with the link – Viewer</b> (Share → General access), then hit "Sync now".`;
+    errorBox.innerHTML = `The live Google Sheet could not be reached (${msg||"unknown error"}). No stored figures are shown; please hit "Sync now" to try the current data again.`;
     errorBanner.classList.add("show");
   }
 }
@@ -4183,6 +4236,9 @@ document.querySelectorAll("#c360Segments button").forEach(btn=>btn.onclick=()=>{
 document.getElementById("c360Search")?.addEventListener("input",renderClient360);
 
 function renderAll(){
+  // Until a full current-sheet read succeeds, leave the dashboard blank behind
+  // the live-loading indicator instead of presenting empty values as figures.
+  if(!usingLiveData)return;
   renderChatbots();
   renderActionCentre();
   renderRevenue();

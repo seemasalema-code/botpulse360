@@ -2036,15 +2036,22 @@ async function fetchDirectRows(gid,sheetName){
 async function fetchSheetRows(sheetName){
   const gid=LIVE_TABS[sheetName];
   if(gid===undefined)throw new Error(`No live-sheet configuration for ${sheetName}`);
+  const cacheKey=`botplus360:${SHEET_ID}:${sheetName}`;
+  let cachedRows=[];
+  try{cachedRows=JSON.parse(localStorage.getItem(cacheKey)||"[]");}catch(_){}
+  const remember=rows=>{try{if(Array.isArray(rows)&&rows.length>1)localStorage.setItem(cacheKey,JSON.stringify(rows));}catch(_){}};
   try{
     const rows=await fetchDirectRows(gid,sheetName);
+    remember(rows);
     return {rows,raw:JSON.stringify(rows),source:"live"};
   }catch(directError){
     try{
       const rows=await readGvizRows(gid,sheetName);
+      remember(rows);
       return {rows,raw:JSON.stringify(rows),source:"live"};
     }catch(queryError){
-      throw new Error(`${sheetName} could not load live data`);
+      console.warn(`${sheetName} could not load live data; using the last successful copy`,queryError);
+      return {rows:cachedRows,raw:JSON.stringify(cachedRows),source:"cache"};
     }
   }
 }
@@ -4423,8 +4430,9 @@ initIndustryUI("Cs", csFilter, ()=>renderClientSummary());
 document.getElementById("clearConsFiltersBtn").addEventListener("click",clearConsumableFilters);
 renderAll();
 applyMonthParam();
-// Read the workbook directly on load. No browser or repository snapshot is used.
+// Load each tab independently and retry the live Sheet every five minutes.
 syncData();
+setInterval(syncData,REFRESH_MS);
 </script>
 </body>
 </html>

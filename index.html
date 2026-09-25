@@ -4415,3 +4415,34 @@ setInterval(syncData,REFRESH_MS);
 </script>
 </body>
 </html>
+
+<script>
+/* Direct public-sheet JSONP feed: avoids Apps Script and browser blocking. */
+(function(){
+  const sheetId='1udQZmSHEpLWuQJO2k0t4UvA3zU8fUFkvx_1lIfINId8';
+  let directRequestCounter=0;
+  fetchSheetRows=function(sheetName){
+    return new Promise((resolve,reject)=>{
+      const callbackName='botplusGviz_'+Date.now()+'_'+(directRequestCounter++);
+      const script=document.createElement('script');
+      let settled=false;
+      const cleanup=()=>{clearTimeout(timeout);script.remove();delete window[callbackName];};
+      const finish=(handler,value)=>{if(settled)return;settled=true;cleanup();handler(value);};
+      const timeout=setTimeout(()=>finish(reject,new Error(sheetName+' live sheet timed out')),30000);
+      window[callbackName]=payload=>{
+        try{
+          const rows=rowsFromGviz(payload,sheetName);
+          finish(resolve,{rows:rows,raw:JSON.stringify(rows),source:'live',fetchedAt:new Date().toISOString()});
+        }catch(error){finish(reject,error);}
+      };
+      script.async=true;
+      script.onerror=()=>finish(reject,new Error(sheetName+' live sheet could not be reached'));
+      const tqx='out:json;responseHandler:'+callbackName;
+      script.src='https://docs.google.com/spreadsheets/d/'+sheetId+'/gviz/tq?sheet='+encodeURIComponent(sheetName)+'&tqx='+encodeURIComponent(tqx)+'&_='+Date.now();
+      document.head.appendChild(script);
+    });
+  };
+})();
+</script>
+
+<script>syncData();</script>

@@ -1352,7 +1352,7 @@ td.num,.c360-money,.forecast-revenue,.forecast-cost,.forecast-margin{font-weight
         <span class="sync-dot pulse" id="syncDot"></span>
         <span class="sync-text" id="syncText">Connecting to sheet…</span>
       </div>
-      <button id="syncBtn">Sync now</button>
+      <button id="syncBtn">Reload published data</button>
       <div class="sidebar-links">
         <a class="cpaas-dashboard-link" href="https://seemasalema-code.github.io/cpaas-overview/" target="_blank" rel="noopener noreferrer" aria-label="Open the CPaaS Overview dashboard">CPaaS Overview ↗</a>
         <a class="source-data-link" href="https://docs.google.com/spreadsheets/d/1udQZmSHEpLWuQJO2k0t4UvA3zU8fUFkvx_1lIfINId8/edit?gid=888299704#gid=888299704" target="_blank" rel="noopener noreferrer" aria-label="Open the live Chatbot Projects source workbook in Google Sheets">Source sheet ↗</a>
@@ -1818,7 +1818,8 @@ td.num,.c360-money,.forecast-revenue,.forecast-cost,.forecast-margin{font-weight
   <footer>Botplus 360 · Netcore Cloud — unified delivery, profitability, consumables and client intelligence</footer>
 </main>
 
-<script src="https://cdn.jsdelivr.net/gh/seemasalema-code/botpulse360@ee5f1aa6b2d1e9321bc96864f444cc995596cade/data.js"></script>
+<script src="data.js"></script>
+<script>if(!window.EMBEDDED_SHEETS_CURRENT){document.write('<script src="https://cdn.jsdelivr.net/gh/seemasalema-code/botpulse360@ee5f1aa6b2d1e9321bc96864f444cc995596cade/data.js"><\\/script>')}</script>
 <script>
 /* =========================================================================
    CONFIG
@@ -2005,6 +2006,7 @@ function rowsFromGviz(payload,sheetName){
   return rows;
 }
 let endpointRequestCounter = 0;
+const LIVE_SYNC_ENABLED = false;
 function fetchLiveSheetRows(sheetName){
   return new Promise((resolve,reject)=>{
     const callbackName=`botplusLive_${Date.now()}_${endpointRequestCounter++}`;
@@ -2033,6 +2035,12 @@ function fetchLiveSheetRows(sheetName){
   });
 }
 async function fetchSheetRows(sheetName){
+  if(!LIVE_SYNC_ENABLED){
+    const snapshotName=sheetName===TAB_PROJECTS?"Chatbot Projects":sheetName===TAB_CHATBOTRM?"Chatbot R&M":sheetName;
+    const rows=window.EMBEDDED_SHEETS_CURRENT&&window.EMBEDDED_SHEETS_CURRENT[snapshotName];
+    if(Array.isArray(rows)&&rows.length)return {rows,raw:JSON.stringify(rows),source:"published",fetchedAt:window.EMBEDDED_SHEETS_CURRENT?.__meta?.refreshedAt};
+    throw new Error(`Published snapshot is missing ${snapshotName}`);
+  }
   try{return await fetchLiveSheetRows(sheetName);}
   catch(error){
     const snapshotName=sheetName===TAB_PROJECTS?"Chatbot Projects":sheetName===TAB_CHATBOTRM?"Chatbot R&M":sheetName;
@@ -2274,9 +2282,10 @@ async function syncData(){
     PROJECTS = newProjects; DELAYED_COUNT = delayed; COMMERCIALS = newCommercials; FORECAST_COMMERCIALS = newForecastCommercials;
     CONSUMABLE = newConsumable; RCS_CONSUMABLE = newRcsConsumable; CLIENT_NAMES = newClientNames; usingLiveData = true;
     CLIENT_INDUSTRY = newClientIndustry; CLIENT_INDUSTRY_BY_KEY = newClientIndustryByKey; INDUSTRIES = newIndustries;
-    const warnings=[proj,rm,cons,rcsCons].filter(item=>item.source!=="live").map(item=>item.error||`${item.source} data used`);
-    setSyncState(warnings.length?"partial":"ok",warnings.join("; ")); showChangeBadge(changed);
-    changeBadge.textContent = "Sheet updated";
+    const sources=[proj,rm,cons,rcsCons];
+    const warnings=sources.filter(item=>item.source==="unavailable").map(item=>item.error||"A published tab is unavailable");
+    setSyncState(warnings.length?"partial":sources.every(item=>item.source==="published")?"published":"ok",warnings.join("; ")); showChangeBadge(changed);
+    changeBadge.textContent = "Published data loaded";
     renderAll();
   }catch(err){
     console.warn("Sheet sync failed:", err);
@@ -2294,6 +2303,13 @@ function setSyncState(state,msg){
   syncDot.className="sync-dot";
   if(state==="connecting"){ if(!usingLiveData)document.body.classList.add("is-loading"); syncDot.classList.add("pulse"); syncText.textContent="Syncing…"; errorBanner.classList.remove("show"); }
   else if(state==="ok"){ document.body.classList.remove("is-loading"); lastSync=new Date(); syncText.innerHTML=`<b>Live Google Sheet</b> · updated ${lastSync.toLocaleTimeString()}`; errorBanner.classList.remove("show"); }
+  else if(state==="published"){
+    document.body.classList.remove("is-loading"); syncDot.classList.add("ok");
+    const savedAt=window.EMBEDDED_SHEETS_CURRENT?.__meta?.refreshedAt;
+    const savedLabel=savedAt?new Date(savedAt).toLocaleString("en-GB",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"}):"date unavailable";
+    syncText.innerHTML=`<b>Published snapshot</b> · ${savedLabel}`;
+    errorBanner.classList.remove("show");
+  }
   else if(state==="partial"){
     document.body.classList.remove("is-loading"); lastSync=new Date(); syncDot.classList.add("warn");
     const savedAt=window.EMBEDDED_SHEETS_CURRENT?.__meta?.refreshedAt;
@@ -2318,6 +2334,20 @@ async function refreshDashboard(){
   refreshDashboard.inFlight=true;
   setSyncState("connecting");
   try{
+    // data.js is a same-origin, versioned publication artifact. Refreshing it
+    // cannot make the dashboard blank: a failed download leaves the current
+    // in-memory snapshot untouched.
+    if(!LIVE_SYNC_ENABLED){
+      try{
+        const response=await fetch(`data.js?_=${Date.now()}`,{cache:"no-store"});
+        if(response.ok){
+          const script=await response.text();
+          const json=script.replace(/^\s*window\.EMBEDDED_SHEETS_CURRENT\s*=\s*/,"").replace(/;\s*$/,"");
+          const candidate=JSON.parse(json);
+          if(candidate&&Array.isArray(candidate["Chatbot Projects"])&&Array.isArray(candidate["Chatbot R&M"])) window.EMBEDDED_SHEETS_CURRENT=candidate;
+        }
+      }catch(error){console.warn("Published snapshot refresh failed; keeping the last valid snapshot",error);}
+    }
     await syncData();
   }catch(error){
     setSyncState("error",error.message);
@@ -4435,9 +4465,9 @@ initIndustryUI("Cs", csFilter, ()=>renderClientSummary());
 document.getElementById("clearConsFiltersBtn").addEventListener("click",clearConsumableFilters);
 renderAll();
 applyMonthParam();
-// Load each tab independently and retry the live Sheet every five minutes.
-syncData();
-setInterval(syncData,REFRESH_MS);
+// Load the published snapshot. The periodic refresh only checks data.js and
+// never calls Google Sheets directly.
+refreshDashboard();
 </script>
 </body>
 </html>

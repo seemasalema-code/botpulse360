@@ -2296,9 +2296,11 @@ function setSyncState(state,msg){
   else if(state==="ok"){ document.body.classList.remove("is-loading"); lastSync=new Date(); syncText.innerHTML=`<b>Live Google Sheet</b> · updated ${lastSync.toLocaleTimeString()}`; errorBanner.classList.remove("show"); }
   else if(state==="partial"){
     document.body.classList.remove("is-loading"); lastSync=new Date(); syncDot.classList.add("warn");
-    syncText.innerHTML=`<b>Live Google Sheet</b> · partial data`;
+    const savedAt=window.EMBEDDED_SHEETS_CURRENT?.__meta?.refreshedAt;
+    const savedLabel=savedAt?new Date(savedAt).toLocaleString("en-GB",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"}):"last published sync";
+    syncText.innerHTML=`<b>Saved Sheet sync</b> · ${savedLabel}`;
     errorBox.textContent=`Live data is shown where Google responded; the last published sync is used for timed-out tabs. ${msg||"One or more source tabs did not respond."}`;
-    errorBanner.classList.add("show");
+    errorBanner.classList.remove("show");
   }
   else if(state==="error"){
     document.body.classList.remove("is-loading");
@@ -2608,7 +2610,13 @@ function projectsInScope(){
   const selectedCutoff=new Date(timeChat.asOf);selectedCutoff.setHours(0,0,0,0);
   const periodCutoff=new Date(end);periodCutoff.setHours(0,0,0,0);
   const delayCutoff=new Date(Math.min(todayCutoff.getTime(),periodCutoff.getTime(),(timeChat.view==="Year"||timeChat.view==="Monthly")?selectedCutoff.getTime():periodCutoff.getTime()));
-  return PROJECTS.filter(p => projectMatchesTime(p, timeChat, start, end) &&
+  // Daily and Weekly are operational snapshots. The milestone cards show
+  // movement during the period, while the portfolio and risks show everything
+  // that existed by the selected period end.
+  const matchesPeriod=p=>(timeChat.view==="Daily"||timeChat.view==="Weekly")
+    ? projectExistsAsOf(p,end)
+    : projectMatchesTime(p,timeChat,start,end);
+  return PROJECTS.filter(p => matchesPeriod(p) &&
     (filters.industries.size===0 || filters.industries.has(industryOf(p))));
 }
 function dateAtMidnight(value){const d=new Date(value);d.setHours(0,0,0,0);return d;}
@@ -2625,8 +2633,11 @@ function projectInDevelopmentNotLiveAsOf(p,point){
 }
 function filteredProjects(){
   const {start,end} = periodBounds(timeChat);
+  const matchesSelectedPeriod=p=>(timeChat.view==="Daily"||timeChat.view==="Weekly")
+    ? projectExistsAsOf(p,end)
+    : projectMatchesTime(p,timeChat,start,end);
   return PROJECTS.filter(p =>
-    (filters.focusProjects ? filters.focusProjects.has(projectFilterKey(p)) : (filters.deliveryStatus ? projectExistsAsOf(p,end) : projectMatchesTime(p, timeChat, start, end))) &&
+    (filters.focusProjects ? filters.focusProjects.has(projectFilterKey(p)) : (filters.deliveryStatus ? projectExistsAsOf(p,end) : matchesSelectedPeriod(p))) &&
     (filters.stage==="All" || p.stage===filters.stage) &&
     (filters.type==="All" || p.type===filters.type) &&
     (!filters.vendor || p.vendor===filters.vendor) &&

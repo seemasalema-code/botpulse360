@@ -30,7 +30,7 @@ jobs:
         run: |
           git config user.name "dashboard-publisher"
           git config user.email "dashboard-publisher@users.noreply.github.com"
-          git add data.js
+          git add data.js snapshot-report.json data/partitions data/archive
           git diff --cached --quiet && exit 0
           git commit -m "Publish validated dashboard snapshot"
           git push

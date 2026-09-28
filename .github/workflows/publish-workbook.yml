@@ -4,6 +4,9 @@ on:
   push:
     paths:
       - source/dashboard-source.xlsx
+      - scripts/fetch_google_snapshot.py
+      - scripts/build_snapshot.py
+      - .github/workflows/publish-workbook.yml
   workflow_dispatch:
   schedule:
     # 15:00 Asia/Kolkata = 09:30 UTC, every Wednesday and Friday.

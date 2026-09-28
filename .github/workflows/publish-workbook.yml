@@ -3,7 +3,6 @@ name: Validate and publish dashboard workbook
 on:
   push:
     paths:
-      - source/dashboard-source.xlsx
       - scripts/fetch_google_snapshot.py
       - scripts/build_snapshot.py
       - .github/workflows/publish-workbook.yml
@@ -31,7 +30,6 @@ jobs:
           python-version: "3.12"
       - run: python -m pip install --disable-pip-version-check openpyxl==3.1.5
       - name: Refresh the workbook from Google Sheets
-        if: github.event_name != 'push'
         run: python scripts/fetch_google_snapshot.py --output source/dashboard-source.xlsx
       - name: Validate workbook and build atomic snapshot
         run: python scripts/build_snapshot.py source/dashboard-source.xlsx --output data.js

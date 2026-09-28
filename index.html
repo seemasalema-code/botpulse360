@@ -1818,6 +1818,7 @@ td.num,.c360-money,.forecast-revenue,.forecast-cost,.forecast-margin{font-weight
   <footer>Botplus 360 · Netcore Cloud — unified delivery, profitability, consumables and client intelligence</footer>
 </main>
 
+<script src="https://cdn.jsdelivr.net/gh/seemasalema-code/botpulse360@ee5f1aa6b2d1e9321bc96864f444cc995596cade/data.js"></script>
 <script>
 /* =========================================================================
    CONFIG
@@ -2004,14 +2005,14 @@ function rowsFromGviz(payload,sheetName){
   return rows;
 }
 let endpointRequestCounter = 0;
-function fetchSheetRows(sheetName){
+function fetchLiveSheetRows(sheetName){
   return new Promise((resolve,reject)=>{
     const callbackName=`botplusLive_${Date.now()}_${endpointRequestCounter++}`;
     const script=document.createElement("script");
     let settled=false;
     const cleanup=()=>{clearTimeout(timeout);script.remove();delete window[callbackName];};
     const finish=(handler,value)=>{if(settled)return;settled=true;cleanup();handler(value);};
-    const timeout=setTimeout(()=>finish(reject,new Error(`${sheetName} live sheet timed out`)),15000);
+    const timeout=setTimeout(()=>finish(reject,new Error(`${sheetName} live sheet timed out`)),6000);
     window[callbackName]=payload=>{
       try{
         const rows=rowsFromGviz(payload,sheetName);
@@ -2030,6 +2031,15 @@ function fetchSheetRows(sheetName){
     script.src=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${encodeURIComponent(sheetName)}&range=${encodeURIComponent(ranges[sheetName]||"A1:Z5000")}&tqx=${encodeURIComponent(tqx)}&_=${Date.now()}`;
     document.head.appendChild(script);
   });
+}
+async function fetchSheetRows(sheetName){
+  try{return await fetchLiveSheetRows(sheetName);}
+  catch(error){
+    const snapshotName=sheetName===TAB_PROJECTS?"Chatbot Projects":sheetName===TAB_CHATBOTRM?"Chatbot R&M":sheetName;
+    const rows=window.EMBEDDED_SHEETS_CURRENT&&window.EMBEDDED_SHEETS_CURRENT[snapshotName];
+    if(Array.isArray(rows)&&rows.length)return {rows,raw:JSON.stringify(rows),source:"snapshot",error:`${sheetName}: ${error&&error.message||error}`};
+    throw error;
+  }
 }
 
 function parseConsumableSheet(rows){
@@ -2264,7 +2274,7 @@ async function syncData(){
     PROJECTS = newProjects; DELAYED_COUNT = delayed; COMMERCIALS = newCommercials; FORECAST_COMMERCIALS = newForecastCommercials;
     CONSUMABLE = newConsumable; RCS_CONSUMABLE = newRcsConsumable; CLIENT_NAMES = newClientNames; usingLiveData = true;
     CLIENT_INDUSTRY = newClientIndustry; CLIENT_INDUSTRY_BY_KEY = newClientIndustryByKey; INDUSTRIES = newIndustries;
-    const warnings=[rm,cons,rcsCons].filter(item=>item.source==="unavailable").map(item=>item.error);
+    const warnings=[proj,rm,cons,rcsCons].filter(item=>item.source!=="live").map(item=>item.error||`${item.source} data used`);
     setSyncState(warnings.length?"partial":"ok",warnings.join("; ")); showChangeBadge(changed);
     changeBadge.textContent = "Sheet updated";
     renderAll();
@@ -2287,7 +2297,7 @@ function setSyncState(state,msg){
   else if(state==="partial"){
     document.body.classList.remove("is-loading"); lastSync=new Date(); syncDot.classList.add("warn");
     syncText.innerHTML=`<b>Live Google Sheet</b> · partial data`;
-    errorBox.textContent=`The available live tabs are shown. ${msg||"One or more source tabs did not respond."}`;
+    errorBox.textContent=`Live data is shown where Google responded; the last published sync is used for timed-out tabs. ${msg||"One or more source tabs did not respond."}`;
     errorBanner.classList.add("show");
   }
   else if(state==="error"){

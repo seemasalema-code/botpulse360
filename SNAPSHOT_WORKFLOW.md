@@ -2,13 +2,17 @@
 
 Both dashboards use the same validated `data.js` snapshot. They do not query Google Sheets when a manager opens the page.
 
-## Weekly update
+## Automatic update
 
-1. In Google Sheets, choose **File → Download → Microsoft Excel (.xlsx)**.
-2. Attach the workbook to the scheduled Friday Codex reminder.
-3. Codex replaces `source/dashboard-source.xlsx` and publishes it.
-4. GitHub validates the required tabs and headers, creates `data.js`, and deploys BotPulse.
-5. CPaaS reads the same published snapshot, so both dashboards remain aligned.
+GitHub refreshes the four source tabs automatically every Wednesday and Friday at
+3:00 PM IST. Each tab is downloaded independently with bounded ranges, timeouts,
+exponential retries and validation. GitHub creates `data.js` only after every tab
+passes reconciliation, then deploys BotPulse. CPaaS reads the same published
+snapshot, so both dashboards remain aligned.
+
+If Google is temporarily unavailable, the job fails safely and both dashboards
+continue displaying the previous verified snapshot. No partial or empty snapshot
+can replace the working data.
 
 Required tabs: `Chatbot Projects`, `Chatbot R&M`, `WA_Consumables`, and `RCS_Consumables`.
 

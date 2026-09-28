@@ -2003,34 +2003,31 @@ function rowsFromGviz(payload,sheetName){
   if(rows.length<2)throw new Error(`${sheetName} returned no data rows`);
   return rows;
 }
-const LIVE_ENDPOINT = "https://script.google.com/macros/s/AKfycbx4BAvT_6RSCwSIJfpMrX4keImpIbAJaLvaRAtfyNEfX_usR7AcCSA8os93-qb1C5Ql/exec";
-const ENDPOINT_TABS = {
-  [TAB_PROJECTS]: "projects",
-  [TAB_CHATBOTRM]: "rm",
-  [TAB_WA_CONSUMABLE]: "wa",
-  [TAB_RCS_CONSUMABLE]: "rcs"
-};
 let endpointRequestCounter = 0;
 function fetchSheetRows(sheetName){
   return new Promise((resolve,reject)=>{
-    const tab=ENDPOINT_TABS[sheetName];
-    if(!tab){reject(new Error(`No live endpoint mapping for ${sheetName}`));return;}
     const callbackName=`botplusLive_${Date.now()}_${endpointRequestCounter++}`;
     const script=document.createElement("script");
     let settled=false;
     const cleanup=()=>{clearTimeout(timeout);script.remove();delete window[callbackName];};
     const finish=(handler,value)=>{if(settled)return;settled=true;cleanup();handler(value);};
-    const timeout=setTimeout(()=>finish(reject,new Error(`${sheetName} live endpoint timed out`)),120000);
+    const timeout=setTimeout(()=>finish(reject,new Error(`${sheetName} live sheet timed out`)),15000);
     window[callbackName]=payload=>{
-      if(!payload||payload.ok!==true||!Array.isArray(payload.rows)){
-        finish(reject,new Error(payload&&payload.error||`${sheetName} returned no live rows`));
-        return;
-      }
-      finish(resolve,{rows:payload.rows,raw:JSON.stringify(payload.rows),source:"live",fetchedAt:payload.fetchedAt});
+      try{
+        const rows=rowsFromGviz(payload,sheetName);
+        finish(resolve,{rows,raw:JSON.stringify(rows),source:"live",fetchedAt:new Date().toISOString()});
+      }catch(error){finish(reject,error);}
     };
     script.async=true;
     script.onerror=()=>finish(reject,new Error(`${sheetName} live endpoint could not be reached`));
-    script.src=`${LIVE_ENDPOINT}?tab=${encodeURIComponent(tab)}&callback=${encodeURIComponent(callbackName)}&_=${Date.now()}`;
+    const ranges={
+      [TAB_PROJECTS]:"A1:AS5000",
+      [TAB_CHATBOTRM]:"A1:AM10000",
+      [TAB_WA_CONSUMABLE]:"A1:Z2000",
+      [TAB_RCS_CONSUMABLE]:"A1:Z5000"
+    };
+    const tqx=`out:json;responseHandler:${callbackName}`;
+    script.src=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${encodeURIComponent(sheetName)}&range=${encodeURIComponent(ranges[sheetName]||"A1:Z5000")}&tqx=${encodeURIComponent(tqx)}&_=${Date.now()}`;
     document.head.appendChild(script);
   });
 }
@@ -2060,10 +2057,11 @@ function parseConsumableSheet(rows){
 async function syncData(){
   setSyncState("connecting");
   try{
-    const waPromise=fetchSheetRows(TAB_WA_CONSUMABLE);
-    const rcsPromise=fetchSheetRows(TAB_RCS_CONSUMABLE);
+    const unavailable=(name,error)=>({rows:[],raw:"",source:"unavailable",error:`${name}: ${error&&error.message||error}`});
+    const waPromise=fetchSheetRows(TAB_WA_CONSUMABLE).catch(error=>unavailable("WA Consumables",error));
+    const rcsPromise=fetchSheetRows(TAB_RCS_CONSUMABLE).catch(error=>unavailable("RCS Consumables",error));
     let [proj, rm, cons, rcsCons] = await Promise.all([
-      fetchSheetRows(TAB_PROJECTS), fetchSheetRows(TAB_CHATBOTRM), waPromise, rcsPromise
+      fetchSheetRows(TAB_PROJECTS), fetchSheetRows(TAB_CHATBOTRM).catch(error=>unavailable("Chatbot R&M",error)), waPromise, rcsPromise
     ]);
     // Client names and industries are derived directly from the complete live
     // Projects, R&M, WA and RCS tabs. No stored dashboard copy is used.
@@ -2266,7 +2264,8 @@ async function syncData(){
     PROJECTS = newProjects; DELAYED_COUNT = delayed; COMMERCIALS = newCommercials; FORECAST_COMMERCIALS = newForecastCommercials;
     CONSUMABLE = newConsumable; RCS_CONSUMABLE = newRcsConsumable; CLIENT_NAMES = newClientNames; usingLiveData = true;
     CLIENT_INDUSTRY = newClientIndustry; CLIENT_INDUSTRY_BY_KEY = newClientIndustryByKey; INDUSTRIES = newIndustries;
-    setSyncState("ok"); showChangeBadge(changed);
+    const warnings=[rm,cons,rcsCons].filter(item=>item.source==="unavailable").map(item=>item.error);
+    setSyncState(warnings.length?"partial":"ok",warnings.join("; ")); showChangeBadge(changed);
     changeBadge.textContent = "Sheet updated";
     renderAll();
   }catch(err){
@@ -2285,6 +2284,12 @@ function setSyncState(state,msg){
   syncDot.className="sync-dot";
   if(state==="connecting"){ if(!usingLiveData)document.body.classList.add("is-loading"); syncDot.classList.add("pulse"); syncText.textContent="Syncing…"; errorBanner.classList.remove("show"); }
   else if(state==="ok"){ document.body.classList.remove("is-loading"); lastSync=new Date(); syncText.innerHTML=`<b>Live Google Sheet</b> · updated ${lastSync.toLocaleTimeString()}`; errorBanner.classList.remove("show"); }
+  else if(state==="partial"){
+    document.body.classList.remove("is-loading"); lastSync=new Date(); syncDot.classList.add("warn");
+    syncText.innerHTML=`<b>Live Google Sheet</b> · partial data`;
+    errorBox.textContent=`The available live tabs are shown. ${msg||"One or more source tabs did not respond."}`;
+    errorBanner.classList.add("show");
+  }
   else if(state==="error"){
     document.body.classList.remove("is-loading");
     syncDot.classList.add(usingLiveData?"warn":"err");
@@ -4415,34 +4420,3 @@ setInterval(syncData,REFRESH_MS);
 </script>
 </body>
 </html>
-
-<script>
-/* Direct public-sheet JSONP feed: avoids Apps Script and browser blocking. */
-(function(){
-  const sheetId='1udQZmSHEpLWuQJO2k0t4UvA3zU8fUFkvx_1lIfINId8';
-  let directRequestCounter=0;
-  fetchSheetRows=function(sheetName){
-    return new Promise((resolve,reject)=>{
-      const callbackName='botplusGviz_'+Date.now()+'_'+(directRequestCounter++);
-      const script=document.createElement('script');
-      let settled=false;
-      const cleanup=()=>{clearTimeout(timeout);script.remove();delete window[callbackName];};
-      const finish=(handler,value)=>{if(settled)return;settled=true;cleanup();handler(value);};
-      const timeout=setTimeout(()=>finish(reject,new Error(sheetName+' live sheet timed out')),30000);
-      window[callbackName]=payload=>{
-        try{
-          const rows=rowsFromGviz(payload,sheetName);
-          finish(resolve,{rows:rows,raw:JSON.stringify(rows),source:'live',fetchedAt:new Date().toISOString()});
-        }catch(error){finish(reject,error);}
-      };
-      script.async=true;
-      script.onerror=()=>finish(reject,new Error(sheetName+' live sheet could not be reached'));
-      const tqx='out:json;responseHandler:'+callbackName;
-      script.src='https://docs.google.com/spreadsheets/d/'+sheetId+'/gviz/tq?sheet='+encodeURIComponent(sheetName)+'&tqx='+encodeURIComponent(tqx)+'&_='+Date.now();
-      document.head.appendChild(script);
-    });
-  };
-})();
-</script>
-
-<script>syncData();</script>

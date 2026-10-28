@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-10-28T06:57:14.355334+00:00",
+  "generatedAt": "2026-10-28T07:06:02.570816+00:00",
   "sourceFile": "dashboard-source.xlsx",
   "current": {
     "Chatbot Projects": {
-      "rows": 244,
+      "rows": 259,
       "revenue": 0
     },
     "Chatbot R&M": {
@@ -39,7 +39,7 @@
   },
   "comparison": {
     "Chatbot Projects": {
-      "rowDelta": 0,
+      "rowDelta": 15,
       "revenueDelta": 0
     },
     "Chatbot R&M": {

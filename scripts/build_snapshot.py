@@ -13,7 +13,10 @@ RULES = {
 }
 MONTH_TABS = ("Chatbot R&M", "WA_Consumables", "RCS_Consumables")
 DATA_KEYS = {
-    "Chatbot Projects": ("Client", "Chatbot"),
+    # A project remains valid when the client name is awaiting enrichment.
+    # Chatbot is the row's operational identifier and is populated for the
+    # current 15 client-less records in the source sheet.
+    "Chatbot Projects": ("Chatbot",),
     "Chatbot R&M": ("Chatbot", "Month"),
     "WA_Consumables": ("Client", "Month"),
     "RCS_Consumables": ("Client", "Month"),

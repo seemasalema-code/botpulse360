@@ -38,7 +38,12 @@ jobs:
         run: |
           git config user.name "dashboard-publisher"
           git config user.email "dashboard-publisher@users.noreply.github.com"
-          git add source/dashboard-source.xlsx data.js snapshot-report.json data/partitions data/archive
+          # Keep every browser-facing feed in the same commit. The dashboard
+          # prefers data/latest.json + data/tabs/*, so publishing only data.js
+          # leaves the live UI pinned to an older manifest.
+          # The downloaded workbook is an ephemeral build input. Do not
+          # republish the raw spreadsheet into the public repository.
+          git add data.js snapshot-report.json data/latest.json data/tabs data/partitions data/archive
           git diff --cached --quiet && exit 0
           git commit -m "Publish validated dashboard snapshot"
           git push

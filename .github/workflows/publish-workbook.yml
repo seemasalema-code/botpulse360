@@ -8,8 +8,8 @@ on:
       - .github/workflows/publish-workbook.yml
   workflow_dispatch:
   schedule:
-    # 15:00 Asia/Kolkata = 09:30 UTC, every Wednesday and Friday.
-    - cron: "30 9 * * 3,5"
+    # GitHub's minimum scheduled interval. The job commits only when data changes.
+    - cron: "*/5 * * * *"
 
 permissions:
   contents: write
@@ -21,6 +21,7 @@ concurrency:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
         with:

@@ -78,7 +78,14 @@ def reconcile(snapshot, previous):
     current, prior, comparison, warnings, failures = {}, {}, {}, [], []
     for tab, (_, limit) in RULES.items():
         current[tab] = metrics(tab, snapshot[tab])
-        if previous.get(tab): prior[tab] = metrics(tab, previous[tab])
+        if previous.get(tab):
+            try:
+                prior[tab] = metrics(tab, previous[tab])
+            except ValueError as exc:
+                # A historical snapshot can be malformed even when the newly
+                # downloaded workbook is valid. Never let an unusable baseline
+                # block publication of a fully validated current snapshot.
+                warnings.append(f"{tab} previous baseline ignored: {exc}")
         if current[tab]["rows"] >= limit * .8:
             warnings.append(f"{tab} is at {current[tab]['rows'] / limit:.0%} of its safety limit")
         old = prior.get(tab, {"rows": 0, "revenue": 0})

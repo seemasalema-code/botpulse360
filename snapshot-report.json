@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-28T06:42:56.474469+00:00",
+  "generatedAt": "2026-10-28T06:44:22.978966+00:00",
   "sourceFile": "dashboard-source.xlsx",
   "current": {
     "Chatbot Projects": {
@@ -21,32 +21,40 @@
   },
   "previous": {
     "Chatbot Projects": {
-      "rows": 241,
+      "rows": 259,
       "revenue": 0
+    },
+    "Chatbot R&M": {
+      "rows": 11998,
+      "revenue": 33724185.0
+    },
+    "WA_Consumables": {
+      "rows": 1107,
+      "revenue": 554521454.0
+    },
+    "RCS_Consumables": {
+      "rows": 2804,
+      "revenue": 58299217.0
     }
   },
   "comparison": {
     "Chatbot Projects": {
-      "rowDelta": 18,
+      "rowDelta": 0,
       "revenueDelta": 0
     },
     "Chatbot R&M": {
-      "rowDelta": 11998,
-      "revenueDelta": 33724185.0
+      "rowDelta": 0,
+      "revenueDelta": 0.0
     },
     "WA_Consumables": {
-      "rowDelta": 1107,
-      "revenueDelta": 554521454.0
+      "rowDelta": 0,
+      "revenueDelta": 0.0
     },
     "RCS_Consumables": {
-      "rowDelta": 2804,
-      "revenueDelta": 58299217.0
+      "rowDelta": 0,
+      "revenueDelta": 0.0
     }
   },
-  "warnings": [
-    "Chatbot R&M previous baseline ignored: Chatbot R&M is missing required headers: Chatbot, Month",
-    "WA_Consumables previous baseline ignored: WA_Consumables is missing required headers: Client, Cost, Month, Revenue",
-    "RCS_Consumables previous baseline ignored: RCS_Consumables is missing required headers: Client, Cost, Month, Revenue"
-  ],
+  "warnings": [],
   "failures": []
 }

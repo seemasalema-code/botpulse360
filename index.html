@@ -2334,18 +2334,24 @@ async function refreshDashboard(){
   refreshDashboard.inFlight=true;
   setSyncState("connecting");
   try{
-    // data.js is a same-origin, versioned publication artifact. Refreshing it
-    // cannot make the dashboard blank: a failed download leaves the current
-    // in-memory snapshot untouched.
+    // Prefer the atomic manifest and independent tab files. A failed download
+    // never replaces the current in-memory snapshot.
     if(!LIVE_SYNC_ENABLED){
       try{
-        const response=await fetch(`data.js?_=${Date.now()}`,{cache:"no-store"});
-        if(response.ok){
-          const script=await response.text();
-          const json=script.replace(/^\s*window\.EMBEDDED_SHEETS_CURRENT\s*=\s*/,"").replace(/;\s*$/,"");
-          const candidate=JSON.parse(json);
-          if(candidate&&Array.isArray(candidate["Chatbot Projects"])&&Array.isArray(candidate["Chatbot R&M"])) window.EMBEDDED_SHEETS_CURRENT=candidate;
-        }
+        const manifestResponse=await fetch(`data/latest.json?_=${Date.now()}`,{cache:"no-store"});
+        if(!manifestResponse.ok)throw new Error(`Manifest returned ${manifestResponse.status}`);
+        const manifest=await manifestResponse.json();
+        const names=["Chatbot Projects","Chatbot R&M","WA_Consumables","RCS_Consumables"];
+        const payloads=await Promise.all(names.map(async name=>{
+          const entry=manifest.tabs&&manifest.tabs[name];
+          if(!entry||!entry.path)throw new Error(`Manifest is missing ${name}`);
+          const response=await fetch(`${entry.path}?v=${encodeURIComponent(manifest.version)}`,{cache:"no-store"});
+          if(!response.ok)throw new Error(`${name} returned ${response.status}`);
+          return response.json();
+        }));
+        const candidate={__meta:{refreshedAt:manifest.refreshedAt,version:manifest.version}};
+        names.forEach((name,index)=>candidate[name]=payloads[index].rows);
+        if(names.every(name=>Array.isArray(candidate[name])))window.EMBEDDED_SHEETS_CURRENT=candidate;
       }catch(error){console.warn("Published snapshot refresh failed; keeping the last valid snapshot",error);}
     }
     await syncData();

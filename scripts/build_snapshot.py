@@ -12,6 +12,18 @@ RULES = {
     "RCS_Consumables": ({"Client", "Month", "Revenue", "Cost"}, 30000),
 }
 MONTH_TABS = ("Chatbot R&M", "WA_Consumables", "RCS_Consumables")
+DATA_KEYS = {
+    "Chatbot Projects": ("Client", "Chatbot"),
+    "Chatbot R&M": ("Chatbot", "Month"),
+    "WA_Consumables": ("Client", "Month"),
+    "RCS_Consumables": ("Client", "Month"),
+}
+TAB_FILES = {
+    "Chatbot Projects": "projects.json",
+    "Chatbot R&M": "chatbot-rm.json",
+    "WA_Consumables": "wa-consumables.json",
+    "RCS_Consumables": "rcs-consumables.json",
+}
 REVENUE_HEADERS = {
     "Chatbot R&M": ("Total Netcore Revenue", "Netcore Total Revenue", "Total Revenue"),
     "WA_Consumables": ("Revenue",), "RCS_Consumables": ("Revenue",),
@@ -67,9 +79,21 @@ def read_previous(path):
     try: return json.loads(text[len(prefix):].rsplit(";", 1)[0]) if text.startswith(prefix) else {}
     except (ValueError, json.JSONDecodeError): return {}
 
+def record_rows(tab, rows):
+    header_row, headers = header_info(tab, rows)
+    key_indexes = [headers[name] for name in DATA_KEYS[tab]]
+    return [
+        row for row in rows[header_row + 1:]
+        if all(index < len(row) and str(row[index] or "").strip() for index in key_indexes)
+    ]
+
+def compact_sheet(tab, rows):
+    header_row, _ = header_info(tab, rows)
+    return rows[:header_row + 1] + record_rows(tab, rows)
+
 def metrics(tab, rows):
     header_row, headers = header_info(tab, rows)
-    records = [r for r in rows[header_row + 1:] if any(v not in (None, "") for v in r)]
+    records = record_rows(tab, rows)
     revenue_col = next((headers[h] for h in REVENUE_HEADERS.get(tab, ()) if h in headers), None)
     revenue = sum(number(r[revenue_col]) for r in records if revenue_col is not None and len(r) > revenue_col)
     return {"rows": len(records), "revenue": round(revenue, 2)}
@@ -114,6 +138,22 @@ def write_partitions(snapshot, root):
         path = root / "archive" / f"{year}.json.gz"; path.parent.mkdir(parents=True, exist_ok=True)
         with gzip.open(path, "wt", encoding="utf-8") as stream: json.dump(tabs, stream, ensure_ascii=False, separators=(",", ":"))
 
+def atomic_json(path, value):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_suffix(path.suffix + ".tmp")
+    temporary.write_text(json.dumps(value, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    temporary.replace(path)
+
+def write_tab_payloads(snapshot, root):
+    tabs, version = {}, snapshot["__meta"]["sourceSha256"][:16]
+    for tab, filename in TAB_FILES.items():
+        payload = {"meta": snapshot["__meta"], "rows": snapshot[tab]}
+        atomic_json(root / "tabs" / filename, payload)
+        tabs[tab] = {"path": f"data/tabs/{filename}", "rows": metrics(tab, snapshot[tab])["rows"]}
+    # Write the manifest last. Readers either see the previous complete version
+    # or this complete version, never a half-published set of tab files.
+    atomic_json(root / "latest.json", {"version": version, "refreshedAt": snapshot["__meta"]["refreshedAt"], "tabs": tabs})
+
 def main():
     parser = argparse.ArgumentParser(); parser.add_argument("workbook", type=Path)
     parser.add_argument("--output", type=Path, default=Path("data.js")); parser.add_argument("--report", type=Path, default=Path("snapshot-report.json")); parser.add_argument("--data-dir", type=Path, default=Path("data")); args = parser.parse_args()
@@ -121,13 +161,17 @@ def main():
     missing = [tab for tab in RULES if tab not in workbook.sheetnames]
     if missing: raise ValueError("Workbook is missing required tabs: " + ", ".join(missing))
     snapshot = {}
-    for tab, (_, limit) in RULES.items(): snapshot[tab] = trim_sheet(workbook[tab], limit); header_info(tab, snapshot[tab])
+    for tab, (_, limit) in RULES.items():
+        rows = trim_sheet(workbook[tab], limit)
+        header_info(tab, rows)
+        snapshot[tab] = compact_sheet(tab, rows)
     current, prior, comparison, warnings, failures = reconcile(snapshot, previous)
     report = {"generatedAt": dt.datetime.now(dt.timezone.utc).isoformat(), "sourceFile": args.workbook.name, "current": current, "previous": prior, "comparison": comparison, "warnings": warnings, "failures": failures}
     args.report.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     if failures and os.environ.get("ALLOW_SNAPSHOT_ANOMALY") != "1": raise ValueError("Reconciliation failed: " + "; ".join(failures))
     raw = args.workbook.read_bytes(); snapshot["__meta"] = {"sourceFile": args.workbook.name, "sourceSha256": hashlib.sha256(raw).hexdigest(), "refreshedAt": dt.datetime.now(dt.timezone.utc).isoformat(), "mode": "validated-workbook-snapshot", "reconciliation": {"warnings": warnings, "comparison": comparison}}
     write_partitions(snapshot, args.data_dir)
+    write_tab_payloads(snapshot, args.data_dir)
     payload = "window.EMBEDDED_SHEETS_CURRENT = " + json.dumps(snapshot, ensure_ascii=False, separators=(",", ":")) + ";\n"
     temporary = args.output.with_suffix(args.output.suffix + ".tmp"); temporary.write_text(payload, encoding="utf-8"); temporary.replace(args.output)
     print(json.dumps(report, indent=2))

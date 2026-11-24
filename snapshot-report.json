@@ -1,14 +1,14 @@
 {
-  "generatedAt": "2026-11-23T11:03:34.153587+00:00",
+  "generatedAt": "2026-11-24T06:19:30.259046+00:00",
   "sourceFile": "dashboard-source.xlsx",
   "current": {
     "Chatbot Projects": {
-      "rows": 275,
+      "rows": 276,
       "revenue": 0
     },
     "Chatbot R&M": {
-      "rows": 1400,
-      "revenue": 39169185.0
+      "rows": 1405,
+      "revenue": 39453894.0
     },
     "WA_Consumables": {
       "rows": 1107,
@@ -39,12 +39,12 @@
   },
   "comparison": {
     "Chatbot Projects": {
-      "rowDelta": 0,
+      "rowDelta": 1,
       "revenueDelta": 0
     },
     "Chatbot R&M": {
-      "rowDelta": 0,
-      "revenueDelta": 0.0
+      "rowDelta": 5,
+      "revenueDelta": 284709.0
     },
     "WA_Consumables": {
       "rowDelta": 0,
